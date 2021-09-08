@@ -1,11 +1,12 @@
 use anyhow::Result;
 use clap::{AppSettings, Clap};
+#[macro_use] extern crate prettytable;
+use prettytable::Table;
 
 pub mod local;
+pub mod user;
 pub mod commands;
 pub mod music;
-pub mod flac_file;
-pub mod mp3_file;
 
 use crate::commands::user::Group as UserGroup;
 use crate::commands::local::Group as LocalGroup;
@@ -32,7 +33,6 @@ enum Group {
 fn main() -> Result<()> {
     env_logger::init();
     let opts = Opts::parse();
-    println!("{:?}", opts);
     match opts.group {
         Group::Local(local) => {
             match local {
@@ -43,21 +43,38 @@ fn main() -> Result<()> {
         },
         Group::User(user) => {
             match user {
-                UserGroup::Register(register) => {
-                    Ok(())
+                UserGroup::Whoami(user) => {
+                    let infos = user.whoami()?;
+                    println!("{:?}", infos);
                 }
-                UserGroup::Unregister(unregister) => {
-                    Ok(())
+                UserGroup::Register(user) => {
+                    user.register()?;
+                }
+                UserGroup::Unregister(user) => {
+                    user.unregister()?;
                 }
                 UserGroup::Login(user) => {
-                    let token= user.new_token()?;
+                    let token = user.new_token()?;
                     println!("{}", token);
-                    Ok(())
                 }
-                UserGroup::List(list) => {
-                    Ok(())
+                UserGroup::List(admin) => {
+                    let users = admin.users()?;
+                    let mut table = Table::new();
+                    table.add_row(row!["ID", "Email", "First Name", "Last Name", "Created", "Updated"]);
+                    for user in users {
+                        table.add_row(row![
+                            user.id.unwrap(),
+                            user.email.unwrap(),
+                            user.first_name.unwrap(),
+                            user.last_name.unwrap(),
+                            user.created_at.unwrap(),
+                            user.updated_at.unwrap(),
+                        ]);
+                    }
+                    table.printstd();
                 }
-            }
+            };
+            Ok(())
         }
     }
 }

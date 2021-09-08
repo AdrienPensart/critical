@@ -28,12 +28,12 @@ pub mod upsert_music {
         pub duration: Int,
     }
     impl Variables {}
-    #[derive(Deserialize)]
+    #[derive(Deserialize, Debug)]
     pub struct ResponseData {
         #[serde(rename = "upsertMusic")]
         pub upsert_music: Option<UpsertMusicUpsertMusic>,
     }
-    #[derive(Deserialize)]
+    #[derive(Deserialize, Debug)]
     pub struct UpsertMusicUpsertMusic {
         #[serde(rename = "clientMutationId")]
         pub client_mutation_id: Option<String>,

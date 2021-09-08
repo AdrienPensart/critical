@@ -1,5 +1,5 @@
 use clap::{AppSettings, Clap};
-use crate::commands::user::User;
+use crate::user::User;
 
 #[derive(Clap, Debug)]
 #[clap(setting = AppSettings::ColoredHelp)]

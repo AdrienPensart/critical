@@ -893,6 +893,326 @@
               "args": [
                 {
                   "defaultValue": null,
+                  "description": "Only read the first `n` values of the set.",
+                  "name": "first",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "Only read the last `n` values of the set.",
+                  "name": "last",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
+                  "name": "offset",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "Read all values in the set before (above) this cursor.",
+                  "name": "before",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "Read all values in the set after (below) this cursor.",
+                  "name": "after",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": "[PRIMARY_KEY_ASC]",
+                  "description": "The method to use when ordering `Account`.",
+                  "name": "orderBy",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "AccountsOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "A condition to be used in determining which values should be returned by the collection.",
+                  "name": "condition",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "AccountCondition",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "A filter to be used in determining which values should be returned by the collection.",
+                  "name": "filter",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "AccountFilter",
+                    "ofType": null
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Reads and enables pagination through a set of `Account`.",
+              "isDeprecated": false,
+              "name": "accounts",
+              "type": {
+                "kind": "OBJECT",
+                "name": "AccountsConnection",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": "Only read the first `n` values of the set.",
+                  "name": "first",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "Skip the first `n` values.",
+                  "name": "offset",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "The method to use when ordering `Account`.",
+                  "name": "orderBy",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "AccountsOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "A condition to be used in determining which values should be returned by the collection.",
+                  "name": "condition",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "AccountCondition",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "A filter to be used in determining which values should be returned by the collection.",
+                  "name": "filter",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "AccountFilter",
+                    "ofType": null
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Reads a set of `Account`.",
+              "isDeprecated": false,
+              "name": "accountsList",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Account",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": "Only read the first `n` values of the set.",
+                  "name": "first",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "Only read the last `n` values of the set.",
+                  "name": "last",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
+                  "name": "offset",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "Read all values in the set before (above) this cursor.",
+                  "name": "before",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "Read all values in the set after (below) this cursor.",
+                  "name": "after",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": "[NATURAL]",
+                  "description": "The method to use when ordering `UserAccount`.",
+                  "name": "orderBy",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "UserAccountsOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Reads and enables pagination through a set of `UserAccount`.",
+              "isDeprecated": false,
+              "name": "userAccounts",
+              "type": {
+                "kind": "OBJECT",
+                "name": "UserAccountsConnection",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": "Only read the first `n` values of the set.",
+                  "name": "first",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "Skip the first `n` values.",
+                  "name": "offset",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "The method to use when ordering `UserAccount`.",
+                  "name": "orderBy",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "UserAccountsOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Reads a set of `UserAccount`.",
+              "isDeprecated": false,
+              "name": "userAccountsList",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "UserAccount",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
                   "description": null,
                   "name": "id",
                   "type": {
@@ -1104,6 +1424,60 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "User",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "userId",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Int",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "account",
+              "type": {
+                "kind": "OBJECT",
+                "name": "Account",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "email",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "accountByEmail",
+              "type": {
+                "kind": "OBJECT",
+                "name": "Account",
                 "ofType": null
               }
             },
@@ -2795,6 +3169,33 @@
                 "name": "User",
                 "ofType": null
               }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": "The globally unique `ID` to be used in selecting a single `Account`.",
+                  "name": "nodeId",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Reads a single `Account` using its globally unique `ID`.",
+              "isDeprecated": false,
+              "name": "accountByNodeId",
+              "type": {
+                "kind": "OBJECT",
+                "name": "Account",
+                "ofType": null
+              }
             }
           ],
           "inputFields": null,
@@ -2848,6 +3249,11 @@
             {
               "kind": "OBJECT",
               "name": "User",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Account",
               "ofType": null
             },
             {
@@ -3447,6 +3853,123 @@
               }
             },
             {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Reads a single `Account` that is related to this `User`.",
+              "isDeprecated": false,
+              "name": "account",
+              "type": {
+                "kind": "OBJECT",
+                "name": "Account",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": "Only read the first `n` values of the set.",
+                  "name": "first",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "Only read the last `n` values of the set.",
+                  "name": "last",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
+                  "name": "offset",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "Read all values in the set before (above) this cursor.",
+                  "name": "before",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "Read all values in the set after (below) this cursor.",
+                  "name": "after",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": "[PRIMARY_KEY_ASC]",
+                  "description": "The method to use when ordering `Account`.",
+                  "name": "orderBy",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "AccountsOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "A condition to be used in determining which values should be returned by the collection.",
+                  "name": "condition",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "AccountCondition",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "A filter to be used in determining which values should be returned by the collection.",
+                  "name": "filter",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "AccountFilter",
+                    "ofType": null
+                  }
+                }
+              ],
+              "deprecationReason": "Please use account instead",
+              "description": "Reads and enables pagination through a set of `Account`.",
+              "isDeprecated": true,
+              "name": "accounts",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "AccountsConnection",
+                  "ofType": null
+                }
+              }
+            },
+            {
               "args": [
                 {
                   "defaultValue": null,
@@ -4024,97 +4547,6 @@
           "possibleTypes": null
         },
         {
-          "description": "A connection to a list of `Music` values.",
-          "enumValues": null,
-          "fields": [
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": "A list of `Music` objects.",
-              "isDeprecated": false,
-              "name": "nodes",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "LIST",
-                  "name": null,
-                  "ofType": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "OBJECT",
-                      "name": "Music",
-                      "ofType": null
-                    }
-                  }
-                }
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": "A list of edges which contains the `Music` and cursor to aid in pagination.",
-              "isDeprecated": false,
-              "name": "edges",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "LIST",
-                  "name": null,
-                  "ofType": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "OBJECT",
-                      "name": "MusicEdge",
-                      "ofType": null
-                    }
-                  }
-                }
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": "Information to aid in pagination.",
-              "isDeprecated": false,
-              "name": "pageInfo",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "PageInfo",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": "The count of *all* `Music` you could get from the connection.",
-              "isDeprecated": false,
-              "name": "totalCount",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Int",
-                  "ofType": null
-                }
-              }
-            }
-          ],
-          "inputFields": null,
-          "interfaces": [],
-          "kind": "OBJECT",
-          "name": "MusicConnection",
-          "possibleTypes": null
-        },
-        {
           "description": null,
           "enumValues": null,
           "fields": [
@@ -4130,22 +4562,6 @@
                 "ofType": {
                   "kind": "SCALAR",
                   "name": "ID",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": null,
-              "isDeprecated": false,
-              "name": "id",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Int",
                   "ofType": null
                 }
               }
@@ -4171,93 +4587,9 @@
               "deprecationReason": null,
               "description": null,
               "isDeprecated": false,
-              "name": "title",
+              "name": "email",
               "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": null,
-              "isDeprecated": false,
-              "name": "album",
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": null,
-              "isDeprecated": false,
-              "name": "genre",
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": null,
-              "isDeprecated": false,
-              "name": "artist",
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": null,
-              "isDeprecated": false,
-              "name": "number",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": null,
-              "isDeprecated": false,
-              "name": "rating",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Float",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": null,
-              "isDeprecated": false,
-              "name": "duration",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": null,
-              "isDeprecated": false,
-              "name": "keywords",
-              "type": {
-                "kind": "LIST",
+                "kind": "NON_NULL",
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
@@ -4271,9 +4603,9 @@
               "deprecationReason": null,
               "description": null,
               "isDeprecated": false,
-              "name": "links",
+              "name": "passwordHash",
               "type": {
-                "kind": "LIST",
+                "kind": "NON_NULL",
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
@@ -4285,31 +4617,7 @@
             {
               "args": [],
               "deprecationReason": null,
-              "description": null,
-              "isDeprecated": false,
-              "name": "createdAt",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Datetime",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": null,
-              "isDeprecated": false,
-              "name": "updatedAt",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Datetime",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": "Reads a single `User` that is related to this `Music`.",
+              "description": "Reads a single `User` that is related to this `Account`.",
               "isDeprecated": false,
               "name": "user",
               "type": {
@@ -4328,11 +4636,102 @@
             }
           ],
           "kind": "OBJECT",
-          "name": "Music",
+          "name": "Account",
           "possibleTypes": null
         },
         {
-          "description": "A `Music` edge in the connection.",
+          "description": "A connection to a list of `Account` values.",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "A list of `Account` objects.",
+              "isDeprecated": false,
+              "name": "nodes",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "Account",
+                      "ofType": null
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "A list of edges which contains the `Account` and cursor to aid in pagination.",
+              "isDeprecated": false,
+              "name": "edges",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "AccountsEdge",
+                      "ofType": null
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Information to aid in pagination.",
+              "isDeprecated": false,
+              "name": "pageInfo",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PageInfo",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "The count of *all* `Account` you could get from the connection.",
+              "isDeprecated": false,
+              "name": "totalCount",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "AccountsConnection",
+          "possibleTypes": null
+        },
+        {
+          "description": "A `Account` edge in the connection.",
           "enumValues": null,
           "fields": [
             {
@@ -4350,7 +4749,7 @@
             {
               "args": [],
               "deprecationReason": null,
-              "description": "The `Music` at the end of the edge.",
+              "description": "The `Account` at the end of the edge.",
               "isDeprecated": false,
               "name": "node",
               "type": {
@@ -4358,7 +4757,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "OBJECT",
-                  "name": "Music",
+                  "name": "Account",
                   "ofType": null
                 }
               }
@@ -4367,7 +4766,7 @@
           "inputFields": null,
           "interfaces": [],
           "kind": "OBJECT",
-          "name": "MusicEdge",
+          "name": "AccountsEdge",
           "possibleTypes": null
         },
         {
@@ -4448,25 +4847,13 @@
           "possibleTypes": null
         },
         {
-          "description": "Methods to use when ordering `Music`.",
+          "description": "Methods to use when ordering `Account`.",
           "enumValues": [
             {
               "deprecationReason": null,
               "description": null,
               "isDeprecated": false,
               "name": "NATURAL"
-            },
-            {
-              "deprecationReason": null,
-              "description": null,
-              "isDeprecated": false,
-              "name": "ID_ASC"
-            },
-            {
-              "deprecationReason": null,
-              "description": null,
-              "isDeprecated": false,
-              "name": "ID_DESC"
             },
             {
               "deprecationReason": null,
@@ -4484,13 +4871,13 @@
               "deprecationReason": null,
               "description": null,
               "isDeprecated": false,
-              "name": "TITLE_ASC"
+              "name": "EMAIL_ASC"
             },
             {
               "deprecationReason": null,
               "description": null,
               "isDeprecated": false,
-              "name": "TITLE_DESC"
+              "name": "EMAIL_DESC"
             },
             {
               "deprecationReason": null,
@@ -4509,24 +4896,14 @@
           "inputFields": null,
           "interfaces": null,
           "kind": "ENUM",
-          "name": "MusicOrderBy",
+          "name": "AccountsOrderBy",
           "possibleTypes": null
         },
         {
-          "description": "A condition to be used against `Music` object types. All fields are tested for equality and combined with a logical ‘and.’",
+          "description": "A condition to be used against `Account` object types. All fields are tested for equality and combined with a logical ‘and.’",
           "enumValues": null,
           "fields": null,
           "inputFields": [
-            {
-              "defaultValue": null,
-              "description": "Checks for equality with the object’s `id` field.",
-              "name": "id",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              }
-            },
             {
               "defaultValue": null,
               "description": "Checks for equality with the object’s `userId` field.",
@@ -4539,8 +4916,8 @@
             },
             {
               "defaultValue": null,
-              "description": "Checks for equality with the object’s `title` field.",
-              "name": "title",
+              "description": "Checks for equality with the object’s `email` field.",
+              "name": "email",
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -4550,24 +4927,14 @@
           ],
           "interfaces": null,
           "kind": "INPUT_OBJECT",
-          "name": "MusicCondition",
+          "name": "AccountCondition",
           "possibleTypes": null
         },
         {
-          "description": "A filter to be used against `Music` object types. All fields are combined with a logical ‘and.’",
+          "description": "A filter to be used against `Account` object types. All fields are combined with a logical ‘and.’",
           "enumValues": null,
           "fields": null,
           "inputFields": [
-            {
-              "defaultValue": null,
-              "description": "Filter by the object’s `id` field.",
-              "name": "id",
-              "type": {
-                "kind": "INPUT_OBJECT",
-                "name": "IntFilter",
-                "ofType": null
-              }
-            },
             {
               "defaultValue": null,
               "description": "Filter by the object’s `userId` field.",
@@ -4580,8 +4947,8 @@
             },
             {
               "defaultValue": null,
-              "description": "Filter by the object’s `title` field.",
-              "name": "title",
+              "description": "Filter by the object’s `email` field.",
+              "name": "email",
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "StringFilter",
@@ -4600,7 +4967,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "MusicFilter",
+                    "name": "AccountFilter",
                     "ofType": null
                   }
                 }
@@ -4618,7 +4985,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "MusicFilter",
+                    "name": "AccountFilter",
                     "ofType": null
                   }
                 }
@@ -4630,14 +4997,14 @@
               "name": "not",
               "type": {
                 "kind": "INPUT_OBJECT",
-                "name": "MusicFilter",
+                "name": "AccountFilter",
                 "ofType": null
               }
             }
           ],
           "interfaces": null,
           "kind": "INPUT_OBJECT",
-          "name": "MusicFilter",
+          "name": "AccountFilter",
           "possibleTypes": null
         },
         {
@@ -5188,6 +5555,546 @@
           "interfaces": null,
           "kind": "INPUT_OBJECT",
           "name": "StringFilter",
+          "possibleTypes": null
+        },
+        {
+          "description": "A connection to a list of `Music` values.",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "A list of `Music` objects.",
+              "isDeprecated": false,
+              "name": "nodes",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "Music",
+                      "ofType": null
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "A list of edges which contains the `Music` and cursor to aid in pagination.",
+              "isDeprecated": false,
+              "name": "edges",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "MusicEdge",
+                      "ofType": null
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Information to aid in pagination.",
+              "isDeprecated": false,
+              "name": "pageInfo",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PageInfo",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "The count of *all* `Music` you could get from the connection.",
+              "isDeprecated": false,
+              "name": "totalCount",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "MusicConnection",
+          "possibleTypes": null
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "A globally unique identifier. Can be used in various places throughout the system to identify this single value.",
+              "isDeprecated": false,
+              "name": "nodeId",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "id",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "userId",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "title",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "album",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "genre",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "artist",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "number",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "rating",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "duration",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "keywords",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "links",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "createdAt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "updatedAt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Reads a single `User` that is related to this `Music`.",
+              "isDeprecated": false,
+              "name": "user",
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
+              "ofType": null
+            }
+          ],
+          "kind": "OBJECT",
+          "name": "Music",
+          "possibleTypes": null
+        },
+        {
+          "description": "A `Music` edge in the connection.",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "A cursor for use in pagination.",
+              "isDeprecated": false,
+              "name": "cursor",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Cursor",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "The `Music` at the end of the edge.",
+              "isDeprecated": false,
+              "name": "node",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Music",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "MusicEdge",
+          "possibleTypes": null
+        },
+        {
+          "description": "Methods to use when ordering `Music`.",
+          "enumValues": [
+            {
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "NATURAL"
+            },
+            {
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "ID_ASC"
+            },
+            {
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "ID_DESC"
+            },
+            {
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "USER_ID_ASC"
+            },
+            {
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "USER_ID_DESC"
+            },
+            {
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "TITLE_ASC"
+            },
+            {
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "TITLE_DESC"
+            },
+            {
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "PRIMARY_KEY_ASC"
+            },
+            {
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "PRIMARY_KEY_DESC"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "kind": "ENUM",
+          "name": "MusicOrderBy",
+          "possibleTypes": null
+        },
+        {
+          "description": "A condition to be used against `Music` object types. All fields are tested for equality and combined with a logical ‘and.’",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "Checks for equality with the object’s `id` field.",
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "Checks for equality with the object’s `userId` field.",
+              "name": "userId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "Checks for equality with the object’s `title` field.",
+              "name": "title",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "MusicCondition",
+          "possibleTypes": null
+        },
+        {
+          "description": "A filter to be used against `Music` object types. All fields are combined with a logical ‘and.’",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "Filter by the object’s `id` field.",
+              "name": "id",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "IntFilter",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "Filter by the object’s `userId` field.",
+              "name": "userId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "IntFilter",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "Filter by the object’s `title` field.",
+              "name": "title",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "StringFilter",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "Checks for all expressions in this list.",
+              "name": "and",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "MusicFilter",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "Checks for any expressions in this list.",
+              "name": "or",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "MusicFilter",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "Negates the expression.",
+              "name": "not",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "MusicFilter",
+                "ofType": null
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "MusicFilter",
           "possibleTypes": null
         },
         {
@@ -6333,6 +7240,236 @@
           "possibleTypes": null
         },
         {
+          "description": "A connection to a list of `UserAccount` values.",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "A list of `UserAccount` objects.",
+              "isDeprecated": false,
+              "name": "nodes",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "UserAccount",
+                      "ofType": null
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "A list of edges which contains the `UserAccount` and cursor to aid in pagination.",
+              "isDeprecated": false,
+              "name": "edges",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "UserAccountsEdge",
+                      "ofType": null
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Information to aid in pagination.",
+              "isDeprecated": false,
+              "name": "pageInfo",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PageInfo",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "The count of *all* `UserAccount` you could get from the connection.",
+              "isDeprecated": false,
+              "name": "totalCount",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "UserAccountsConnection",
+          "possibleTypes": null
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "firstName",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "lastName",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "email",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "createdAt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "updatedAt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "UserAccount",
+          "possibleTypes": null
+        },
+        {
+          "description": "A `UserAccount` edge in the connection.",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "A cursor for use in pagination.",
+              "isDeprecated": false,
+              "name": "cursor",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Cursor",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "The `UserAccount` at the end of the edge.",
+              "isDeprecated": false,
+              "name": "node",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "UserAccount",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "UserAccountsEdge",
+          "possibleTypes": null
+        },
+        {
+          "description": "Methods to use when ordering `UserAccount`.",
+          "enumValues": [
+            {
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "NATURAL"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "kind": "ENUM",
+          "name": "UserAccountsOrderBy",
+          "possibleTypes": null
+        },
+        {
           "description": "A connection to a list of `Artist` values.",
           "enumValues": null,
           "fields": [
@@ -7278,6 +8415,33 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
+                      "name": "CreateAccountInput",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Creates a single `Account`.",
+              "isDeprecated": false,
+              "name": "createAccount",
+              "type": {
+                "kind": "OBJECT",
+                "name": "CreateAccountPayload",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "name": "input",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
                       "name": "UpdateFilterByNodeIdInput",
                       "ofType": null
                     }
@@ -7548,6 +8712,87 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
+                      "name": "UpdateAccountByNodeIdInput",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Updates a single `Account` using its globally unique id and a patch.",
+              "isDeprecated": false,
+              "name": "updateAccountByNodeId",
+              "type": {
+                "kind": "OBJECT",
+                "name": "UpdateAccountPayload",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "name": "input",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "UpdateAccountInput",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Updates a single `Account` using a unique key and a patch.",
+              "isDeprecated": false,
+              "name": "updateAccount",
+              "type": {
+                "kind": "OBJECT",
+                "name": "UpdateAccountPayload",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "name": "input",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "UpdateAccountByEmailInput",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Updates a single `Account` using a unique key and a patch.",
+              "isDeprecated": false,
+              "name": "updateAccountByEmail",
+              "type": {
+                "kind": "OBJECT",
+                "name": "UpdateAccountPayload",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "name": "input",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
                       "name": "DeleteMusicByNodeIdInput",
                       "ofType": null
                     }
@@ -7723,6 +8968,87 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "DeleteUserPayload",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "name": "input",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "DeleteAccountByNodeIdInput",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Deletes a single `Account` using its globally unique id.",
+              "isDeprecated": false,
+              "name": "deleteAccountByNodeId",
+              "type": {
+                "kind": "OBJECT",
+                "name": "DeleteAccountPayload",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "name": "input",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "DeleteAccountInput",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Deletes a single `Account` using a unique key.",
+              "isDeprecated": false,
+              "name": "deleteAccount",
+              "type": {
+                "kind": "OBJECT",
+                "name": "DeleteAccountPayload",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "name": "input",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "DeleteAccountByEmailInput",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Deletes a single `Account` using a unique key.",
+              "isDeprecated": false,
+              "name": "deleteAccountByEmail",
+              "type": {
+                "kind": "OBJECT",
+                "name": "DeleteAccountPayload",
                 "ofType": null
               }
             },
@@ -8033,6 +9359,43 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "UpsertUserPayload",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "where",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "UpsertAccountWhere",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "name": "input",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "UpsertAccountInput",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Upserts a single `Account`.",
+              "isDeprecated": false,
+              "name": "upsertAccount",
+              "type": {
+                "kind": "OBJECT",
+                "name": "UpsertAccountPayload",
                 "ofType": null
               }
             }
@@ -8721,6 +10084,16 @@
             {
               "defaultValue": null,
               "description": null,
+              "name": "accountUsingId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountUserIdFkeyInverseInput",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
               "name": "musicUsingId",
               "type": {
                 "kind": "INPUT_OBJECT",
@@ -8752,6 +10125,586 @@
           "interfaces": null,
           "kind": "INPUT_OBJECT",
           "name": "updateUserOnFilterForFilterUserIdFkeyPatch",
+          "possibleTypes": null
+        },
+        {
+          "description": "Input for the nested mutation of `account` in the `UserInput` mutation.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "Flag indicating whether all other `account` records that match this relationship should be removed.",
+              "name": "deleteOthers",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The primary key(s) for `account` for the far side of the relationship.",
+              "name": "connectByUserId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountAccountPkeyConnect",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The primary key(s) for `account` for the far side of the relationship.",
+              "name": "connectByEmail",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountAccountEmailKeyConnect",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The primary key(s) for `account` for the far side of the relationship.",
+              "name": "connectByNodeId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountNodeIdConnect",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The primary key(s) for `account` for the far side of the relationship.",
+              "name": "deleteByUserId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountAccountPkeyDelete",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The primary key(s) for `account` for the far side of the relationship.",
+              "name": "deleteByEmail",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountAccountEmailKeyDelete",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The primary key(s) for `account` for the far side of the relationship.",
+              "name": "deleteByNodeId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountNodeIdDelete",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The primary key(s) and patch data for `account` for the far side of the relationship.",
+              "name": "updateByUserId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountOnAccountForAccountUserIdFkeyUsingAccountPkeyUpdate",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The primary key(s) and patch data for `account` for the far side of the relationship.",
+              "name": "updateByEmail",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountOnAccountForAccountUserIdFkeyUsingAccountEmailKeyUpdate",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The primary key(s) and patch data for `account` for the far side of the relationship.",
+              "name": "updateByNodeId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UserOnAccountForAccountUserIdFkeyNodeIdUpdate",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "A `AccountInput` object that will be created and connected to this object.",
+              "name": "create",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "AccountUserIdFkeyAccountCreateInput",
+                    "ofType": null
+                  }
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "AccountUserIdFkeyInverseInput",
+          "possibleTypes": null
+        },
+        {
+          "description": "The fields on `account` to look up the row to connect.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "userId",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "AccountAccountPkeyConnect",
+          "possibleTypes": null
+        },
+        {
+          "description": "The fields on `account` to look up the row to connect.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "email",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "AccountAccountEmailKeyConnect",
+          "possibleTypes": null
+        },
+        {
+          "description": "The globally unique `ID` look up for the row to connect.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "The globally unique `ID` which identifies a single `account` to be connected.",
+              "name": "nodeId",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "AccountNodeIdConnect",
+          "possibleTypes": null
+        },
+        {
+          "description": "The fields on `account` to look up the row to delete.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "userId",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "AccountAccountPkeyDelete",
+          "possibleTypes": null
+        },
+        {
+          "description": "The fields on `account` to look up the row to delete.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "email",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "AccountAccountEmailKeyDelete",
+          "possibleTypes": null
+        },
+        {
+          "description": "The globally unique `ID` look up for the row to delete.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "The globally unique `ID` which identifies a single `account` to be deleted.",
+              "name": "nodeId",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "AccountNodeIdDelete",
+          "possibleTypes": null
+        },
+        {
+          "description": "The fields on `account` to look up the row to update.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "An object where the defined keys will be set on the `account` being updated.",
+              "name": "patch",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "updateAccountOnAccountForAccountUserIdFkeyPatch",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "userId",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "AccountOnAccountForAccountUserIdFkeyUsingAccountPkeyUpdate",
+          "possibleTypes": null
+        },
+        {
+          "description": "An object where the defined keys will be set on the `account` being updated.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "email",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "passwordHash",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "userToUserId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountUserIdFkeyInput",
+                "ofType": null
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "updateAccountOnAccountForAccountUserIdFkeyPatch",
+          "possibleTypes": null
+        },
+        {
+          "description": "Input for the nested mutation of `user` in the `AccountInput` mutation.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "The primary key(s) for `user` for the far side of the relationship.",
+              "name": "connectById",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UserUserPkeyConnect",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The primary key(s) for `user` for the far side of the relationship.",
+              "name": "connectByNodeId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UserNodeIdConnect",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The primary key(s) for `user` for the far side of the relationship.",
+              "name": "deleteById",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UserUserPkeyDelete",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The primary key(s) for `user` for the far side of the relationship.",
+              "name": "deleteByNodeId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UserNodeIdDelete",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The primary key(s) and patch data for `user` for the far side of the relationship.",
+              "name": "updateById",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UserOnAccountForAccountUserIdFkeyUsingUserPkeyUpdate",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The primary key(s) and patch data for `user` for the far side of the relationship.",
+              "name": "updateByNodeId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountOnAccountForAccountUserIdFkeyNodeIdUpdate",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "A `UserInput` object that will be created and connected to this object.",
+              "name": "create",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountUserIdFkeyUserCreateInput",
+                "ofType": null
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "AccountUserIdFkeyInput",
+          "possibleTypes": null
+        },
+        {
+          "description": "The fields on `user` to look up the row to update.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "An object where the defined keys will be set on the `user` being updated.",
+              "name": "patch",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "updateUserOnAccountForAccountUserIdFkeyPatch",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "UserOnAccountForAccountUserIdFkeyUsingUserPkeyUpdate",
+          "possibleTypes": null
+        },
+        {
+          "description": "An object where the defined keys will be set on the `user` being updated.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "firstName",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "lastName",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "createdAt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "updatedAt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "accountUsingId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountUserIdFkeyInverseInput",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "musicUsingId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "MusicUserIdFkeyInverseInput",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "filtersUsingId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "FilterUserIdFkeyInverseInput",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "statsUsingId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "StatUserIdFkeyInverseInput",
+                "ofType": null
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "updateUserOnAccountForAccountUserIdFkeyPatch",
           "possibleTypes": null
         },
         {
@@ -9549,6 +11502,16 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Datetime",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "accountUsingId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountUserIdFkeyInverseInput",
                 "ofType": null
               }
             },
@@ -11327,6 +13290,16 @@
             {
               "defaultValue": null,
               "description": null,
+              "name": "accountUsingId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountUserIdFkeyInverseInput",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
               "name": "musicUsingId",
               "type": {
                 "kind": "INPUT_OBJECT",
@@ -11457,6 +13430,16 @@
             {
               "defaultValue": null,
               "description": null,
+              "name": "accountUsingId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountUserIdFkeyInverseInput",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
               "name": "musicUsingId",
               "type": {
                 "kind": "INPUT_OBJECT",
@@ -11542,6 +13525,16 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Datetime",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "accountUsingId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountUserIdFkeyInverseInput",
                 "ofType": null
               }
             },
@@ -11963,6 +13956,16 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Datetime",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "accountUsingId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountUserIdFkeyInverseInput",
                 "ofType": null
               }
             },
@@ -12466,6 +14469,324 @@
           ],
           "interfaces": null,
           "kind": "INPUT_OBJECT",
+          "name": "AccountOnAccountForAccountUserIdFkeyNodeIdUpdate",
+          "possibleTypes": null
+        },
+        {
+          "description": "The `user` to be created by this mutation.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "firstName",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "lastName",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "createdAt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "updatedAt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "accountUsingId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountUserIdFkeyInverseInput",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "musicUsingId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "MusicUserIdFkeyInverseInput",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "filtersUsingId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "FilterUserIdFkeyInverseInput",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "statsUsingId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "StatUserIdFkeyInverseInput",
+                "ofType": null
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "AccountUserIdFkeyUserCreateInput",
+          "possibleTypes": null
+        },
+        {
+          "description": "The fields on `account` to look up the row to update.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "An object where the defined keys will be set on the `account` being updated.",
+              "name": "patch",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "updateAccountOnAccountForAccountUserIdFkeyPatch",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "email",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "AccountOnAccountForAccountUserIdFkeyUsingAccountEmailKeyUpdate",
+          "possibleTypes": null
+        },
+        {
+          "description": "The globally unique `ID` look up for the row to update.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "The globally unique `ID` which identifies a single `account` to be connected.",
+              "name": "nodeId",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "An object where the defined keys will be set on the `account` being updated.",
+              "name": "patch",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "AccountPatch",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "UserOnAccountForAccountUserIdFkeyNodeIdUpdate",
+          "possibleTypes": null
+        },
+        {
+          "description": "Represents an update to a `Account`. Fields that are set will be updated.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "userId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "email",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "passwordHash",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "userToUserId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountUserIdFkeyInput",
+                "ofType": null
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "AccountPatch",
+          "possibleTypes": null
+        },
+        {
+          "description": "The `account` to be created by this mutation.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "email",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "passwordHash",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "userToUserId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountUserIdFkeyInput",
+                "ofType": null
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "AccountUserIdFkeyAccountCreateInput",
+          "possibleTypes": null
+        },
+        {
+          "description": "The globally unique `ID` look up for the row to update.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "The globally unique `ID` which identifies a single `user` to be connected.",
+              "name": "nodeId",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "An object where the defined keys will be set on the `user` being updated.",
+              "name": "patch",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "UserPatch",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
           "name": "FilterOnFilterForFilterUserIdFkeyNodeIdUpdate",
           "possibleTypes": null
         },
@@ -12521,6 +14842,16 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Datetime",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "accountUsingId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountUserIdFkeyInverseInput",
                 "ofType": null
               }
             },
@@ -13271,6 +15602,16 @@
             {
               "defaultValue": null,
               "description": null,
+              "name": "accountUsingId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountUserIdFkeyInverseInput",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
               "name": "musicUsingId",
               "type": {
                 "kind": "INPUT_OBJECT",
@@ -13302,6 +15643,190 @@
           "interfaces": null,
           "kind": "INPUT_OBJECT",
           "name": "UserInput",
+          "possibleTypes": null
+        },
+        {
+          "description": "The output of our create `Account` mutation.",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "The exact same `clientMutationId` that was provided in the mutation input,\nunchanged and unused. May be used by a client to track mutations.",
+              "isDeprecated": false,
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "The `Account` that was created by this mutation.",
+              "isDeprecated": false,
+              "name": "account",
+              "type": {
+                "kind": "OBJECT",
+                "name": "Account",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Our root query field type. Allows us to run any query from our mutation payload.",
+              "isDeprecated": false,
+              "name": "query",
+              "type": {
+                "kind": "OBJECT",
+                "name": "Query",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Reads a single `User` that is related to this `Account`.",
+              "isDeprecated": false,
+              "name": "user",
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": "[PRIMARY_KEY_ASC]",
+                  "description": "The method to use when ordering `Account`.",
+                  "name": "orderBy",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "AccountsOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "An edge for our `Account`. May be used by Relay 1.",
+              "isDeprecated": false,
+              "name": "accountEdge",
+              "type": {
+                "kind": "OBJECT",
+                "name": "AccountsEdge",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "CreateAccountPayload",
+          "possibleTypes": null
+        },
+        {
+          "description": "All input for the create `Account` mutation.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the\npayload verbatim. May be used to track mutations by the client.",
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The `Account` to be created by this mutation.",
+              "name": "account",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "AccountInput",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "CreateAccountInput",
+          "possibleTypes": null
+        },
+        {
+          "description": "An input for mutations affecting `Account`",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "userId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "email",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "passwordHash",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "userToUserId",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "AccountUserIdFkeyInput",
+                "ofType": null
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "AccountInput",
           "possibleTypes": null
         },
         {
@@ -14199,6 +16724,243 @@
           "possibleTypes": null
         },
         {
+          "description": "The output of our update `Account` mutation.",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "The exact same `clientMutationId` that was provided in the mutation input,\nunchanged and unused. May be used by a client to track mutations.",
+              "isDeprecated": false,
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "The `Account` that was updated by this mutation.",
+              "isDeprecated": false,
+              "name": "account",
+              "type": {
+                "kind": "OBJECT",
+                "name": "Account",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Our root query field type. Allows us to run any query from our mutation payload.",
+              "isDeprecated": false,
+              "name": "query",
+              "type": {
+                "kind": "OBJECT",
+                "name": "Query",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Reads a single `User` that is related to this `Account`.",
+              "isDeprecated": false,
+              "name": "user",
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": "[PRIMARY_KEY_ASC]",
+                  "description": "The method to use when ordering `Account`.",
+                  "name": "orderBy",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "AccountsOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "An edge for our `Account`. May be used by Relay 1.",
+              "isDeprecated": false,
+              "name": "accountEdge",
+              "type": {
+                "kind": "OBJECT",
+                "name": "AccountsEdge",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "UpdateAccountPayload",
+          "possibleTypes": null
+        },
+        {
+          "description": "All input for the `updateAccountByNodeId` mutation.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the\npayload verbatim. May be used to track mutations by the client.",
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The globally unique `ID` which will identify a single `Account` to be updated.",
+              "name": "nodeId",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "An object where the defined keys will be set on the `Account` being updated.",
+              "name": "patch",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "AccountPatch",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "UpdateAccountByNodeIdInput",
+          "possibleTypes": null
+        },
+        {
+          "description": "All input for the `updateAccount` mutation.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the\npayload verbatim. May be used to track mutations by the client.",
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "An object where the defined keys will be set on the `Account` being updated.",
+              "name": "patch",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "AccountPatch",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "userId",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "UpdateAccountInput",
+          "possibleTypes": null
+        },
+        {
+          "description": "All input for the `updateAccountByEmail` mutation.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the\npayload verbatim. May be used to track mutations by the client.",
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "An object where the defined keys will be set on the `Account` being updated.",
+              "name": "patch",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "AccountPatch",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "email",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "UpdateAccountByEmailInput",
+          "possibleTypes": null
+        },
+        {
           "description": "The output of our delete `Music` mutation.",
           "enumValues": null,
           "fields": [
@@ -14780,6 +17542,213 @@
           "possibleTypes": null
         },
         {
+          "description": "The output of our delete `Account` mutation.",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "The exact same `clientMutationId` that was provided in the mutation input,\nunchanged and unused. May be used by a client to track mutations.",
+              "isDeprecated": false,
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "The `Account` that was deleted by this mutation.",
+              "isDeprecated": false,
+              "name": "account",
+              "type": {
+                "kind": "OBJECT",
+                "name": "Account",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "deletedAccountNodeId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Our root query field type. Allows us to run any query from our mutation payload.",
+              "isDeprecated": false,
+              "name": "query",
+              "type": {
+                "kind": "OBJECT",
+                "name": "Query",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Reads a single `User` that is related to this `Account`.",
+              "isDeprecated": false,
+              "name": "user",
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": "[PRIMARY_KEY_ASC]",
+                  "description": "The method to use when ordering `Account`.",
+                  "name": "orderBy",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "AccountsOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "An edge for our `Account`. May be used by Relay 1.",
+              "isDeprecated": false,
+              "name": "accountEdge",
+              "type": {
+                "kind": "OBJECT",
+                "name": "AccountsEdge",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "DeleteAccountPayload",
+          "possibleTypes": null
+        },
+        {
+          "description": "All input for the `deleteAccountByNodeId` mutation.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the\npayload verbatim. May be used to track mutations by the client.",
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The globally unique `ID` which will identify a single `Account` to be deleted.",
+              "name": "nodeId",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "DeleteAccountByNodeIdInput",
+          "possibleTypes": null
+        },
+        {
+          "description": "All input for the `deleteAccount` mutation.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the\npayload verbatim. May be used to track mutations by the client.",
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "userId",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "DeleteAccountInput",
+          "possibleTypes": null
+        },
+        {
+          "description": "All input for the `deleteAccountByEmail` mutation.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the\npayload verbatim. May be used to track mutations by the client.",
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "email",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "DeleteAccountByEmailInput",
+          "possibleTypes": null
+        },
+        {
           "description": "The output of our `authenticate` mutation.",
           "enumValues": null,
           "fields": [
@@ -14802,7 +17771,7 @@
               "isDeprecated": false,
               "name": "jwtToken",
               "type": {
-                "kind": "SCALAR",
+                "kind": "OBJECT",
                 "name": "JwtToken",
                 "ofType": null
               }
@@ -14827,12 +17796,49 @@
           "possibleTypes": null
         },
         {
-          "description": "A JSON Web Token defined by [RFC 7519](https://tools.ietf.org/html/rfc7519)\nwhich securely represents claims between two parties.",
+          "description": null,
           "enumValues": null,
-          "fields": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "role",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "userId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "exp",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            }
+          ],
           "inputFields": null,
-          "interfaces": null,
-          "kind": "SCALAR",
+          "interfaces": [],
+          "kind": "OBJECT",
           "name": "JwtToken",
           "possibleTypes": null
         },
@@ -15086,7 +18092,7 @@
               "isDeprecated": false,
               "name": "jwtToken",
               "type": {
-                "kind": "SCALAR",
+                "kind": "OBJECT",
                 "name": "JwtToken",
                 "ofType": null
               }
@@ -15908,6 +18914,162 @@
           "interfaces": null,
           "kind": "INPUT_OBJECT",
           "name": "UpsertUserInput",
+          "possibleTypes": null
+        },
+        {
+          "description": "The output of our upsert `Account` mutation.",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "The exact same `clientMutationId` that was provided in the mutation input, unchanged and unused. May be used by a client to track mutations.",
+              "isDeprecated": false,
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "The `Account` that was upserted by this mutation.",
+              "isDeprecated": false,
+              "name": "account",
+              "type": {
+                "kind": "OBJECT",
+                "name": "Account",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Our root query field type. Allows us to run any query from our mutation payload.",
+              "isDeprecated": false,
+              "name": "query",
+              "type": {
+                "kind": "OBJECT",
+                "name": "Query",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Reads a single `User` that is related to this `Account`.",
+              "isDeprecated": false,
+              "name": "user",
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": "[PRIMARY_KEY_ASC]",
+                  "description": "The method to use when ordering `Account`.",
+                  "name": "orderBy",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "AccountsOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "An edge for our `Account`. May be used by Relay 1.",
+              "isDeprecated": false,
+              "name": "accountEdge",
+              "type": {
+                "kind": "OBJECT",
+                "name": "AccountsEdge",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "UpsertAccountPayload",
+          "possibleTypes": null
+        },
+        {
+          "description": "Where conditions for the upsert `Account` mutation.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "userId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "email",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "UpsertAccountWhere",
+          "possibleTypes": null
+        },
+        {
+          "description": "All input for the upsert `Account` mutation.",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the payload verbatim. May be used to track mutations by the client.",
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "The `Account` to be upserted by this mutation.",
+              "name": "account",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "AccountInput",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "UpsertAccountInput",
           "possibleTypes": null
         },
         {

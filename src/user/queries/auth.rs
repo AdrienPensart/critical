@@ -21,11 +21,11 @@ pub mod auth {
         pub password: String,
     }
     impl Variables {}
-    #[derive(Deserialize)]
+    #[derive(Deserialize, Debug)]
     pub struct ResponseData {
         pub authenticate: Option<AuthAuthenticate>,
     }
-    #[derive(Deserialize)]
+    #[derive(Deserialize, Debug)]
     pub struct AuthAuthenticate {
         #[serde(rename = "jwtToken")]
         pub jwt_token: Option<JwtToken>,

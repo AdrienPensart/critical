@@ -7,8 +7,8 @@ use std::collections::HashMap;
 
 use crate::commands::local::ScanOpts;
 use crate::music::Music;
-use crate::flac_file::FlacFile;
-use crate::mp3_file::Mp3File;
+use crate::music::flac_file::FlacFile;
+use crate::music::mp3_file::Mp3File;
 
 fn is_hidden(entry: &DirEntry) -> bool {
     entry.file_name()
@@ -70,7 +70,7 @@ pub fn scan(opts: ScanOpts) -> Result<()> {
         }
         let request_body = serde_json::to_string_pretty(&operations).unwrap();
 
-        let _music_upsert_response = authenticated_user.client.post(&user.endpoint)
+        let _music_upsert_response = authenticated_user.client.post(&user.user_login.endpoint)
             .header(reqwest::header::CONTENT_TYPE, "application/json; charset=utf-8")
             .body(request_body)
             .send()?;

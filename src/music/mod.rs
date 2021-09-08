@@ -2,10 +2,13 @@ use std::fmt;
 use uuid::Uuid;
 use graphql_client::{GraphQLQuery, QueryBody};
 
+pub mod flac_file;
+pub mod mp3_file;
+
 #[derive(GraphQLQuery)]
 #[graphql(
     schema_path = "src/musicbot.json",
-    query_path = "src/upsert_music.graphql",
+    query_path = "src/music/queries/upsert_music.graphql",
     response_derives = "Debug",
 )]
 pub struct UpsertMusic;

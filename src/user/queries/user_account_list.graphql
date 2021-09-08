@@ -1,0 +1,10 @@
+query UserAccountList {
+    userAccountsList {
+        id
+        updatedAt
+        email
+        firstName
+        lastName
+        createdAt
+    }
+}

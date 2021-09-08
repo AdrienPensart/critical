@@ -1,0 +1,7 @@
+mutation Unregister
+{
+    unregisterUser(input: {})
+    {
+        clientMutationId
+    }
+}

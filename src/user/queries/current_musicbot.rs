@@ -16,7 +16,7 @@ pub mod current_user_id {
     type ID = String;
     #[derive(Serialize, Debug)]
     pub struct Variables;
-    #[derive(Deserialize)]
+    #[derive(Deserialize, Debug)]
     pub struct ResponseData {
         #[serde(rename = "currentMusicbot")]
         pub current_musicbot: Option<Int>,
