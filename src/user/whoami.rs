@@ -1,5 +1,5 @@
 use clap::{AppSettings, Clap};
-use anyhow::{Result, Context};
+use anyhow::{Result, Context, anyhow};
 use graphql_client::{GraphQLQuery, Response};
 
 use crate::user::{User, APP_USER_AGENT, Datetime};
@@ -14,6 +14,7 @@ pub struct Whoami;
 
 #[derive(Clap, Debug)]
 #[clap(setting = AppSettings::ColoredHelp)]
+#[clap(about = "Print information about me")]
 pub struct UserWhoami {
     /// MusicBot user
     #[clap(flatten)]
@@ -28,7 +29,7 @@ impl UserWhoami {
         };
 
         let request_body = Whoami::build_query(variables);
-        let endpoint = &self.user.user_login.endpoint;
+        let endpoint = &self.user.endpoint;
         let response_body: Response<whoami::ResponseData> = reqwest::blocking::Client::builder()
             .user_agent(APP_USER_AGENT)
             .build()?
@@ -36,6 +37,8 @@ impl UserWhoami {
             .json(&request_body)
             .send()?
             .json()?;
+
+        response_body.errors.map(|errors| Err::<(), _>(anyhow!("{:?}", errors))).transpose()?;
 
         Ok(response_body
             .data.context("missing whoami response data")?

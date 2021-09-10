@@ -70,7 +70,7 @@ pub fn scan(opts: ScanOpts) -> Result<()> {
         }
         let request_body = serde_json::to_string_pretty(&operations).unwrap();
 
-        let _music_upsert_response = authenticated_user.client.post(&user.user_login.endpoint)
+        let _music_upsert_response = authenticated_user.client.post(&user.endpoint)
             .header(reqwest::header::CONTENT_TYPE, "application/json; charset=utf-8")
             .body(request_body)
             .send()?;

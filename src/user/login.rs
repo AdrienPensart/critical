@@ -1,5 +1,5 @@
 use clap::{AppSettings, Clap};
-use anyhow::{Result, Context};
+use anyhow::{Result, Context, anyhow};
 use graphql_client::{GraphQLQuery, Response};
 
 use crate::user::{APP_USER_AGENT, JwtToken};
@@ -14,6 +14,7 @@ pub struct Auth;
 
 #[derive(Clap, Debug, Clone)]
 #[clap(setting = AppSettings::ColoredHelp)]
+#[clap(about = "Get a new token")]
 pub struct UserLogin {
     /// MusicBot GraphQL endpoint
     #[clap(long)]
@@ -44,6 +45,8 @@ impl UserLogin {
             .json(&request_body)
             .send()?
             .json()?;
+
+        response_body.errors.map(|errors| Err::<(), _>(anyhow!("{:?}", errors))).transpose()?;
 
         response_body
             .data.context("missing authentication response data")?

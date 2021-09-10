@@ -1,9 +1,8 @@
 use clap::{AppSettings, Clap};
-use anyhow::{Result, Context};
+use anyhow::{Result, Context, anyhow};
 use graphql_client::{GraphQLQuery, Response};
 
 use crate::user::{User, JwtToken, APP_USER_AGENT};
-use crate::user::login::UserLogin;
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -16,10 +15,19 @@ pub struct Register;
 
 #[derive(Clap, Debug)]
 #[clap(setting = AppSettings::ColoredHelp)]
+#[clap(about = "Register a new user")]
 pub struct UserRegister {
-    /// MusicBot user
-    #[clap(flatten)]
-    pub user_login: UserLogin,
+    /// MusicBot GraphQL endpoint
+    #[clap(long)]
+    pub endpoint: String,
+
+    /// MusicBot user email
+    #[clap(long)]
+    pub email: String,
+
+    /// MusicBot user password
+    #[clap(long)]
+    pub password: String,
 
     /// MusicBot user first name
     #[clap(long)]
@@ -35,10 +43,10 @@ impl UserRegister {
         let variables = register::Variables {
             first_name: self.first_name.clone(),
             last_name: self.last_name.clone(),
-            email: self.user_login.email.clone(),
-            password: self.user_login.password.clone(),
+            email: self.email.clone(),
+            password: self.password.clone(),
         };
-        let endpoint = &self.user_login.endpoint;
+        let endpoint = &self.endpoint;
 
         let request_body = Register::build_query(variables);
         let response_body: Response<register::ResponseData> = reqwest::blocking::Client::builder()
@@ -49,16 +57,18 @@ impl UserRegister {
             .send()?
             .json()?;
 
-        println!("{:?}", response_body);
+        response_body.errors.map(|errors| Err::<(), _>(anyhow!("{:?}", errors))).transpose()?;
 
         let token = response_body
             .data.context("missing register user response data")?
             .register_user.context("missing register user response")?
-            .jwt_token.context("missing client mutation id in response")?;
+            .jwt_token.context("missing token in response")?;
 
         Ok(User {
-            user_login: self.user_login.clone(),
+            endpoint: endpoint.clone(),
             token: Some(token),
+            email: Some(self.email.clone()),
+            password: Some(self.password.clone()),
         })
     }
 }

@@ -1,5 +1,5 @@
 use clap::{AppSettings, Clap};
-use anyhow::{Result, Context};
+use anyhow::{Result, Context, anyhow};
 use graphql_client::{GraphQLQuery, Response};
 
 use crate::user::{APP_USER_AGENT, Datetime};
@@ -14,6 +14,7 @@ pub struct UserAccountList;
 
 #[derive(Clap, Debug)]
 #[clap(setting = AppSettings::ColoredHelp)]
+#[clap(about = "List all users")]
 pub struct AdminListUsers {
     /// MusicBot GraphQL endpoint
     #[clap(long)]
@@ -43,6 +44,8 @@ impl AdminListUsers {
             .json(&request_body)
             .send()?
             .json()?;
+
+        response_body.errors.map(|errors| Err::<(), _>(anyhow!("{:?}", errors))).transpose()?;
 
         Ok(response_body
             .data.context("missing users response data")?

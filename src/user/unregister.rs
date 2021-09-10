@@ -1,5 +1,5 @@
 use clap::{AppSettings, Clap};
-use anyhow::{Result, Context};
+use anyhow::{Result, Context, anyhow};
 use graphql_client::{GraphQLQuery, Response};
 
 use crate::user::{User, APP_USER_AGENT};
@@ -14,6 +14,7 @@ pub struct Unregister;
 
 #[derive(Clap, Debug)]
 #[clap(setting = AppSettings::ColoredHelp)]
+#[clap(about = "Unregister a user")]
 pub struct UserUnregister {
     /// MusicBot user
     #[clap(flatten)]
@@ -23,7 +24,7 @@ pub struct UserUnregister {
 impl UserUnregister {
     pub fn unregister(&self) -> Result <()> {
         let request_body = Unregister::build_query(unregister::Variables);
-        let endpoint = &self.user.user_login.endpoint;
+        let endpoint = &self.user.endpoint;
         let response_body: Response<unregister::ResponseData> = reqwest::blocking::Client::builder()
             .user_agent(APP_USER_AGENT)
             .build()?
@@ -31,6 +32,8 @@ impl UserUnregister {
             .json(&request_body)
             .send()?
             .json()?;
+
+        response_body.errors.map(|errors| Err::<(), _>(anyhow!("{:?}", errors))).transpose()?;
 
         response_body
             .data.context("missing unregister response data")?

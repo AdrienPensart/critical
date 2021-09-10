@@ -6,8 +6,9 @@ pub mod unregister;
 
 use clap::{AppSettings, Clap};
 use graphql_client::{GraphQLQuery, Response};
-use anyhow::{Result, Context};
+use anyhow::{Result, Context, anyhow, bail};
 
+//use crate::err_on_some::ErrOnSome;
 use crate::user::login::UserLogin;
 
 type JwtToken = String;
@@ -21,23 +22,42 @@ static APP_USER_AGENT: &str = concat!(
 
 #[derive(Clap, Debug)]
 #[clap(setting = AppSettings::ColoredHelp)]
+#[clap(about = "User credentials")]
 pub struct User {
-    /// MusicBot user credentials
-    #[clap(flatten)]
-    pub user_login: UserLogin,
+    /// MusicBot GraphQL endpoint
+    #[clap(long)]
+    pub endpoint: String,
 
     /// MusicBot token
     #[clap(short, long)]
     pub token: Option<String>,
+
+    /// MusicBot user email
+    #[clap(short, long, required_unless_present = "token")]
+    pub email: Option<String>,
+
+    /// MusicBot user password
+    #[clap(short, long, required_unless_present = "token")]
+    pub password: Option<String>,
 }
 
 impl User {
     pub fn authenticate(&self) -> Result<AuthenticatedUser> {
         let token: String = match &self.token {
             Some(token) => token.clone(),
-            None => self.user_login.new_token()?
+            None => match (&self.email, &self.password) {
+                (Some(email), Some(password)) => {
+                    let user_login = UserLogin {
+                        endpoint: self.endpoint.clone(),
+                        email: email.clone(),
+                        password: password.clone(),
+                    };
+                    user_login.new_token()?
+                },
+                _ => bail!("You need to specify a token or email/password")
+            }
         };
-        let endpoint = &self.user_login.endpoint;
+        let endpoint = &self.endpoint;
 
         let authorization = format!("Bearer {}", token);
         let authenticated_client = reqwest::blocking::Client::builder()
@@ -58,6 +78,8 @@ impl User {
             .json(&request_body)
             .send()?
             .json()?;
+
+        response_body.errors.map(|errors| Err::<(), _>(anyhow!("{:?}", errors))).transpose()?;
 
         let user_id = response_body
             .data.context("missing user id response data")?
