@@ -1,7 +1,8 @@
 use clap::{AppSettings, Clap};
-use anyhow::{Result, Context, anyhow};
+use anyhow::{Result, Context, bail};
 use graphql_client::{GraphQLQuery, Response};
 
+use crate::err_on_some::ErrOnSome;
 use crate::user::{User, JwtToken, APP_USER_AGENT};
 
 #[derive(GraphQLQuery)]
@@ -57,7 +58,7 @@ impl UserRegister {
             .send()?
             .json()?;
 
-        response_body.errors.map(|errors| Err::<(), _>(anyhow!("{:?}", errors))).transpose()?;
+        response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
 
         let token = response_body
             .data.context("missing register user response data")?

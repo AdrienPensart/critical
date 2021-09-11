@@ -3,14 +3,14 @@ use clap::{AppSettings, Clap};
 #[macro_use] extern crate prettytable;
 use prettytable::Table;
 
-pub mod local;
+pub mod folders;
+pub mod err_on_some;
 pub mod user;
 pub mod commands;
 pub mod music;
 
 use crate::commands::user::Group as UserGroup;
 use crate::commands::local::Group as LocalGroup;
-use crate::local::scan;
 
 #[derive(Clap, Debug)]
 #[clap(name = "critical", about = "Critical Music Listening and Bot", version = "1.0", author = "Adrien P. <crunchengine@gmail.com>")]
@@ -36,8 +36,8 @@ fn main() -> Result<()> {
     match opts.group {
         Group::Local(local) => {
             match local {
-                LocalGroup::Scan(opts) => {
-                    scan(opts)
+                LocalGroup::Scan(folders_scanner) => {
+                    folders_scanner.scan()
                 },
             }
         },

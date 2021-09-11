@@ -1,8 +1,7 @@
 use clap::{AppSettings, Clap};
 
-use crate::user::whoami::UserWhoami;
+use crate::user::User;
 use crate::user::register::UserRegister;
-use crate::user::unregister::UserUnregister;
 use crate::user::login::UserLogin;
 use crate::user::accounts::AdminListUsers;
 
@@ -10,9 +9,12 @@ use crate::user::accounts::AdminListUsers;
 #[clap(setting = AppSettings::ColoredHelp)]
 #[clap(about = "User management")]
 pub enum Group {
-    Whoami(UserWhoami),
     Register(UserRegister),
-    Unregister(UserUnregister),
     Login(UserLogin),
     List(AdminListUsers),
+
+    #[clap(about = "Print information about me")]
+    Whoami(User),
+    #[clap(about = "Unregister user")]
+    Unregister(User),
 }
