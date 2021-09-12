@@ -9,10 +9,12 @@ pub mod err_on_some;
 pub mod user;
 pub mod commands;
 pub mod music;
+pub mod database;
 
 use crate::group_dispatch::GroupDispatch;
 use crate::commands::user::Group as UserGroup;
 use crate::commands::local::Group as LocalGroup;
+use crate::commands::database::Group as DatabaseGroup;
 
 
 #[derive(Clap, Debug)]
@@ -31,6 +33,8 @@ enum Group {
     Local(LocalGroup),
     #[clap(subcommand)]
     User(UserGroup),
+    #[clap(subcommand)]
+    Db(DatabaseGroup),
 }
 
 

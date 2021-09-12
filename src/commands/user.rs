@@ -25,21 +25,21 @@ pub enum Group {
 impl GroupDispatch for Group {
     fn dispatch(self) -> Result<()> {
         match self {
-            Group::Whoami(user) => {
+            Self::Whoami(user) => {
                 let infos = user.whoami()?;
                 println!("{:?}", infos);
             }
-            Group::Register(user) => {
+            Self::Register(user) => {
                 user.register()?;
             }
-            Group::Unregister(user) => {
+            Self::Unregister(user) => {
                 user.unregister()?;
             }
-            Group::Login(user) => {
+            Self::Login(user) => {
                 let token = user.new_token()?;
                 println!("{}", token);
             }
-            Group::List(admin) => {
+            Self::List(admin) => {
                 let users = admin.users()?;
                 let mut table = Table::new();
                 table.add_row(row!["ID", "Email", "First Name", "Last Name", "Created", "Updated"]);
