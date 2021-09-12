@@ -113,10 +113,9 @@ impl User {
         let response_body: Response<whoami::ResponseData> = response.json()?;
         response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
 
-        Ok(response_body
+        response_body
             .data.context("missing whoami response data")?
-            .user.context("missing user data")?
-        )
+            .user.context("missing user data")
     }
 
     pub fn unregister(&self) -> Result <()> {

@@ -48,9 +48,8 @@ impl AdminListUsers {
 
         response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
 
-        Ok(response_body
+        response_body
             .data.context("missing users response data")?
-            .user_accounts_list.context("missing user id")?
-        )
+            .user_accounts_list.context("missing user id")
     }
 }

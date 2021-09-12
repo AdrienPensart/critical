@@ -44,7 +44,7 @@ pub trait Music {
         UpsertMusic::build_query(variables)
     }
 
-    fn create_bulk_upsert_query(&self, user_id: i64, operation_name: &String) -> String{
+    fn create_bulk_upsert_query(&self, user_id: i64, operation_name: &str) -> String {
         format!(r#"
 mutation {operation_name} {{
     upsertMusic(
