@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Result, Context};
 use clap::{AppSettings, Clap};
 use postgres::{Client, NoTls};
 
@@ -45,7 +45,7 @@ impl Database {
             admin_user=self.admin_user,
             admin_password=self.admin_password,
         );
-        Ok(Client::connect(&dsn, NoTls)?)
+        Client::connect(&dsn, NoTls).with_context(|| dsn)
     }
 
     pub fn admin_no_db_client(&self) -> Result<Client> {
@@ -56,69 +56,83 @@ impl Database {
             admin_user=self.admin_user,
             admin_password=self.admin_password,
         );
-        Ok(Client::connect(&dsn, NoTls)?)
-    }
-
-    pub fn no_db_client(&self) -> Result<Client> {
-        let dsn = format!("postgresql://{user}:{password}@{host}:{port}", host=self.host, port=self.port, user=self.user, password=self.password);
-        Ok(Client::connect(&dsn, NoTls)?)
+        Client::connect(&dsn, NoTls).with_context(|| dsn)
     }
 
     pub fn client(&self) -> Result<Client> {
         let dsn = format!("postgresql://{user}:{password}@{host}:{port}/{name}", host=self.host, port=self.port, user=self.user, password=self.password, name=self.name);
-        Ok(Client::connect(&dsn, NoTls)?)
+        Client::connect(&dsn, NoTls).with_context(|| dsn)
     }
 
     pub fn kill_connections(&self, client: &mut Client) -> Result<()> {
-        let query = format!(r#"
+        let kill_connections_query = format!(r#"
             select pg_terminate_backend(pg_stat_activity.pid)
             from pg_stat_activity
             where pg_stat_activity.datname = '{name}' and pid <> pg_backend_pid()
             "#,
             name=&self.name,
         );
-        client.batch_execute(&query)?;
-        Ok(())
+        client
+            .batch_execute(&kill_connections_query)
+            .with_context(|| kill_connections_query)
     }
 
     pub fn fill_schemas(&self, client: &mut Client) -> Result<()> {
         let aggregates = include_str!("schema/user/aggregates.sql");
-        client.batch_execute(aggregates)?;
+        client
+            .batch_execute(aggregates)
+            .with_context(|| aggregates)?;
 
         let user = include_str!("schema/user/user.sql");
-        client.batch_execute(user)?;
+        client
+            .batch_execute(user)
+            .with_context(|| user)?;
 
         let music = include_str!("schema/user/music.sql");
-        client.batch_execute(music)?;
+        client
+            .batch_execute(music)
+            .with_context(|| music)?;
 
         let filter = include_str!("schema/user/filter.sql");
-        client.batch_execute(filter)?;
+        client
+            .batch_execute(filter)
+            .with_context(|| filter)?;
 
         let views = include_str!("schema/user/views.sql");
-        client.batch_execute(views)?;
+        client
+            .batch_execute(views)
+            .with_context(|| views)?;
 
         let playlist = include_str!("schema/user/playlist.sql");
-        client.batch_execute(playlist)?;
+        client
+            .batch_execute(playlist)
+            .with_context(|| playlist)?;
 
         let stat = include_str!("schema/user/stat.sql");
-        client.batch_execute(stat)?;
+        client
+            .batch_execute(stat)
+            .with_context(|| stat)?;
 
         let grants = include_str!("schema/user/grants.sql");
-        client.batch_execute(grants)?;
+        client
+            .batch_execute(grants)
+            .with_context(|| grants)?;
 
         Ok(())
     }
 
     pub fn drop_functions(&self, client: &mut Client) -> Result<()> {
-        let query = include_str!("schema/user/drop_functions.sql");
-        client.batch_execute(query)?;
-        Ok(())
+        let drop_functions_query = include_str!("schema/user/drop_functions.sql");
+        client
+            .batch_execute(drop_functions_query)
+            .with_context(|| drop_functions_query)
     }
 
     pub fn drop_schemas(&self, client: &mut Client) -> Result<()> {
-        let query = include_str!("schema/user/drop_schemas.sql");
-        client.batch_execute(query)?;
-        Ok(())
+        let drop_schemas_query = include_str!("schema/user/drop_schemas.sql");
+        client
+            .batch_execute(drop_schemas_query)
+            .with_context(|| drop_schemas_query)
     }
 
     pub fn create_role(&self, client: &mut Client) -> Result<()> {
@@ -127,8 +141,9 @@ impl Database {
             user=self.user,
             password=self.password,
         );
-        client.batch_execute(&create_role_query)?;
-        Ok(())
+        client
+            .batch_execute(&create_role_query)
+            .with_context(|| create_role_query)
     }
 
     pub fn create_schemas(&self, client: &mut Client) -> Result<()> {
@@ -136,20 +151,26 @@ impl Database {
             include_str!("schema/admin/create_schemas.sql"),
             user=self.user,
         );
-        client.batch_execute(&create_schemas_query)?;
-        Ok(())
+        client
+            .batch_execute(&create_schemas_query)
+            .with_context(|| create_schemas_query)
     }
 
     pub fn create_extensions(&self, client: &mut Client) -> Result<()> {
-        let create_extensions_query = include_str!("schema/admin/create_extensions.sql");
-        client.batch_execute(&create_extensions_query)?;
-        Ok(())
+        let create_extensions_query = format!(
+            include_str!("schema/admin/create_extensions.sql"),
+            user=self.user,
+        );
+        client
+            .batch_execute(&create_extensions_query)
+            .with_context(|| create_extensions_query)
     }
 
     pub fn drop_extensions(&self, client: &mut Client) -> Result<()> {
         let drop_extensions_query = include_str!("schema/admin/drop_extensions.sql");
-        client.batch_execute(&drop_extensions_query)?;
-        Ok(())
+        client
+            .batch_execute(drop_extensions_query)
+            .with_context(|| drop_extensions_query)
     }
 
     pub fn create_database(&self, client: &mut Client) -> Result<()> {
@@ -161,8 +182,9 @@ impl Database {
             admin_user=self.admin_user,
             admin_password=self.admin_password,
         );
-        client.batch_execute(&create_database_query)?;
-        Ok(())
+        client
+            .batch_execute(&create_database_query)
+            .with_context(|| create_database_query)
     }
 
     pub fn drop_database(&self, client: &mut Client) -> Result<()> {
@@ -173,8 +195,9 @@ impl Database {
             admin_user=self.admin_user,
             admin_password=self.admin_password,
         );
-        client.batch_execute(&drop_database_query)?;
-        Ok(())
+        client
+            .batch_execute(&drop_database_query)
+            .with_context(|| drop_database_query)
     }
 
     pub fn drop_role(&self, client: &mut Client) -> Result<()> {
@@ -185,7 +208,8 @@ impl Database {
             admin_user=self.admin_user,
             admin_password=self.admin_password,
         );
-        client.batch_execute(&drop_role_query)?;
-        Ok(())
+        client
+            .batch_execute(&drop_role_query)
+            .with_context(|| drop_role_query)
     }
 }

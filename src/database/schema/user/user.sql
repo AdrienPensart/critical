@@ -74,7 +74,7 @@ begin
     select a.* into strict account
     from musicbot_private.account as a
     where a.email = authenticate.email;
-    if account.password_hash = crypt(authenticate.password, account.password_hash) then
+    if account.password_hash = musicbot_extensions.crypt(authenticate.password, account.password_hash) then
         raise notice 'Token Authorization for user % : %', email, ('musicbot_user', account.user_id, extract(epoch from (now() + interval '1 day')))::musicbot_public.jwt_token;
         return ('musicbot_user', account.user_id, extract(epoch from (now() + interval '1 day')))::musicbot_public.jwt_token;
     else
@@ -118,7 +118,7 @@ begin
         returning *
     )
     insert into musicbot_private.account (user_id, email, password_hash)
-    values ((select insert_user.id from insert_user), register_user.email, crypt(register_user.password, gen_salt('bf')));
+    values ((select insert_user.id from insert_user), register_user.email, musicbot_extensions.crypt(register_user.password, musicbot_extensions.gen_salt('bf')));
 
     return musicbot_public.authenticate(email => register_user.email, password => register_user.password);
 exception
