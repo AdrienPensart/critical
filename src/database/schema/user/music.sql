@@ -53,8 +53,10 @@ create type musicbot_public.artist as (id bigint, name text, albums musicbot_pub
 create type musicbot_public.genre as (id bigint, name text);
 create type musicbot_public.keyword as (id bigint, name text);
 
-create or replace function musicbot_public.artists_tree() returns setof musicbot_public.artist
-as $$
+create or replace function musicbot_public.artists_tree()
+returns setof musicbot_public.artist
+as
+$$
     select row_number() over (order by artist) as id, artist, array_agg((id, album, musics)::musicbot_public.album) as albums
     from (
         select row_number() over (order by album) as id, artist, album, array_agg(row(id, title)::musicbot_public.music_title) as musics
@@ -66,8 +68,10 @@ as $$
     group by artist;
 $$ language sql stable;
 
-create or replace function musicbot_public.genres_tree() returns setof musicbot_public.genre
-as $$
+create or replace function musicbot_public.genres_tree()
+returns setof musicbot_public.genre
+as
+$$
     select row_number() over () as id, genre
     from musicbot_public.music
     where genre != ''
@@ -75,8 +79,10 @@ as $$
     order by genre asc;
 $$ language sql stable;
 
-create or replace function musicbot_public.keywords_tree() returns setof musicbot_public.keyword
-as $$
+create or replace function musicbot_public.keywords_tree()
+returns setof musicbot_public.keyword
+as
+$$
     select row_number() over () as id, keyword
     from (
         select unnest(musicbot_public.array_cat_agg(keywords)) as keyword
@@ -87,6 +93,12 @@ as $$
     order by keyword asc;
 $$ language sql stable;
 
-create or replace function musicbot_public.delete_all_music() returns void as $$
-    delete from musicbot_public.music;
+create or replace function musicbot_public.delete_all_music()
+returns bigint
+as
+$$
+    with deletion as (
+        delete from musicbot_public.music
+        returning *
+    ) select count(*) from deletion;
 $$ language sql;
