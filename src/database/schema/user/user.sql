@@ -1,10 +1,10 @@
 create table if not exists musicbot_public.user
 (
     id               serial primary key,
-    first_name       text check (char_length(coalesce(first_name, '')) < 80),
-    last_name        text check (char_length(coalesce(last_name, '')) < 80),
-    created_at       timestamp with time zone default now(),
-    updated_at       timestamp with time zone default now()
+    first_name       text not null default '' check (char_length(coalesce(first_name, '')) < 80),
+    last_name        text not null default '' check (char_length(coalesce(last_name, '')) < 80),
+    created_at       timestamp with time zone not null default now(),
+    updated_at       timestamp with time zone not null default now()
 );
 alter table if exists musicbot_public.user enable row level security;
 

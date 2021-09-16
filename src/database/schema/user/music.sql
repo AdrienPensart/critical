@@ -2,24 +2,24 @@ create table if not exists musicbot_public.music
 (
     id         serial primary key,
     user_id    integer not null references musicbot_public.user (id) on delete cascade default musicbot_public.current_musicbot(),
-    title      text default '',
-    album      text default '',
-    genre      text default '',
-    artist     text default '',
-    number     integer default 0,
-    rating     float default 0.0,
-    duration   integer default 0,
-    keywords   text[] default '{}',
-    links      text[] default '{}',
-    created_at timestamp with time zone default now(),
-    updated_at timestamp with time zone default now(),
+    title      text not null default '',
+    album      text not null default '',
+    genre      text not null default '',
+    artist     text not null default '',
+    number     integer not null default 0,
+    rating     float not null default 0.0,
+    duration   integer not null default 0,
+    keywords   text[] not null default '{}',
+    links      text[] not null default '{}',
+    created_at timestamp with time zone not null default now(),
+    updated_at timestamp with time zone not null default now(),
     constraint unique_music_by_user unique (title, album, artist, user_id)
 );
 
 create index if not exists music_user_idx on musicbot_public.music (user_id);
 
 alter table if exists musicbot_public.music enable row level security;
---alter table if exists musicbot_public.music force row level security;
+alter table if exists musicbot_public.music force row level security;
 
 grant usage on sequence musicbot_public.music_id_seq to musicbot_user;
 

@@ -9,8 +9,8 @@ create table if not exists musicbot_public.stat
     links        bigint not null default 0,
     keywords     bigint not null default 0,
     duration     bigint not null default 0,
-    created_at   timestamp with time zone default now(),
-    updated_at   timestamp with time zone default now()
+    created_at   timestamp with time zone not null default now(),
+    updated_at   timestamp with time zone not null default now()
 );
 
 create index if not exists stat_user_idx on musicbot_public.stat (user_id);
