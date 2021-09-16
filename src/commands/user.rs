@@ -13,6 +13,7 @@ use crate::user::accounts::AdminListUsers;
 #[clap(about = "User management")]
 pub enum Group {
     Register(UserRegister),
+    #[clap(visible_alias = "token")]
     Login(UserLogin),
     List(AdminListUsers),
 
@@ -44,12 +45,8 @@ impl GroupDispatch for Group {
                 let mut table = Table::new();
                 table.add_row(row!["ID", "Email", "First Name", "Last Name", "Created", "Updated"]);
                 for user in users {
-                    let id = match user.id {
-                        Some(id) => id.to_string(),
-                        _ => "N/A".to_string(),
-                    };
                     table.add_row(row![
-                        id,
+                        user.id.map_or_else(|| "N/A".to_string(), |id| id.to_string()),
                         user.email.unwrap_or_else(|| "N/A".to_string()),
                         user.first_name.unwrap_or_else(|| "N/A".to_string()),
                         user.last_name.unwrap_or_else(|| "N/A".to_string()),

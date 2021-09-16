@@ -19,8 +19,8 @@ pub struct Register;
 #[clap(about = "Register a new user")]
 pub struct UserRegister {
     /// MusicBot GraphQL endpoint
-    #[clap(long)]
-    pub endpoint: String,
+    #[clap(short, long, visible_alias = "endpoint")]
+    pub graphql: String,
 
     /// MusicBot user email
     #[clap(long)]
@@ -31,12 +31,12 @@ pub struct UserRegister {
     pub password: String,
 
     /// MusicBot user first name
-    #[clap(long)]
-    pub first_name: Option<String>,
+    #[clap(long, default_value = "")]
+    pub first_name: String,
 
     /// MusicBot user last name
-    #[clap(long)]
-    pub last_name: Option<String>,
+    #[clap(long, default_value = "")]
+    pub last_name: String,
 }
 
 impl UserRegister {
@@ -47,13 +47,12 @@ impl UserRegister {
             email: self.email.clone(),
             password: self.password.clone(),
         };
-        let endpoint = &self.endpoint;
 
         let request_body = Register::build_query(variables);
         let response_body: Response<register::ResponseData> = reqwest::blocking::Client::builder()
             .user_agent(APP_USER_AGENT)
             .build()?
-            .post(endpoint)
+            .post(&self.graphql)
             .json(&request_body)
             .send()?
             .json()?;
@@ -66,7 +65,7 @@ impl UserRegister {
             .jwt_token.context("missing token in response")?;
 
         Ok(User {
-            endpoint: endpoint.clone(),
+            graphql: self.graphql.clone(),
             token: Some(token),
             email: Some(self.email.clone()),
             password: Some(self.password.clone()),

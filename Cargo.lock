@@ -274,6 +274,7 @@ dependencies = [
  "id3",
  "indicatif",
  "itertools",
+ "lazy_static",
  "metaflac",
  "mp3-duration",
  "postgres",

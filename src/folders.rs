@@ -17,12 +17,12 @@ use crate::music::mp3_file::Mp3File;
 #[clap(setting = AppSettings::ColoredHelp)]
 #[clap(about = "Scan folders and save music")]
 pub struct FoldersScanner {
-    /// Enable bulk insert
-    #[clap(short, long)]
+    /// Enable bulk insert / batch
+    #[clap(short, long, visible_alias = "batch")]
     pub bulk: bool,
 
     /// Upsert chunks
-    #[clap(default_value = "200", long)]
+    #[clap(long, default_value = "200", long)]
     pub chunks: usize,
 
     /// MusicBot user
@@ -96,11 +96,10 @@ impl FoldersScanner {
                     operation.insert("operationName", operation_name);
                     operations.push(operation);
                 }
-                let request_body = serde_json::to_string_pretty(&operations).unwrap();
+                let request_body = serde_json::to_string_pretty(&operations)?;
 
                 let _music_upsert_response = authenticated_user
-                    .client
-                    .post(&self.user.endpoint)
+                    .post()
                     .header(reqwest::header::CONTENT_TYPE, "application/json; charset=utf-8")
                     .body(request_body)
                     .send()?;
@@ -110,18 +109,19 @@ impl FoldersScanner {
         } else {
             for music in musics {
                 let request_body = music.create_upsert_query(authenticated_user.user_id);
-                let response: Response<upsert_music::ResponseData> = authenticated_user
-                    .client
-                    .post(&self.user.endpoint)
+                let response_body: Response<upsert_music::ResponseData> = authenticated_user
+                    .post()
                     .json(&request_body)
                     .send()?
                     .json()?;
 
-                response.errors.err_on_some(|| bail!("{:?}", response.errors))?;
-                let _response_body = response
-                    .data.context("missing user id response data")?
-                    .upsert_music.context("missing upsert music response")?
-                    .client_mutation_id.context("missing client mutation id")?;
+                response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
+                let response_copy = format!("{:?}", response_body.data);
+
+                let _client_mutation_id = response_body
+                    .data.with_context(|| format!("missing music response data : {}", response_copy))?
+                    .upsert_music.with_context(|| format!("missing upsert music response : {}", response_copy))?
+                    .client_mutation_id;
                 bar.inc(1);
             }
         }

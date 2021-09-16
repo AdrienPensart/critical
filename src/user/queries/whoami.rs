@@ -27,14 +27,14 @@ pub mod whoami {
     #[derive(Deserialize, Debug)]
     pub struct WhoamiUser {
         #[serde(rename = "firstName")]
-        pub first_name: Option<String>,
+        pub first_name: String,
         pub id: Int,
         #[serde(rename = "lastName")]
-        pub last_name: Option<String>,
+        pub last_name: String,
         #[serde(rename = "createdAt")]
-        pub created_at: Option<Datetime>,
+        pub created_at: Datetime,
         #[serde(rename = "updatedAt")]
-        pub updated_at: Option<Datetime>,
+        pub updated_at: Datetime,
     }
 }
 impl graphql_client::GraphQLQuery for Whoami {

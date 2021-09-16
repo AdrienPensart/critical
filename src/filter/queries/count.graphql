@@ -1,0 +1,5 @@
+query CountFilters {
+    filters {
+        totalCount
+    }
+}

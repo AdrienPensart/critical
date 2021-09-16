@@ -18,8 +18,8 @@ pub struct Auth;
 #[clap(about = "Get a new token")]
 pub struct UserLogin {
     /// MusicBot GraphQL endpoint
-    #[clap(long)]
-    pub endpoint: String,
+    #[clap(long, short, visible_alias = "endpoint")]
+    pub graphql: String,
 
     /// MusicBot user email
     #[clap(long)]
@@ -36,13 +36,12 @@ impl UserLogin {
             email: self.email.clone(),
             password: self.password.clone(),
         };
-        let endpoint = &self.endpoint;
 
         let request_body = Auth::build_query(auth_variables);
         let response_body: Response<auth::ResponseData> = reqwest::blocking::Client::builder()
             .user_agent(APP_USER_AGENT)
             .build()?
-            .post(endpoint)
+            .post(&self.graphql)
             .json(&request_body)
             .send()?
             .json()?;

@@ -1,0 +1,22 @@
+query ListFilters
+{
+    filtersList {
+        name
+        minDuration
+        maxDuration
+        minRating
+        maxRating
+        artists
+        noArtists
+        albums
+        noAlbums
+        titles
+        noTitles
+        genres
+        noGenres
+        keywords
+        noKeywords
+        shuffle
+        limit
+    }
+}

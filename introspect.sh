@@ -11,4 +11,13 @@ graphql-client generate src/user/queries/register.graphql --schema-path=src/musi
 graphql-client generate src/user/queries/unregister.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/user/queries
 graphql-client generate src/user/queries/current_musicbot.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/user/queries
 
-graphql-client generate src/music/queries/upsert_music.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/music/queries
+graphql-client generate src/music/queries/upsert.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/music/queries
+graphql-client generate src/music/queries/clean.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/music/queries
+graphql-client generate src/music/queries/stats.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/music/queries
+
+
+graphql-client generate src/filter/queries/count.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/filter/queries
+graphql-client generate src/filter/queries/get.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/filter/queries
+graphql-client generate src/filter/queries/list.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/filter/queries
+graphql-client generate src/filter/queries/delete.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/filter/queries
+graphql-client generate src/filter/queries/upsert.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/filter/queries

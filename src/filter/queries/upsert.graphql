@@ -1,0 +1,51 @@
+mutation UpsertFilter (
+    $name: String!,
+    $user_id: Int!,
+    $min_duration: Int!,
+    $max_duration: Int!,
+    $min_rating: Float!,
+    $max_rating: Float!,
+    $artists: [String!]!,
+    $no_artists: [String!]!,
+    $albums: [String!]!,
+    $no_albums: [String!]!,
+    $titles: [String!]!,
+    $no_titles: [String!]!,
+    $genres: [String!]!,
+    $no_genres: [String!]!,
+    $keywords: [String!]!,
+    $no_keywords: [String!]!,
+    $shuffle: Boolean!,
+    $limit: Int!,
+){
+    upsertFilter(
+        where: {
+            name: $name
+            userId: $user_id
+        }
+        input: {
+            filter: {
+                name: $name
+                minDuration: $min_duration
+                maxDuration: $max_duration
+                minRating: $min_rating
+                maxRating: $max_rating
+                artists: $artists
+                noArtists: $no_artists
+                albums: $albums
+                noAlbums: $no_albums
+                titles: $titles
+                noTitles: $no_titles
+                genres: $genres
+                noGenres: $no_genres
+                keywords: $keywords
+                noKeywords: $no_keywords
+                shuffle: $shuffle
+                limit: $limit
+            }
+        }
+    )
+    {
+        clientMutationId
+    }
+}

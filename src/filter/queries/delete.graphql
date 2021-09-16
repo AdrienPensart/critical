@@ -1,0 +1,7 @@
+mutation DeleteFilter($name: String!)
+{
+    deleteFilter(input: {name: $name})
+    {
+        clientMutationId
+    }
+}

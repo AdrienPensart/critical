@@ -8,7 +8,7 @@ pub mod mp3_file;
 #[derive(GraphQLQuery)]
 #[graphql(
     schema_path = "src/musicbot.json",
-    query_path = "src/music/queries/upsert_music.graphql",
+    query_path = "src/music/queries/upsert.graphql",
     response_derives = "Debug",
 )]
 pub struct UpsertMusic;

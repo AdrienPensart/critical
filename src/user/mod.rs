@@ -1,3 +1,4 @@
+pub mod authenticated_user;
 pub mod queries;
 pub mod login;
 pub mod accounts;
@@ -7,11 +8,11 @@ use clap::{AppSettings, Clap};
 use graphql_client::{GraphQLQuery, Response};
 use anyhow::{Result, Context, bail};
 
+use crate::types::{BigInt, JwtToken, Datetime};
 use crate::err_on_some::ErrOnSome;
 use crate::user::login::UserLogin;
-
-type JwtToken = String;
-type Datetime = String;
+use crate::user::authenticated_user::AuthenticatedUser;
+use crate::filter::{upsert_filter, DEFAULT_FILTERS};
 
 static APP_USER_AGENT: &str = concat!(
     env!("CARGO_PKG_NAME"),
@@ -24,8 +25,8 @@ static APP_USER_AGENT: &str = concat!(
 #[clap(about = "User credentials")]
 pub struct User {
     /// MusicBot GraphQL endpoint
-    #[clap(long)]
-    pub endpoint: String,
+    #[clap(short, long, visible_alias = "endpoint")]
+    pub graphql: String,
 
     /// MusicBot token
     #[clap(short, long)]
@@ -40,14 +41,6 @@ pub struct User {
     pub password: Option<String>,
 }
 
-#[derive(GraphQLQuery)]
-#[graphql(
-    schema_path = "src/musicbot.json",
-    query_path = "src/user/queries/unregister.graphql",
-    response_derives = "Debug",
-)]
-pub struct Unregister;
-
 impl User {
     pub fn authenticate(&self) -> Result<AuthenticatedUser> {
         let token: String = match &self.token {
@@ -55,7 +48,7 @@ impl User {
             None => match (&self.email, &self.password) {
                 (Some(email), Some(password)) => {
                     let user_login = UserLogin {
-                        endpoint: self.endpoint.clone(),
+                        graphql: self.graphql.clone(),
                         email: email.clone(),
                         password: password.clone(),
                     };
@@ -79,19 +72,20 @@ impl User {
 
         let request_body = CurrentUserId::build_query(current_user_id::Variables);
         let response_body: Response<current_user_id::ResponseData> = authenticated_client
-            .post(&self.endpoint)
+            .post(&self.graphql)
             .json(&request_body)
             .send()?
             .json()?;
 
         response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
+        let response_copy = format!("{:?}", response_body.data);
 
         let user_id = response_body
-            .data.context("missing user id response data")?
-            .current_musicbot.context("missing user id")?;
+            .data.with_context(|| format!("missing user id response data : {}", response_copy))?
+            .current_musicbot.with_context(|| format!("missing user id : {}", response_copy))?;
 
         Ok(AuthenticatedUser {
-            endpoint: self.endpoint.clone(),
+            graphql: self.graphql.clone(),
             client: authenticated_client,
             user_id,
         })
@@ -104,38 +98,119 @@ impl User {
         };
 
         let request_body = Whoami::build_query(variables);
-        let response = authenticated_user
-            .client
-            .post(&self.endpoint)
-            .json(&request_body)
-            .send()?;
-
-        let response_body: Response<whoami::ResponseData> = response.json()?;
-        response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
-
-        response_body
-            .data.context("missing whoami response data")?
-            .user.context("missing user data")
-    }
-
-    pub fn unregister(&self) -> Result <()> {
-        let authenticated_user = self.authenticate()?;
-        let request_body = Unregister::build_query(unregister::Variables);
-        let response_body: Response<unregister::ResponseData> = authenticated_user
-            .client
-            .post(&self.endpoint)
+        let response_body: Response<whoami::ResponseData> = authenticated_user
+            .post()
             .json(&request_body)
             .send()?
             .json()?;
 
         response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
+        let response_copy = format!("{:?}", response_body.data);
 
         response_body
-            .data.context("missing unregister response data")?
-            .unregister_user.context("missing unregister user response data")?
-            .client_mutation_id.context("missing client mutation id in response")?;
+            .data.with_context(|| format!("missing whoami response data : {}", response_copy))?
+            .user.with_context(|| format!("missing user data : {}", response_copy))
+    }
+
+    pub fn unregister(&self) -> Result<()> {
+        let authenticated_user = self.authenticate()?;
+        let request_body = Unregister::build_query(unregister::Variables);
+        let response_body: Response<unregister::ResponseData> = authenticated_user
+            .post()
+            .json(&request_body)
+            .send()?
+            .json()?;
+
+        response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
+        let response_copy = format!("{:?}", response_body.data);
+
+        response_body
+            .data.with_context(|| format!("missing unregister response data : {}", response_copy))?
+            .unregister_user.with_context(|| format!("missing unregister user response data : {}", response_copy))?
+            .client_mutation_id.with_context(|| format!("missing client mutation id in response : {}", response_copy))?;
 
         Ok(())
+    }
+
+    pub fn clean_musics(&self) -> Result<i64> {
+        let authenticated_user = self.authenticate()?;
+        let request_body = CleanMusics::build_query(clean_musics::Variables);
+        let response_body: Response<clean_musics::ResponseData> = authenticated_user
+            .post()
+            .json(&request_body)
+            .send()?
+            .json()?;
+
+        response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
+        let response_copy = format!("{:?}", response_body.data);
+
+        response_body
+            .data.with_context(|| format!("missing clean musics response : {}", response_copy))?
+            .delete_all_music.with_context(|| format!("missing clean musics response data : {}", response_copy))?
+            .big_int.with_context(|| format!("missing client mutation id in response : {}", response_copy))?
+            .parse::<i64>().with_context(|| format!("cannot get deleted musics : {}", response_copy))
+    }
+
+    pub fn count_filters(self) -> Result<i64> {
+        let authenticated_user = self.authenticate()?;
+        let request_body = CountFilters::build_query(count_filters::Variables);
+        let response_body: Response<count_filters::ResponseData> = authenticated_user
+            .post()
+            .json(&request_body)
+            .send()?
+            .json()?;
+
+        response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
+        let response_copy = format!("{:?}", response_body.data);
+
+        Ok(response_body
+            .data.with_context(|| format!("missing filter count response data : {}", response_copy))?
+            .filters.with_context(|| format!("missing filter count data : {}", response_copy))?
+            .total_count)
+    }
+
+    pub fn load_default_filters(self) -> Result<()> {
+        let authenticated_user = self.authenticate()?;
+
+        for default_filter in DEFAULT_FILTERS.iter() {
+            let request_body = default_filter.create_upsert_query(authenticated_user.user_id);
+            let response_body: Response<upsert_filter::ResponseData> = authenticated_user
+                .post()
+                .json(&request_body)
+                .send()?
+                .json()?;
+
+            response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
+            let response_copy = format!("{:?}", response_body.data);
+
+            let _client_mutation_id = response_body
+                .data.with_context(|| format!("missing filter upsert response data : {}", response_copy))?
+                .upsert_filter.with_context(|| format!("missing filter upsert data : {}", response_copy))?
+                .client_mutation_id;
+        }
+        Ok(())
+    }
+
+    pub fn list_filters(self) -> Result<Vec<list_filters::ListFiltersFiltersList>> {
+        let authenticated_user = self.authenticate()?;
+        let request_body = ListFilters::build_query(list_filters::Variables);
+        let response_body: Response<list_filters::ResponseData> = authenticated_user
+            .post()
+            .json(&request_body)
+            .send()?
+            .json()?;
+
+        response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
+        let response_copy = format!("{:?}", response_body.data);
+
+        let filters_list = response_body
+            .data.with_context(|| format!("missing filter list response data : {}", response_copy))?
+            .filters_list;
+
+        match filters_list {
+            None => bail!("missing filters list data : {}", response_copy),
+            Some(filters_list) => Ok(filters_list)
+        }
     }
 }
 
@@ -155,8 +230,34 @@ pub struct Whoami;
 )]
 pub struct CurrentUserId;
 
-pub struct AuthenticatedUser {
-    pub endpoint: String,
-    pub client: reqwest::blocking::Client,
-    pub user_id: i64,
-}
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "src/musicbot.json",
+    query_path = "src/user/queries/unregister.graphql",
+    response_derives = "Debug",
+)]
+pub struct Unregister;
+
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "src/musicbot.json",
+    query_path = "src/music/queries/clean.graphql",
+    response_derives = "Debug",
+)]
+pub struct CleanMusics;
+
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "src/musicbot.json",
+    query_path = "src/filter/queries/count.graphql",
+    response_derives = "Debug",
+)]
+pub struct CountFilters;
+
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "src/musicbot.json",
+    query_path = "src/filter/queries/list.graphql",
+    response_derives = "Debug",
+)]
+pub struct ListFilters;

@@ -10158,7 +10158,7 @@
               "name": "connectByEmail",
               "type": {
                 "kind": "INPUT_OBJECT",
-                "name": "AccountAccountEmailKeyConnect",
+                "name": "AccountEmailUniqueConnect",
                 "ofType": null
               }
             },
@@ -10188,7 +10188,7 @@
               "name": "deleteByEmail",
               "type": {
                 "kind": "INPUT_OBJECT",
-                "name": "AccountAccountEmailKeyDelete",
+                "name": "AccountEmailUniqueDelete",
                 "ofType": null
               }
             },
@@ -10218,7 +10218,7 @@
               "name": "updateByEmail",
               "type": {
                 "kind": "INPUT_OBJECT",
-                "name": "AccountOnAccountForAccountUserIdFkeyUsingAccountEmailKeyUpdate",
+                "name": "AccountOnAccountForAccountUserIdFkeyUsingEmailUniqueUpdate",
                 "ofType": null
               }
             },
@@ -10303,7 +10303,7 @@
           ],
           "interfaces": null,
           "kind": "INPUT_OBJECT",
-          "name": "AccountAccountEmailKeyConnect",
+          "name": "AccountEmailUniqueConnect",
           "possibleTypes": null
         },
         {
@@ -10378,7 +10378,7 @@
           ],
           "interfaces": null,
           "kind": "INPUT_OBJECT",
-          "name": "AccountAccountEmailKeyDelete",
+          "name": "AccountEmailUniqueDelete",
           "possibleTypes": null
         },
         {
@@ -14609,7 +14609,7 @@
           ],
           "interfaces": null,
           "kind": "INPUT_OBJECT",
-          "name": "AccountOnAccountForAccountUserIdFkeyUsingAccountEmailKeyUpdate",
+          "name": "AccountOnAccountForAccountUserIdFkeyUsingEmailUniqueUpdate",
           "possibleTypes": null
         },
         {
@@ -18136,13 +18136,9 @@
               "description": null,
               "name": "email",
               "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
               }
             },
             {
@@ -18150,13 +18146,9 @@
               "description": null,
               "name": "password",
               "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
               }
             },
             {
