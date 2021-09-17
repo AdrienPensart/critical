@@ -14,6 +14,7 @@ graphql-client generate src/user/queries/current_musicbot.graphql --schema-path=
 graphql-client generate src/music/queries/upsert.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/music/queries
 graphql-client generate src/music/queries/clean.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/music/queries
 graphql-client generate src/music/queries/stats.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/music/queries
+graphql-client generate src/music/queries/playlist.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/music/queries
 
 
 graphql-client generate src/filter/queries/count.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/filter/queries

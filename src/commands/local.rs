@@ -13,6 +13,7 @@ pub enum Group {
     Scan(FoldersScanner),
     Clean(User),
     Stats(UserMusics),
+    Playlist(UserMusics),
 }
 
 impl GroupDispatch for Group {
@@ -26,9 +27,20 @@ impl GroupDispatch for Group {
                 println!("Deleted : {}", deleted);
                 Ok(())
             },
+            Group::Playlist(user) => {
+                let playlist = user.playlist()?;
+                println!("Playlist : {:?}", playlist);
+                Ok(())
+            },
             Group::Stats(user_musics) => {
                 let stats = user_musics.stats()?;
-                println!("Stats : {:?}", stats);
+                println!("Musics : {}", stats.musics);
+                println!("Links : {}", stats.links);
+                println!("Artists : {}", stats.artists);
+                println!("Albums : {}", stats.albums);
+                println!("Genres : {}", stats.genres);
+                println!("Keywords : {}", stats.keywords);
+                println!("Duration : {}", stats.duration);
                 Ok(())
             }
         }

@@ -147,6 +147,28 @@ impl Filter {
         };
         Stats::build_query(variables)
     }
+
+    pub fn create_playlist_query(&self) -> QueryBody<playlist::Variables> {
+        let variables = playlist::Variables {
+            limit: self.limit as i64,
+            shuffle: self.shuffle,
+            min_duration: self.min_duration as i64,
+            max_duration: self.max_duration as i64,
+            titles: self.titles.clone(),
+            no_titles: self.no_titles.clone(),
+            artists: self.artists.clone(),
+            no_artists: self.no_artists.clone(),
+            albums: self.albums.clone(),
+            no_albums: self.no_albums.clone(),
+            genres: self.genres.clone(),
+            no_genres: self.no_genres.clone(),
+            keywords: self.keywords.clone(),
+            no_keywords: self.no_keywords.clone(),
+            min_rating: self.min_rating,
+            max_rating: self.max_rating,
+        };
+        Playlist::build_query(variables)
+    }
 }
 
 #[derive(GraphQLQuery)]
@@ -164,3 +186,11 @@ pub struct UpsertFilter;
     response_derives = "Debug",
 )]
 pub struct Stats;
+
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "src/musicbot.json",
+    query_path = "src/music/queries/playlist.graphql",
+    response_derives = "Debug",
+)]
+pub struct Playlist;

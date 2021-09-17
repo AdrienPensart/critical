@@ -6,7 +6,7 @@ use crate::helpers::vec_option_to_vec;
 use crate::err_on_some::ErrOnSome;
 use crate::user::User;
 use crate::user_filter::search_filter;
-use crate::filter::{stats, Filter};
+use crate::filter::{playlist, stats, Filter};
 
 #[derive(Clap, Debug)]
 #[clap(setting = AppSettings::ColoredHelp)]
@@ -20,8 +20,7 @@ pub struct UserMusics {
 }
 
 impl UserMusics {
-    pub fn stats(self) -> Result<stats::StatsDoStat> {
-        let authenticated_user = self.user.authenticate()?;
+    pub fn get_filter(self) -> Result<Filter> {
         let filter = if !self.filter.name.is_empty() {
             let filter = search_filter(&self.user, self.filter.name.clone())?;
             Filter {
@@ -46,6 +45,12 @@ impl UserMusics {
         } else {
             self.filter
         };
+        Ok(filter)
+    }
+
+    pub fn stats(self) -> Result<stats::StatsDoStat> {
+        let authenticated_user = self.user.authenticate()?;
+        let filter = self.get_filter()?;
 
         let request_body = filter.create_stats_query();
         let response = authenticated_user
@@ -57,14 +62,27 @@ impl UserMusics {
         response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
         let response_copy = format!("{:?}", response_body.data);
 
-        let do_stat = response_body
+        response_body
             .data.with_context(|| format!("missing stats response data : {}", response_copy))?
-            .do_stat;
-        if let Some(do_stat) = do_stat {
-            Ok(do_stat)
-        } else {
-            bail!("{}", response_copy)
-        }
+            .do_stat.with_context(|| format!("missing stats : {}\n{}\n{}", response_copy, serde_json::to_string_pretty(&request_body.variables).unwrap(), request_body.query))
+    }
+
+    pub fn playlist(self) -> Result<Vec<playlist::PlaylistPlaylistList>> {
+        let authenticated_user = self.user.authenticate()?;
+        let filter = self.get_filter()?;
+
+        let request_body = filter.create_playlist_query();
+        let response = authenticated_user
+            .post()
+            .json(&request_body)
+            .send()?;
+
+        let response_body: Response<playlist::ResponseData> = response.json()?;
+        response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
+        let response_copy = format!("{:?}", response_body.data);
+
+        response_body
+            .data.with_context(|| format!("missing playlist response data : {}", response_copy))?
+            .playlist_list.with_context(|| format!("missing playlist : {}\n{}\n{}\n", response_copy, serde_json::to_string_pretty(&request_body.variables).unwrap(), request_body.query))
     }
 }
-
