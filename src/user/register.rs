@@ -58,11 +58,12 @@ impl UserRegister {
             .json()?;
 
         response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
+        let response_copy = format!("{:?}", response_body.data);
 
         let token = response_body
-            .data.context("missing register user response data")?
-            .register_user.context("missing register user response")?
-            .jwt_token.context("missing token in response")?;
+            .data.with_context(|| format!("missing register user response data : {:?}", response_copy))?
+            .register_user.with_context(|| format!("missing register user response : {:?}", response_copy))?
+            .jwt_token.with_context(|| format!("missing token in response : {:?}", response_copy))?;
 
         Ok(User {
             graphql: self.graphql.clone(),

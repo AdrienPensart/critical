@@ -47,10 +47,11 @@ impl UserLogin {
             .json()?;
 
         response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
+        let response_copy = format!("{:?}", response_body.data);
 
         response_body
-            .data.context("missing authentication response data")?
-            .authenticate.context("missing authorization response")?
-            .jwt_token.context("missing token in response")
+            .data.with_context(|| format!("missing authentication response data : {:?}", response_copy))?
+            .authenticate.with_context(|| format!("missing authorization response : {:?}", response_copy))?
+            .jwt_token.with_context(|| format!("missing token in response : {:?}", response_copy))
     }
 }

@@ -47,9 +47,10 @@ impl AdminListUsers {
             .json()?;
 
         response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
+        let response_copy = format!("{:?}", response_body.data);
 
         response_body
-            .data.context("missing users response data")?
-            .user_accounts_list.context("missing user id")
+            .data.with_context(|| format!("missing users response data : {:?}", response_copy))?
+            .user_accounts_list.with_context(|| format!("missing user id : {:?}", response_copy))
     }
 }
