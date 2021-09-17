@@ -3,7 +3,7 @@ pub mod register {
     #![allow(dead_code)]
     use std::result::Result;
     pub const OPERATION_NAME: &str = "Register";
-    pub const QUERY : & str = "mutation Register($first_name: String, $last_name: String, $email: String!, $password: String!)\n{\n    registerUser(input: {\n        firstName: $first_name,\n        lastName: $last_name,\n        email: $email,\n        password: $password\n    })\n    {\n       jwtToken\n    }\n}\n" ;
+    pub const QUERY : & str = "mutation Register($first_name: String!, $last_name: String!, $email: String!, $password: String!)\n{\n    registerUser(input: {\n        firstName: $first_name,\n        lastName: $last_name,\n        email: $email,\n        password: $password\n    })\n    {\n       jwtToken\n    }\n}\n" ;
     use super::*;
     use serde::{Deserialize, Serialize};
     #[allow(dead_code)]
@@ -17,8 +17,8 @@ pub mod register {
     type JwtToken = super::JwtToken;
     #[derive(Serialize, Debug)]
     pub struct Variables {
-        pub first_name: Option<String>,
-        pub last_name: Option<String>,
+        pub first_name: String,
+        pub last_name: String,
         pub email: String,
         pub password: String,
     }

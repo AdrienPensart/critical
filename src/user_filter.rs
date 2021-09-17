@@ -54,10 +54,10 @@ impl UserFilter {
         response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
         let response_copy = format!("{:?}", response_body.data);
 
-        response_body
+        let _client_mutation_id = response_body
             .data.with_context(|| format!("missing delete filter response data : {}", response_copy))?
             .delete_filter.with_context(|| format!("missing delete filter response data : {}", response_copy))?
-            .client_mutation_id.with_context(|| format!("missing client mutation id in response : {}", response_copy))?;
+            .client_mutation_id;
 
         Ok(())
     }

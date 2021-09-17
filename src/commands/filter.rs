@@ -18,6 +18,23 @@ pub enum Group {
     Delete(UserFilter),
 }
 
+fn gen_in_and_out(with: Vec<Option<String>>, without: Vec<Option<String>>) -> String {
+    let mut filter = String::new();
+    if !with.is_empty() {
+        let with_vec = vec_option_to_vec(with);
+        filter.push_str(&format!("in: {:?}", with_vec));
+    }
+    if !without.is_empty() {
+        let without_vec = vec_option_to_vec(without);
+        if filter.is_empty(){
+            filter.push_str(&format!("out: {:?}", without_vec));
+        } else {
+            filter.push_str(&format!("\nout: {:?}", without_vec));
+        }
+    }
+    filter
+}
+
 impl GroupDispatch for Group {
     fn dispatch(self) -> Result<()> {
         match self {
@@ -34,36 +51,15 @@ impl GroupDispatch for Group {
                 let mut table = Table::new();
                 table.add_row(row!["Name", "Duration", "Rating", "Artists", "Albums", "Genres", "Titles", "Keywords", "Shuffle", "Limit"]);
                 for filter in filters {
-                    let min_duration = filter.min_duration;
-                    let max_duration = filter.max_duration;
-
-                    let min_rating = filter.min_rating;
-                    let max_rating = filter.max_rating;
-
-                    let artists = vec_option_to_vec(filter.artists);
-                    let no_artists = vec_option_to_vec(filter.no_artists);
-
-                    let albums = vec_option_to_vec(filter.albums);
-                    let no_albums = vec_option_to_vec(filter.no_albums);
-
-                    let genres = vec_option_to_vec(filter.genres);
-                    let no_genres = vec_option_to_vec(filter.no_genres);
-
-                    let titles = vec_option_to_vec(filter.titles);
-                    let no_titles = vec_option_to_vec(filter.no_titles);
-
-                    let keywords = vec_option_to_vec(filter.keywords);
-                    let no_keywords = vec_option_to_vec(filter.no_keywords);
-
                     table.add_row(row![
                         filter.name,
-                        format!("min: {}\nmax: {}", min_duration, max_duration),
-                        format!("min: {}\nmax: {}", min_rating, max_rating),
-                        format!("in: {:?}\nout: {:?}", artists, no_artists),
-                        format!("in: {:?}\nout: {:?}", albums, no_albums),
-                        format!("in: {:?}\nout: {:?}", genres, no_genres),
-                        format!("in: {:?}\nout: {:?}", titles, no_titles),
-                        format!("in: {:?}\nout: {:?}", keywords, no_keywords),
+                        format!("min: {}\nmax: {}", filter.min_duration, filter.max_duration),
+                        format!("min: {}\nmax: {}", filter.min_rating, filter.max_rating),
+                        gen_in_and_out(filter.artists, filter.no_artists),
+                        gen_in_and_out(filter.albums, filter.no_albums),
+                        gen_in_and_out(filter.genres, filter.no_genres),
+                        gen_in_and_out(filter.titles, filter.no_titles),
+                        gen_in_and_out(filter.keywords, filter.no_keywords),
                         filter.shuffle,
                         filter.limit,
                     ]);

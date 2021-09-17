@@ -26,10 +26,10 @@ impl UserMusics {
             let filter = search_filter(&self.user, self.filter.name.clone())?;
             Filter {
                 name: filter.name,
-                limit: filter.limit,
+                limit: filter.limit as i32,
                 shuffle: filter.shuffle,
-                min_duration: filter.min_duration,
-                max_duration: filter.max_duration,
+                min_duration: filter.min_duration as i32,
+                max_duration: filter.max_duration as i32,
                 titles: vec_option_to_vec(filter.titles),
                 no_titles: vec_option_to_vec(filter.no_titles),
                 artists: vec_option_to_vec(filter.artists),

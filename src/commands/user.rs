@@ -31,7 +31,8 @@ impl GroupDispatch for Group {
                 println!("{:?}", infos);
             }
             Self::Register(user) => {
-                user.register()?;
+                let registered_user = user.register()?;
+                registered_user.load_default_filters()?;
             }
             Self::Unregister(user) => {
                 user.unregister()?;

@@ -21,7 +21,31 @@ lazy_static! {
     ];
 }
 
-#[derive(Clap, Default, Debug)]
+impl Default for Filter {
+    fn default() -> Self {
+        Filter {
+            name: "".to_owned(),
+            shuffle: false,
+            min_duration: 0,
+            max_duration: i32::MAX,
+            min_rating: 0.0,
+            max_rating: 5.0,
+            limit: i32::MAX,
+            genres: vec![],
+            no_genres: vec![],
+            artists: vec![],
+            no_artists: vec![],
+            albums: vec![],
+            no_albums: vec![],
+            titles: vec![],
+            no_titles: vec![],
+            keywords: vec![],
+            no_keywords: vec![],
+        }
+    }
+}
+
+#[derive(Clap, Debug)]
 #[clap(setting = AppSettings::ColoredHelp)]
 #[clap(about = "Music filter")]
 pub struct Filter {
@@ -32,10 +56,10 @@ pub struct Filter {
     pub shuffle: bool,
 
     #[clap(long, default_value = "0")]
-    pub min_duration: i64,
+    pub min_duration: i32,
 
     #[clap(long, default_value = &MAX)]
-    pub max_duration: i64,
+    pub max_duration: i32,
 
     #[clap(long, default_value = "0.0")]
     pub min_rating: f64,
@@ -44,7 +68,7 @@ pub struct Filter {
     pub max_rating: f64,
 
     #[clap(long, default_value = &MAX)]
-    pub limit: i64,
+    pub limit: i32,
 
     #[clap(long)]
     pub genres: Vec<String>,
@@ -81,10 +105,10 @@ impl Filter {
     pub fn create_upsert_query(&self, user_id: i64) -> QueryBody<upsert_filter::Variables> {
         let variables = upsert_filter::Variables {
             name: self.name.clone(),
-            limit: self.limit,
+            limit: self.limit as i64,
             shuffle: self.shuffle,
-            min_duration: self.min_duration,
-            max_duration: self.max_duration,
+            min_duration: self.min_duration as i64,
+            max_duration: self.max_duration as i64,
             titles: self.titles.clone(),
             no_titles: self.no_titles.clone(),
             artists: self.artists.clone(),
@@ -104,10 +128,10 @@ impl Filter {
 
     pub fn create_stats_query(&self) -> QueryBody<stats::Variables> {
         let variables = stats::Variables {
-            limit: self.limit,
+            limit: self.limit as i64,
             shuffle: self.shuffle,
-            min_duration: self.min_duration,
-            max_duration: self.max_duration,
+            min_duration: self.min_duration as i64,
+            max_duration: self.max_duration as i64,
             titles: self.titles.clone(),
             no_titles: self.no_titles.clone(),
             artists: self.artists.clone(),
