@@ -4,7 +4,7 @@ pub mod login;
 pub mod accounts;
 pub mod register;
 
-use clap::{AppSettings, Clap};
+use clap::Parser;
 use graphql_client::{GraphQLQuery, Response};
 use anyhow::{Result, Context, bail};
 
@@ -20,8 +20,7 @@ static APP_USER_AGENT: &str = concat!(
     env!("CARGO_PKG_VERSION"),
 );
 
-#[derive(Clap, Debug)]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[derive(Parser, Debug)]
 #[clap(about = "User credentials")]
 pub struct User {
     /// MusicBot GraphQL endpoint

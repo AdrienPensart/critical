@@ -1,4 +1,4 @@
-use clap::{AppSettings, Clap};
+use clap::Parser;
 use anyhow::{Result, Context, bail};
 use graphql_client::{GraphQLQuery, Response};
 
@@ -14,8 +14,7 @@ use crate::user::{User, JwtToken, APP_USER_AGENT};
 pub struct Register;
 
 
-#[derive(Clap, Debug)]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[derive(Parser, Debug)]
 #[clap(about = "Register a new user")]
 pub struct UserRegister {
     /// MusicBot GraphQL endpoint

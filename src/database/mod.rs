@@ -1,9 +1,8 @@
 use anyhow::{Result, Context};
-use clap::{AppSettings, Clap};
+use clap::Parser;
 use postgres::{Client, NoTls};
 
-#[derive(Clap, Debug)]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[derive(Parser, Debug)]
 #[clap(about = "Database options")]
 pub struct Database {
     /// Database admin user

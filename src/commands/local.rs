@@ -1,13 +1,12 @@
 use anyhow::Result;
-use clap::{AppSettings, Clap};
+use clap::Parser;
 
 use crate::folders::FoldersScanner;
 use crate::group_dispatch::GroupDispatch;
 use crate::user::User;
 use crate::user_musics::UserMusics;
 
-#[derive(Clap, Debug)]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[derive(Parser, Debug)]
 #[clap(about = "Local music management")]
 pub enum Group {
     Scan(FoldersScanner),

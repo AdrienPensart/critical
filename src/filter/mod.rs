@@ -1,4 +1,4 @@
-use clap::{AppSettings, Clap};
+use clap::Parser;
 use lazy_static::lazy_static;
 use graphql_client::{QueryBody, GraphQLQuery};
 
@@ -45,8 +45,7 @@ impl Default for Filter {
     }
 }
 
-#[derive(Clap, Debug)]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[derive(Parser, Debug)]
 #[clap(about = "Music filter")]
 pub struct Filter {
     #[clap(long, default_value = "")]

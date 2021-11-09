@@ -1,6 +1,6 @@
 #[macro_use] extern crate prettytable;
 use anyhow::Result;
-use clap::{AppSettings, Clap};
+use clap::Parser;
 use enum_dispatch::enum_dispatch;
 
 pub mod helpers;
@@ -23,17 +23,15 @@ use crate::commands::filter::Group as FilterGroup;
 use crate::commands::database::Group as DatabaseGroup;
 
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(name = "critical", about = "Critical Music Listening and Bot", version = "1.0", author = "Adrien P. <crunchengine@gmail.com>")]
-#[clap(setting = AppSettings::ColoredHelp)]
 struct Opts {
     #[clap(subcommand)]
     group: Group,
 }
 
 #[enum_dispatch(GroupDispatch)]
-#[derive(Clap, Debug)]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[derive(Parser, Debug)]
 enum Group {
     #[clap(subcommand)]
     Local(LocalGroup),

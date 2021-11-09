@@ -1,5 +1,5 @@
 use anyhow::Result;
-use clap::{AppSettings, Clap};
+use clap::Parser;
 use prettytable::Table;
 
 use crate::group_dispatch::GroupDispatch;
@@ -8,8 +8,7 @@ use crate::user::register::UserRegister;
 use crate::user::login::UserLogin;
 use crate::user::accounts::AdminListUsers;
 
-#[derive(Clap, Debug)]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[derive(Parser, Debug)]
 #[clap(about = "User management")]
 pub enum Group {
     Register(UserRegister),

@@ -1,4 +1,4 @@
-use clap::{AppSettings, Clap};
+use clap::Parser;
 use anyhow::{Result, Context, bail};
 use graphql_client::{GraphQLQuery, Response};
 
@@ -13,8 +13,7 @@ use crate::user::{APP_USER_AGENT, JwtToken};
 )]
 pub struct Auth;
 
-#[derive(Clap, Debug, Clone)]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[derive(Parser, Debug, Clone)]
 #[clap(about = "Get a new token")]
 pub struct UserLogin {
     /// MusicBot GraphQL endpoint

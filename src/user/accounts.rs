@@ -1,4 +1,4 @@
-use clap::{AppSettings, Clap};
+use clap::Parser;
 use anyhow::{Result, Context, bail};
 use graphql_client::{GraphQLQuery, Response};
 
@@ -13,8 +13,7 @@ use crate::user::{APP_USER_AGENT, Datetime};
 )]
 pub struct UserAccountList;
 
-#[derive(Clap, Debug)]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[derive(Parser, Debug)]
 #[clap(about = "List all users")]
 pub struct AdminListUsers {
     /// MusicBot GraphQL endpoint

@@ -1,5 +1,5 @@
 use anyhow::{Result, Context, bail};
-use clap::{AppSettings, Clap};
+use clap::Parser;
 use graphql_client::Response;
 
 use crate::helpers::vec_option_to_vec;
@@ -8,8 +8,7 @@ use crate::user::User;
 use crate::user_filter::search_filter;
 use crate::filter::{playlist, stats, Filter};
 
-#[derive(Clap, Debug)]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[derive(Parser, Debug)]
 #[clap(about = "Music filter")]
 pub struct UserMusics {
     #[clap(flatten)]

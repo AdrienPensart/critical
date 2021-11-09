@@ -1,11 +1,10 @@
 use anyhow::Result;
-use clap::{AppSettings, Clap};
+use clap::Parser;
 use crate::group_dispatch::GroupDispatch;
 
 use crate::database::Database;
 
-#[derive(Clap, Debug)]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[derive(Parser, Debug)]
 #[clap(about = "Database management")]
 pub enum Group {
     #[clap(about = "Create musicbot")]

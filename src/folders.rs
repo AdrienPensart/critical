@@ -1,5 +1,5 @@
 use anyhow::{Result, Context, bail};
-use clap::{AppSettings, Clap};
+use clap::Parser;
 use walkdir::{DirEntry, WalkDir};
 use indicatif::{ProgressBar, ProgressStyle};
 use itertools::Itertools;
@@ -13,8 +13,7 @@ use crate::music::{Music, upsert_music};
 use crate::music::flac_file::FlacFile;
 use crate::music::mp3_file::Mp3File;
 
-#[derive(Clap, Debug)]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[derive(Parser, Debug)]
 #[clap(about = "Scan folders and save music")]
 pub struct FoldersScanner {
     /// Enable bulk insert / batch

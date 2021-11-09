@@ -1,5 +1,5 @@
 use anyhow::Result;
-use clap::{AppSettings, Clap};
+use clap::Parser;
 use prettytable::Table;
 
 use crate::helpers::vec_option_to_vec;
@@ -7,8 +7,7 @@ use crate::group_dispatch::GroupDispatch;
 use crate::user_filter::UserFilter;
 use crate::user::User;
 
-#[derive(Clap, Debug)]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[derive(Parser, Debug)]
 #[clap(about = "Filter management")]
 pub enum Group {
     Count(User),

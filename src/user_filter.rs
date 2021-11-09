@@ -1,12 +1,11 @@
 use anyhow::{Result, Context, bail};
-use clap::{AppSettings, Clap};
+use clap::Parser;
 use graphql_client::{GraphQLQuery, Response};
 
 use crate::err_on_some::ErrOnSome;
 use crate::user::User;
 
-#[derive(Clap, Debug)]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[derive(Parser, Debug)]
 #[clap(about = "Music filter")]
 pub struct UserFilter {
     #[clap(flatten)]
