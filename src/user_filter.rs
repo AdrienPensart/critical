@@ -21,7 +21,8 @@ pub fn search_filter(user: &User, name: String) -> Result<get_filter::GetFilterF
     let response = authenticated_user
         .post()
         .json(&request_body)
-        .send()?;
+        .send()?
+        .error_for_status()?;
 
     let response_body: Response<get_filter::ResponseData> = response.json()?;
     response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
@@ -47,7 +48,8 @@ impl UserFilter {
         let response = authenticated_user
             .post()
             .json(&request_body)
-            .send()?;
+            .send()?
+            .error_for_status()?;
 
         let response_body: Response<delete_filter::ResponseData> = response.json()?;
         response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;

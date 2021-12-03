@@ -55,7 +55,8 @@ impl UserMusics {
         let response = authenticated_user
             .post()
             .json(&request_body)
-            .send()?;
+            .send()?
+            .error_for_status()?;
 
         let response_body: Response<stats::ResponseData> = response.json()?;
         response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
@@ -74,7 +75,8 @@ impl UserMusics {
         let response = authenticated_user
             .post()
             .json(&request_body)
-            .send()?;
+            .send()?
+            .error_for_status()?;
 
         let response_body: Response<playlist::ResponseData> = response.json()?;
         response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;

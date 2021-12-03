@@ -101,7 +101,8 @@ impl FoldersScanner {
                     .post()
                     .header(reqwest::header::CONTENT_TYPE, "application/json; charset=utf-8")
                     .body(request_body)
-                    .send()?;
+                    .send()?
+                    .error_for_status()?;
 
                 bar.inc(self.chunks as u64);
             }
@@ -112,6 +113,7 @@ impl FoldersScanner {
                     .post()
                     .json(&request_body)
                     .send()?
+                    .error_for_status()?
                     .json()?;
 
                 response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;

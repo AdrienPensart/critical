@@ -43,6 +43,7 @@ impl UserLogin {
             .post(&self.graphql)
             .json(&request_body)
             .send()?
+            .error_for_status()?
             .json()?;
 
         response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;

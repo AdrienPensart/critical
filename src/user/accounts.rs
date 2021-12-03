@@ -17,33 +17,25 @@ pub struct UserAccountList;
 #[clap(about = "List all users")]
 pub struct AdminListUsers {
     /// MusicBot GraphQL endpoint
-    #[clap(long)]
-    pub endpoint: String,
-
-    /// MusicBot admin user
-    #[clap(long)]
-    pub user: String,
-
-    /// MusicBot admin password
-    #[clap(long)]
-    pub password: String,
+    #[clap(long, short, visible_alias = "endpoint")]
+    pub graphql: String,
 }
 
 impl AdminListUsers {
     pub fn users(&self) -> Result<Vec<user_account_list::UserAccountListUserAccountsList>> {
-        let endpoint = &self.endpoint;
-
         let authenticated_client = reqwest::blocking::Client::builder()
             .user_agent(APP_USER_AGENT)
             .build()?;
 
         let request_body = UserAccountList::build_query(user_account_list::Variables);
         let response_body: Response<user_account_list::ResponseData> = authenticated_client
-            .post(endpoint)
-            .basic_auth(&self.user, Some(&self.password))
+            .post(&self.graphql)
             .json(&request_body)
             .send()?
+            .error_for_status()?
             .json()?;
+
+        println!("plop");
 
         response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
         let response_copy = format!("{:?}", response_body.data);
