@@ -6,9 +6,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.43"
-clap = { git = "https://github.com/clap-rs/clap/" }
-#clap = "3.0.0-beta.5"
+anyhow = "1.0.52"
+clap = { version = "3.0.2", features = ["derive"] }
 metaflac = "0.2.4"
 id3 = "0.6.4"
 mp3-duration = "0.1.10"
