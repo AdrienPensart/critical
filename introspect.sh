@@ -9,6 +9,7 @@ graphql-client generate src/user/queries/auth.graphql --schema-path=src/musicbot
 graphql-client generate src/user/queries/whoami.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/user/queries
 graphql-client generate src/user/queries/register.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/user/queries
 graphql-client generate src/user/queries/unregister.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/user/queries
+graphql-client generate src/user/queries/update.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/user/queries
 graphql-client generate src/user/queries/current_musicbot.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/user/queries
 
 graphql-client generate src/music/queries/upsert.graphql --schema-path=src/musicbot.json --variables-derives=Debug --response-derives=Debug -o=src/music/queries

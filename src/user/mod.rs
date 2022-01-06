@@ -1,5 +1,6 @@
 pub mod authenticated_user;
 pub mod queries;
+pub mod update;
 pub mod login;
 pub mod accounts;
 pub mod register;

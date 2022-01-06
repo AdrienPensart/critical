@@ -35,8 +35,6 @@ impl AdminListUsers {
             .error_for_status()?
             .json()?;
 
-        println!("plop");
-
         response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
         let response_copy = format!("{:?}", response_body.data);
 

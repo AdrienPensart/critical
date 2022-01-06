@@ -5,6 +5,7 @@ use prettytable::Table;
 use crate::group_dispatch::GroupDispatch;
 use crate::user::User;
 use crate::user::register::UserRegister;
+use crate::user::update::UserUpdate;
 use crate::user::login::UserLogin;
 use crate::user::accounts::AdminListUsers;
 
@@ -20,6 +21,8 @@ pub enum Group {
     Whoami(User),
     #[clap(about = "Unregister user")]
     Unregister(User),
+    #[clap(about = "Update user")]
+    Update(UserUpdate),
 }
 
 impl GroupDispatch for Group {
@@ -35,6 +38,9 @@ impl GroupDispatch for Group {
             }
             Self::Unregister(user) => {
                 user.unregister()?;
+            }
+            Self::Update(user) => {
+                user.update()?;
             }
             Self::Login(user) => {
                 let token = user.new_token()?;

@@ -1,0 +1,13 @@
+mutation Update($first_name: String, $last_name: String, $user_id: Int!)
+{
+    updateUser(input: {
+        patch: {
+            firstName: $first_name,
+            lastName: $last_name,
+        },
+        id: $user_id
+    })
+    {
+       clientMutationId
+    }
+}
