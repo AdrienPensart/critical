@@ -1,6 +1,7 @@
 use std::path::{PathBuf, Path};
 use crate::music::Music;
 use mp3_duration;
+use id3::TagLike;
 use id3::Tag as Mp3Tag;
 
 pub struct Mp3File {
