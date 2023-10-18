@@ -1,9 +1,0 @@
-query Whoami ($user_id: Int!) {
-  user(id: $user_id) {
-    firstName
-    id
-    lastName
-    createdAt
-    updatedAt
-  }
-}

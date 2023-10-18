@@ -1,7 +1,10 @@
-use anyhow::Result;
+use async_trait::async_trait;
 use enum_dispatch::enum_dispatch;
 
+use crate::errors::CriticalErrorKind;
+
+#[async_trait]
 #[enum_dispatch]
 pub trait GroupDispatch{
-    fn dispatch(self) -> Result<()>;
+    async fn dispatch(self) -> Result<(), CriticalErrorKind>;
 }

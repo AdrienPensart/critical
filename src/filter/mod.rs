@@ -1,11 +1,7 @@
 use clap::Parser;
 use lazy_static::lazy_static;
-use graphql_client::{QueryBody, GraphQLQuery};
-
-use crate::types::BigInt;
 
 lazy_static! {
-    static ref MAX: String = i32::MAX.to_string();
     pub static ref DEFAULT_FILTERS: [Filter; 11] = [
         Filter { name: "default".to_string(), ..Filter::default() },
         Filter { name: "no artist set".to_string(), artists: vec!["".to_string()], ..Filter::default() },
@@ -57,7 +53,7 @@ pub struct Filter {
     #[clap(long, default_value = "0")]
     pub min_duration: i32,
 
-    #[clap(long, default_value = &MAX)]
+    #[clap(long, default_value_t = i32::MAX)]
     pub max_duration: i32,
 
     #[clap(long, default_value = "0.0")]
@@ -66,7 +62,7 @@ pub struct Filter {
     #[clap(long, default_value = "5.0")]
     pub max_rating: f64,
 
-    #[clap(long, default_value = &MAX)]
+    #[clap(long, default_value_t = i32::MAX)]
     pub limit: i32,
 
     #[clap(long)]
@@ -99,97 +95,3 @@ pub struct Filter {
     #[clap(long)]
     pub no_albums: Vec<String>,
 }
-
-impl Filter {
-    pub fn create_upsert_query(&self, user_id: i64) -> QueryBody<upsert_filter::Variables> {
-        let variables = upsert_filter::Variables {
-            name: self.name.clone(),
-            limit: self.limit as i64,
-            shuffle: self.shuffle,
-            min_duration: self.min_duration as i64,
-            max_duration: self.max_duration as i64,
-            titles: self.titles.clone(),
-            no_titles: self.no_titles.clone(),
-            artists: self.artists.clone(),
-            no_artists: self.no_artists.clone(),
-            albums: self.albums.clone(),
-            no_albums: self.no_albums.clone(),
-            genres: self.genres.clone(),
-            no_genres: self.no_genres.clone(),
-            keywords: self.keywords.clone(),
-            no_keywords: self.no_keywords.clone(),
-            min_rating: self.min_rating,
-            max_rating: self.max_rating,
-            user_id,
-        };
-        UpsertFilter::build_query(variables)
-    }
-
-    pub fn create_stats_query(&self) -> QueryBody<stats::Variables> {
-        let variables = stats::Variables {
-            limit: self.limit as i64,
-            shuffle: self.shuffle,
-            min_duration: self.min_duration as i64,
-            max_duration: self.max_duration as i64,
-            titles: self.titles.clone(),
-            no_titles: self.no_titles.clone(),
-            artists: self.artists.clone(),
-            no_artists: self.no_artists.clone(),
-            albums: self.albums.clone(),
-            no_albums: self.no_albums.clone(),
-            genres: self.genres.clone(),
-            no_genres: self.no_genres.clone(),
-            keywords: self.keywords.clone(),
-            no_keywords: self.no_keywords.clone(),
-            min_rating: self.min_rating,
-            max_rating: self.max_rating,
-        };
-        Stats::build_query(variables)
-    }
-
-    pub fn create_playlist_query(&self) -> QueryBody<playlist::Variables> {
-        let variables = playlist::Variables {
-            limit: self.limit as i64,
-            shuffle: self.shuffle,
-            min_duration: self.min_duration as i64,
-            max_duration: self.max_duration as i64,
-            titles: self.titles.clone(),
-            no_titles: self.no_titles.clone(),
-            artists: self.artists.clone(),
-            no_artists: self.no_artists.clone(),
-            albums: self.albums.clone(),
-            no_albums: self.no_albums.clone(),
-            genres: self.genres.clone(),
-            no_genres: self.no_genres.clone(),
-            keywords: self.keywords.clone(),
-            no_keywords: self.no_keywords.clone(),
-            min_rating: self.min_rating,
-            max_rating: self.max_rating,
-        };
-        Playlist::build_query(variables)
-    }
-}
-
-#[derive(GraphQLQuery)]
-#[graphql(
-    schema_path = "src/musicbot.json",
-    query_path = "src/filter/queries/upsert.graphql",
-    response_derives = "Debug",
-)]
-pub struct UpsertFilter;
-
-#[derive(GraphQLQuery)]
-#[graphql(
-    schema_path = "src/musicbot.json",
-    query_path = "src/music/queries/stats.graphql",
-    response_derives = "Debug",
-)]
-pub struct Stats;
-
-#[derive(GraphQLQuery)]
-#[graphql(
-    schema_path = "src/musicbot.json",
-    query_path = "src/music/queries/playlist.graphql",
-    response_derives = "Debug",
-)]
-pub struct Playlist;

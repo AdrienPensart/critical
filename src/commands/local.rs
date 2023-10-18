@@ -1,45 +1,48 @@
-use anyhow::Result;
-use clap::Parser;
+use async_trait::async_trait;
+use edgedb_tokio::create_client;
+use clap::Subcommand;
 
 use crate::folders::FoldersScanner;
 use crate::group_dispatch::GroupDispatch;
-use crate::user::User;
-use crate::user_musics::UserMusics;
+use crate::errors::CriticalErrorKind;
 
-#[derive(Parser, Debug)]
+#[derive(Subcommand, Debug)]
 #[clap(about = "Local music management")]
 pub enum Group {
     Scan(FoldersScanner),
-    Clean(User),
-    Stats(UserMusics),
-    Playlist(UserMusics),
+    #[clap(about = "Clean deleted musics")]
+    Clean,
+    #[clap(about = "Music collection stats")]
+    Stats,
+    #[clap(about = "Generate a new playlist")]
+    Playlist,
 }
 
+#[async_trait]
 impl GroupDispatch for Group {
-    fn dispatch(self) -> Result<()> {
+    async fn dispatch(self) -> Result<(), CriticalErrorKind> {
         match self {
             Group::Scan(folders_scanner) => {
-                folders_scanner.scan()
-            },
-            Group::Clean(user) => {
-                let deleted = user.clean_musics()?;
-                println!("Deleted : {}", deleted);
+                let conn = create_client().await?;
+                folders_scanner.scan(&conn).await?;
+                // folders_scanner.scan().await?;
                 Ok(())
             },
-            Group::Playlist(user) => {
-                let playlist = user.playlist()?;
-                println!("Playlist : {:?}", playlist);
+            Group::Clean => {
                 Ok(())
             },
-            Group::Stats(user_musics) => {
-                let stats = user_musics.stats()?;
-                println!("Musics : {}", stats.musics);
-                println!("Links : {}", stats.links);
-                println!("Artists : {}", stats.artists);
-                println!("Albums : {}", stats.albums);
-                println!("Genres : {}", stats.genres);
-                println!("Keywords : {}", stats.keywords);
-                println!("Duration : {}", stats.duration);
+            Group::Playlist => {
+                Ok(())
+            },
+            Group::Stats => {
+                // let stats = user_musics.stats()?;
+                // println!("Musics : {}", stats.musics);
+                // println!("Links : {}", stats.links);
+                // println!("Artists : {}", stats.artists);
+                // println!("Albums : {}", stats.albums);
+                // println!("Genres : {}", stats.genres);
+                // println!("Keywords : {}", stats.keywords);
+                // println!("Duration : {}", stats.duration);
                 Ok(())
             }
         }

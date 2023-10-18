@@ -1,18 +1,23 @@
 use std::path::{PathBuf, Path};
-use crate::music::Music;
+use std::fs;
 use metaflac::Tag as FlacTag;
 use metaflac::block::VorbisComment;
 
+use crate::music::{Music, RATINGS};
+use crate::errors::CriticalErrorKind;
+
 pub struct FlacFile {
+    folder: PathBuf,
     path: PathBuf,
     tag: FlacTag
 }
 
 impl FlacFile {
-    pub fn from_path(path: &Path) -> FlacFile{
+    pub fn from_path(folder: &Path, path: &Path) -> FlacFile{
         FlacFile {
+            folder: folder.to_path_buf(),
             path: path.to_path_buf(),
-            tag: FlacTag::read_from_path(&path).unwrap()
+            tag: FlacTag::read_from_path(path).unwrap()
         }
     }
     fn comments(&self) -> &VorbisComment {
@@ -25,12 +30,20 @@ impl Music for FlacFile {
         self.path.to_str().unwrap()
     }
 
-    fn duration(&self) -> i64 {
+    fn folder(&self) -> &str {
+        self.folder.to_str().unwrap()
+    }
+
+    fn size(&self) -> u64 {
+        fs::metadata(self.path()).unwrap().len()
+    }
+
+    fn length(&self) -> i64 {
         if let Some(stream_info) = self.tag.get_streaminfo() {
-             let duration = (stream_info.total_samples as i64 / stream_info.sample_rate as i64) as i64;
-             return duration
+             stream_info.total_samples as i64 / stream_info.sample_rate as i64
+        } else {
+            0
         }
-        0
     }
 
     fn artist(&self) -> &str {
@@ -78,15 +91,19 @@ impl Music for FlacFile {
         0
     }
 
-    fn rating(&self) -> f64 {
+    fn rating(&self) -> Result<f64, CriticalErrorKind> {
         if let Some(fmps_ratings) = self.tag.get_vorbis("fmps_rating") {
             for fmps_rating in fmps_ratings {
-                if let Ok(rating) = fmps_rating.to_string().parse::<f64>() {
-                    return rating;
+                if let Ok(mut rating) = fmps_rating.to_string().parse::<f64>() {
+                    rating *= 5.0;
+                    if !RATINGS.contains(&rating) {
+                        return Err(CriticalErrorKind::InvalidRating(self.path.clone(), rating));
+                    }
+                    return Ok(rating);
                 }
             }
         }
-        0.0
+        Ok(0.0)
     }
 
     fn keywords(&self) -> Vec<String> {

@@ -1,17 +1,16 @@
-use anyhow::{Result, Context, bail};
+use std::path::Path;
 use clap::Parser;
-use walkdir::{DirEntry, WalkDir};
+use walkdir::WalkDir;
 use indicatif::{ProgressBar, ProgressStyle};
-use itertools::Itertools;
-use uuid::Uuid;
-use std::collections::HashMap;
-use graphql_client::Response;
+use edgedb_tokio::Client;
+// use edgedb_tokio::create_client;
+use whoami::username;
 
-use crate::err_on_some::ErrOnSome;
-use crate::user::User;
-use crate::music::{Music, upsert_music};
+use crate::errors::CriticalErrorKind;
+use crate::music::Music;
 use crate::music::flac_file::FlacFile;
 use crate::music::mp3_file::Mp3File;
+use crate::helpers::{is_hidden, public_ip};
 
 #[derive(Parser, Debug)]
 #[clap(about = "Scan folders and save music")]
@@ -20,14 +19,6 @@ pub struct FoldersScanner {
     #[clap(short, long, visible_alias = "batch")]
     pub bulk: bool,
 
-    /// Upsert chunks
-    #[clap(long, default_value = "200", long)]
-    pub chunks: usize,
-
-    /// MusicBot user
-    #[clap(flatten)]
-    pub user: User,
-
     /// Clean musics before scanning
     #[clap(short, long)]
     pub clean: bool,
@@ -35,20 +26,34 @@ pub struct FoldersScanner {
     pub folders: Vec<String>
 }
 
-fn is_hidden(entry: &DirEntry) -> bool {
-    entry.file_name()
-         .to_str()
-         .map(|s| s.starts_with('.'))
-         .unwrap_or(false)
+async fn upsert_musics<T: Music + Sync>(musics: &Vec<T>, conn: &Client, bar: &ProgressBar, username: &str, ipv4: &str) {
+    for music in musics {
+        let music_output = music.upsert(conn, ipv4, username).await;
+        match music_output {
+            Ok(music_output) => {
+                let id = music_output.id;
+                let name = music_output.name;
+                bar.println(format!("{id} : {name}"));
+            }
+            Err(e) => bar.println(format!("{}, error: {:#?}", music.path(), e)),
+        };
+        bar.inc(1);
+    }
 }
 
 impl FoldersScanner {
-    pub fn scan(self) -> Result<()> {
-        let authenticated_user = self.user.authenticate()?;
-
-        let mut musics: Vec<Box<dyn Music>> = Vec::new();
+    pub async fn scan(self, conn: &Client) -> Result<(), CriticalErrorKind> {
+    // pub async fn scan(self) -> Result<(), CriticalErrorKind> {
+        let mut mp3_musics: Vec<Mp3File> = Vec::new();
+        let mut flac_musics: Vec<FlacFile> = Vec::new();
+        // let conn = create_client().await?;
         for folder in self.folders {
-            let walker = WalkDir::new(folder).into_iter();
+            let folder_path = Path::new(&folder);
+            if !folder_path.is_dir() {
+                eprintln!("{} : path is not a directory", folder);
+                continue;
+            }
+            let walker = WalkDir::new(&folder).into_iter();
             for entry in walker.filter_entry(|e| !is_hidden(e)).flatten() {
                 if !entry.file_type().is_file() {
                     continue;
@@ -64,68 +69,32 @@ impl FoldersScanner {
 
                 match extension.to_str() {
                     Some("flac") => {
-                        musics.push(Box::new(FlacFile::from_path(entry.path())));
+                        flac_musics.push(FlacFile::from_path(folder_path, entry.path()));
                     },
                     Some("mp3") => {
-                        musics.push(Box::new(Mp3File::from_path(entry.path())));
+                        mp3_musics.push(Mp3File::from_path(folder_path, entry.path()));
                     },
-                    Some("m3u") => (),
+                    Some("m3u") | Some("jpg") => (),
                     _ => println!("Unsupported format : {}", entry.path().display())
                 };
-
             }
         }
 
-        println!("Music about to be upserted: {}", musics.len());
-        let bar = ProgressBar::new(musics.len() as u64);
+        let total = mp3_musics.len() + flac_musics.len();
+        println!("Musics about to be upserted: {total}");
+        let bar = ProgressBar::new(total as u64);
 
         bar.set_style(ProgressStyle::default_bar()
-            .template("[{elapsed_precise}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}")
-            .progress_chars("##-"));
+           .template("[{elapsed_precise}] {bar:50.cyan/blue} {pos:>7}/{len:7} {msg}")
+           .unwrap()
+           .progress_chars("##-"));
 
-        if self.bulk {
-            for chunk in &musics.into_iter().chunks(self.chunks) {
-                let mut operations = Vec::new();
-                for music in chunk {
-                    let uuid = Uuid::new_v4();
-                    let operation_name = format!("music_{}", uuid.to_simple());
-                    let upsert_music_query = music.create_bulk_upsert_query(authenticated_user.user_id, &operation_name);
-                    let mut operation = HashMap::new();
-                    operation.insert("query", upsert_music_query);
-                    operation.insert("operationName", operation_name);
-                    operations.push(operation);
-                }
-                let request_body = serde_json::to_string_pretty(&operations)?;
+        let ipv4 = public_ip().await?;
+        let username = username().to_string();
 
-                let _music_upsert_response = authenticated_user
-                    .post()
-                    .header(reqwest::header::CONTENT_TYPE, "application/json; charset=utf-8")
-                    .body(request_body)
-                    .send()?
-                    .error_for_status()?;
+        upsert_musics(&mp3_musics, conn, &bar, &ipv4, &username).await;
+        upsert_musics(&flac_musics, conn, &bar, &ipv4, &username).await;
 
-                bar.inc(self.chunks as u64);
-            }
-        } else {
-            for music in musics {
-                let request_body = music.create_upsert_query(authenticated_user.user_id);
-                let response_body: Response<upsert_music::ResponseData> = authenticated_user
-                    .post()
-                    .json(&request_body)
-                    .send()?
-                    .error_for_status()?
-                    .json()?;
-
-                response_body.errors.err_on_some(|| bail!("{:?}", response_body.errors))?;
-                let response_copy = format!("{:?}", response_body.data);
-
-                let _client_mutation_id = response_body
-                    .data.with_context(|| format!("missing music response data : {}", response_copy))?
-                    .upsert_music.with_context(|| format!("missing upsert music response : {}", response_copy))?
-                    .client_mutation_id;
-                bar.inc(1);
-            }
-        }
         bar.finish();
         Ok(())
     }
