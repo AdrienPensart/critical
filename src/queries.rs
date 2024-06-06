@@ -41,10 +41,13 @@ select {
 };
 "#;
 
-pub const PLAYLIST_QUERY: &str = concatcp!(r#"
+pub const PLAYLIST_QUERY: &str = concatcp!(
+    r#"
     """
     select Music {
-        "#, MUSIC_FIELDS, r#"
+        "#,
+    MUSIC_FIELDS,
+    r#"
     }
     filter
         .length >= <Length>$min_length and .length <= <Length>$max_length
@@ -61,11 +64,15 @@ pub const PLAYLIST_QUERY: &str = concatcp!(r#"
         .track then
         .name
     limit <`Limit`>$limit
-"#);
+"#
+);
 
-pub const SEARCH_QUERY: &str = concatcp!(r#"
+pub const SEARCH_QUERY: &str = concatcp!(
+    r#"
 select Music {
-    "#, MUSIC_FIELDS, r#"
+    "#,
+    MUSIC_FIELDS,
+    r#"
 }
 filter
 .name ilike <str>$pattern or
@@ -73,7 +80,8 @@ filter
 .album.name ilike <str>$pattern or
 .artist.name ilike <str>$pattern or
 .keywords.name ilike <str>$pattern
-"#);
+"#
+);
 
 pub const REMOVE_PATH_QUERY: &str = r#"
 update Music
@@ -81,13 +89,14 @@ filter contains(.paths, <str>$path)
 set {folders := (select .folders filter @path != <str>$path)};
 "#;
 
-pub const UPSERT_QUERY: &str = concatcp!(r#"
+pub const UPSERT_QUERY: &str = concatcp!(
+    r#"
 with
     upsert_artist := (
         insert Artist {
             name := <str>$artist
         }
-        unless conflict on .name else (select Artist)
+        unless conflict on (.name) else (select Artist)
     ),
     upsert_album := (
         insert Album {
@@ -100,7 +109,7 @@ with
         insert Genre {
             name := <str>$genre
         }
-        unless conflict on .name else (select Genre)
+        unless conflict on (.name) else (select Genre)
     ),
     upsert_keywords := (
         for keyword in { array_unpack(<array<str>>$keywords) }
@@ -108,17 +117,16 @@ with
             insert Keyword {
                 name := keyword
             }
-            unless conflict on .name
-            else (select Keyword)
+            unless conflict on (.name) else (select Keyword)
         )
     ),
     upsert_folder := (
         insert Folder {
             name := <str>$folder,
-            user := <str>$user,
+            username := <str>$username,
             ipv4 := <str>$ipv4
         }
-        unless conflict on (.name, .ipv4) else (select Folder)
+        unless conflict on (.name, .username, .ipv4) else (select Folder)
     )
     select (
         insert Music {
@@ -158,7 +166,8 @@ with
         id,
         name
     }
-"#);
+"#
+);
 
 pub const ARTISTS_QUERY: &str = r#"
 select Artist {
@@ -175,14 +184,19 @@ select Artist {
 order by .name
 "#;
 
-pub const BESTS_QUERY: &str = concatcp!(r#"
+pub const BESTS_QUERY: &str = concatcp!(
+    r#"
 with
-    musics := ("#, PLAYLIST_QUERY, r#"),
+    musics := ("#,
+    PLAYLIST_QUERY,
+    r#"),
     unique_keywords := (select distinct (for music in musics union (music.keywords)))
 select {
     genres := (
         group musics {
-            "#, MUSIC_FIELDS, r#"
+            "#,
+    MUSIC_FIELDS,
+    r#"
         }
         by .genre
     ),
@@ -193,7 +207,9 @@ select {
                 name,
                 musics := (
                     select musics {
-                        "#, MUSIC_FIELDS, r#"
+                        "#,
+    MUSIC_FIELDS,
+    r#"
                     }
                     filter unique_keyword.name in .keywords.name
                 )
@@ -203,7 +219,9 @@ select {
     ),
     ratings := (
         group musics {
-            "#, MUSIC_FIELDS, r#"
+            "#,
+    MUSIC_FIELDS,
+    r#"
         }
         by .rating
     ),
@@ -222,7 +240,9 @@ select {
                             keyword := artist_keyword.name,
                             musics := (
                                 select artist_musics {
-                                    "#, MUSIC_FIELDS, r#"
+                                    "#,
+    MUSIC_FIELDS,
+    r#"
                                 }
                                 filter artist_keyword in .keywords
                             )
@@ -234,9 +254,12 @@ select {
     ),
     ratings_for_artist := (
         group musics {
-            "#, MUSIC_FIELDS, r#"
+            "#,
+    MUSIC_FIELDS,
+    r#"
         }
         by .artist, .rating
     )
 }
-"#);
+"#
+);

@@ -1,10 +1,10 @@
 use async_trait::async_trait;
-use edgedb_tokio::create_client;
 use clap::Subcommand;
+// use edgedb_tokio::create_client;
 
+use crate::errors::CriticalErrorKind;
 use crate::folders::FoldersScanner;
 use crate::group_dispatch::GroupDispatch;
-use crate::errors::CriticalErrorKind;
 
 #[derive(Subcommand, Debug)]
 #[clap(about = "Local music management")]
@@ -23,17 +23,11 @@ impl GroupDispatch for Group {
     async fn dispatch(self) -> Result<(), CriticalErrorKind> {
         match self {
             Group::Scan(folders_scanner) => {
-                let conn = create_client().await?;
-                folders_scanner.scan(&conn).await?;
-                // folders_scanner.scan().await?;
+                folders_scanner.scan().await?;
                 Ok(())
-            },
-            Group::Clean => {
-                Ok(())
-            },
-            Group::Playlist => {
-                Ok(())
-            },
+            }
+            Group::Clean => Ok(()),
+            Group::Playlist => Ok(()),
             Group::Stats => {
                 // let stats = user_musics.stats()?;
                 // println!("Musics : {}", stats.musics);

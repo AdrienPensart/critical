@@ -1,16 +1,15 @@
-use std::path::{PathBuf, Path};
-use std::fs;
-use mp3_duration;
-use id3::TagLike;
 use id3::Tag as Mp3Tag;
+use id3::TagLike;
+use mp3_duration;
+use std::path::{Path, PathBuf};
 
-use crate::music::{Music, RATINGS};
 use crate::errors::CriticalErrorKind;
+use crate::music::{Music, RATINGS};
 
 pub struct Mp3File {
     folder: PathBuf,
     path: PathBuf,
-    tag: Mp3Tag
+    tag: Mp3Tag,
 }
 
 impl Mp3File {
@@ -18,7 +17,7 @@ impl Mp3File {
         Mp3File {
             folder: folder.to_path_buf(),
             path: path.to_path_buf(),
-            tag: Mp3Tag::read_from_path(path).unwrap()
+            tag: Mp3Tag::read_from_path(path).unwrap(),
         }
     }
 }
@@ -30,10 +29,6 @@ impl Music for Mp3File {
 
     fn folder(&self) -> &str {
         self.folder.to_str().unwrap()
-    }
-
-    fn size(&self) -> u64 {
-        fs::metadata(self.path()).unwrap().len()
     }
 
     fn length(&self) -> i64 {
@@ -95,7 +90,10 @@ impl Music for Mp3File {
                     if let Ok(mut rating) = extended_text.value.to_string().parse::<f64>() {
                         rating *= 5.0;
                         if !RATINGS.contains(&rating) {
-                            return Err(CriticalErrorKind::InvalidRating(self.path.clone(), rating));
+                            return Err(CriticalErrorKind::InvalidRating(
+                                self.path.clone(),
+                                rating,
+                            ));
                         }
                         return Ok(rating);
                     }
@@ -108,7 +106,11 @@ impl Music for Mp3File {
     fn keywords(&self) -> Vec<String> {
         for comment in self.tag.comments() {
             if comment.lang == "eng" {
-                return comment.text.split_whitespace().map(|k| k.trim_matches(char::from(0)).to_string()).collect();
+                return comment
+                    .text
+                    .split_whitespace()
+                    .map(|k| k.trim_matches(char::from(0)).to_string())
+                    .collect();
             }
         }
         Vec::new()

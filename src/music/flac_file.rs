@@ -1,23 +1,22 @@
-use std::path::{PathBuf, Path};
-use std::fs;
-use metaflac::Tag as FlacTag;
 use metaflac::block::VorbisComment;
+use metaflac::Tag as FlacTag;
+use std::path::{Path, PathBuf};
 
-use crate::music::{Music, RATINGS};
 use crate::errors::CriticalErrorKind;
+use crate::music::{Music, RATINGS};
 
 pub struct FlacFile {
     folder: PathBuf,
     path: PathBuf,
-    tag: FlacTag
+    tag: FlacTag,
 }
 
 impl FlacFile {
-    pub fn from_path(folder: &Path, path: &Path) -> FlacFile{
+    pub fn from_path(folder: &Path, path: &Path) -> FlacFile {
         FlacFile {
             folder: folder.to_path_buf(),
             path: path.to_path_buf(),
-            tag: FlacTag::read_from_path(path).unwrap()
+            tag: FlacTag::read_from_path(path).unwrap(),
         }
     }
     fn comments(&self) -> &VorbisComment {
@@ -34,13 +33,9 @@ impl Music for FlacFile {
         self.folder.to_str().unwrap()
     }
 
-    fn size(&self) -> u64 {
-        fs::metadata(self.path()).unwrap().len()
-    }
-
     fn length(&self) -> i64 {
         if let Some(stream_info) = self.tag.get_streaminfo() {
-             stream_info.total_samples as i64 / stream_info.sample_rate as i64
+            stream_info.total_samples as i64 / stream_info.sample_rate as i64
         } else {
             0
         }
@@ -57,7 +52,7 @@ impl Music for FlacFile {
 
     fn title(&self) -> &str {
         if let Some(titles) = self.comments().title() {
-            if !titles.is_empty(){
+            if !titles.is_empty() {
                 return titles[0].as_str();
             }
         }
@@ -67,7 +62,7 @@ impl Music for FlacFile {
     fn album(&self) -> &str {
         if let Some(albums) = self.comments().album() {
             if !albums.is_empty() {
-                return albums[0].as_str()
+                return albums[0].as_str();
             }
         }
         ""
@@ -76,7 +71,7 @@ impl Music for FlacFile {
     fn genre(&self) -> &str {
         if let Some(genres) = self.comments().genre() {
             if !genres.is_empty() {
-                return genres[0].as_str()
+                return genres[0].as_str();
             }
         }
         ""
@@ -85,7 +80,7 @@ impl Music for FlacFile {
     fn track(&self) -> i64 {
         if let Some(track) = self.comments().track() {
             if let Ok(track) = track.to_string().parse::<i64>() {
-                return track
+                return track;
             }
         }
         0
@@ -108,8 +103,11 @@ impl Music for FlacFile {
 
     fn keywords(&self) -> Vec<String> {
         if let Some(descriptions) = self.tag.get_vorbis("description") {
-            if let Some(description) = descriptions.into_iter().next(){
-                return description.split_whitespace().map(|k| k.trim_matches(char::from(0)).to_string()).collect();
+            if let Some(description) = descriptions.into_iter().next() {
+                return description
+                    .split_whitespace()
+                    .map(|k| k.trim_matches(char::from(0)).to_string())
+                    .collect();
             }
         }
         Vec::new()
