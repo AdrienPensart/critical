@@ -1,5 +1,91 @@
 use const_format::concatcp;
 
+pub const UPSERT_FOLDER: &str = r#"
+select (
+    insert Folder {
+        name := <str>$0,
+        username := <str>$1,
+        ipv4 := <str>$2
+    }
+    unless conflict on (.name, .username, .ipv4) else (select Folder)
+).id
+"#;
+
+pub const UPSERT_ARTIST: &str = r#"
+select (
+    insert Artist {
+        name := <str>$0
+    }
+    unless conflict on (.name) else (select Artist)
+).id
+"#;
+
+pub const UPSERT_ALBUM: &str = r#"
+select (
+    insert Album {
+        name := <str>$0,
+        artist := <Artist>$1
+    }
+    unless conflict on (.name, .artist) else (select Album)
+).id
+"#;
+
+pub const UPSERT_GENRE: &str = r#"
+select (
+    insert Genre {
+        name := <str>$0
+    }
+    unless conflict on (.name) else (select Genre)
+).id
+"#;
+
+pub const UPSERT_KEYWORD: &str = r#"
+select (
+    insert Keyword {
+        name := <str>$0
+    }
+    unless conflict on (.name)
+    else (select Keyword)
+).id
+"#;
+
+pub const UPSERT_MUSIC: &str = r#"
+select (
+    insert Music {
+        name := <str>$0,
+        album := <Album><uuid>$1,
+        genre := <Genre><uuid>$2,
+        size := <Size>$3,
+        length := <Length>$4,
+        keywords := (select distinct array_unpack(<array<Keyword>><array<uuid>>$5)),
+        track := <Track>$6,
+        rating := <Rating>$7,
+        folders := (
+            (<Folder><uuid>$8) {
+                @path := <str>$9
+            }
+        )
+    }
+    unless conflict on (.name, .album)
+    else (
+        update Music
+        set {
+            genre := <Genre><uuid>$2,
+            size := <Size>$3,
+            length := <Length>$4,
+            keywords := (select distinct array_unpack(<array<Keyword>><array<uuid>>$5)),
+            track := <Track>$6,
+            rating := <Rating>$7,
+            folders += (
+                (<Folder><uuid>$8) {
+                    @path := <str>$9
+                }
+            )
+        }
+    )
+).id
+"#;
+
 pub const FOLDER_QUERY: &str = r#"
     str
 ] = """
@@ -40,6 +126,8 @@ select {
     keywords_deleted := count((delete Keyword filter not exists .musics))
 };
 "#;
+
+pub const HARD_CLEAN_QUERY: &str = "delete Artist;";
 
 pub const PLAYLIST_QUERY: &str = concatcp!(
     r#"
@@ -89,85 +177,85 @@ filter contains(.paths, <str>$path)
 set {folders := (select .folders filter @path != <str>$path)};
 "#;
 
-pub const UPSERT_QUERY: &str = concatcp!(
-    r#"
-with
-    upsert_artist := (
-        insert Artist {
-            name := <str>$artist
-        }
-        unless conflict on (.name) else (select Artist)
-    ),
-    upsert_album := (
-        insert Album {
-            name := <str>$album,
-            artist := upsert_artist
-        }
-        unless conflict on (.name, .artist) else (select Album)
-    ),
-    upsert_genre := (
-        insert Genre {
-            name := <str>$genre
-        }
-        unless conflict on (.name) else (select Genre)
-    ),
-    upsert_keywords := (
-        for keyword in { array_unpack(<array<str>>$keywords) }
-        union (
-            insert Keyword {
-                name := keyword
-            }
-            unless conflict on (.name) else (select Keyword)
-        )
-    ),
-    upsert_folder := (
-        insert Folder {
-            name := <str>$folder,
-            username := <str>$username,
-            ipv4 := <str>$ipv4
-        }
-        unless conflict on (.name, .username, .ipv4) else (select Folder)
-    )
-    select (
-        insert Music {
-            name := <str>$title,
-            size := <Size>$size,
-            length := <Length>$length,
-            genre := upsert_genre,
-            album := upsert_album,
-            keywords := upsert_keywords,
-            track := <Track>$track,
-            rating := <Rating>$rating,
-            folders := (
-                select upsert_folder {
-                    @path := <str>$path
-                }
-            )
-        }
-        unless conflict on (.name, .album)
-        else (
-            update Music
-            set {
-                size := <Size>$size,
-                genre := upsert_genre,
-                album := upsert_album,
-                keywords := upsert_keywords,
-                length := <Length>$length,
-                track := <Track>$track,
-                rating := <Rating>$rating,
-                folders += (
-                    select upsert_folder {
-                        @path := <str>$path
-                    }
-                )
-            }
-        )
-    ) {
-        id,
-        name
-    }
-"#
-);
+// pub const UPSERT_QUERY: &str = concatcp!(
+//     r#"
+// with
+//     upsert_artist := (
+//         insert Artist {
+//             name := <str>$artist
+//         }
+//         unless conflict on (.name) else (select Artist)
+//     ),
+//     upsert_album := (
+//         insert Album {
+//             name := <str>$album,
+//             artist := upsert_artist
+//         }
+//         unless conflict on (.name, .artist) else (select Album)
+//     ),
+//     upsert_genre := (
+//         insert Genre {
+//             name := <str>$genre
+//         }
+//         unless conflict on (.name) else (select Genre)
+//     ),
+//     upsert_keywords := (
+//         for keyword in { array_unpack(<array<str>>$keywords) }
+//         union (
+//             insert Keyword {
+//                 name := keyword
+//             }
+//             unless conflict on (.name) else (select Keyword)
+//         )
+//     ),
+//     upsert_folder := (
+//         insert Folder {
+//             name := <str>$folder,
+//             username := <str>$username,
+//             ipv4 := <str>$ipv4
+//         }
+//         unless conflict on (.name, .username, .ipv4) else (select Folder)
+//     )
+//     select (
+//         insert Music {
+//             name := <str>$title,
+//             size := <Size>$size,
+//             length := <Length>$length,
+//             genre := upsert_genre,
+//             album := upsert_album,
+//             keywords := upsert_keywords,
+//             track := <Track>$track,
+//             rating := <Rating>$rating,
+//             folders := (
+//                 select upsert_folder {
+//                     @path := <str>$path
+//                 }
+//             )
+//         }
+//         unless conflict on (.name, .album)
+//         else (
+//             update Music
+//             set {
+//                 size := <Size>$size,
+//                 genre := upsert_genre,
+//                 album := upsert_album,
+//                 keywords := upsert_keywords,
+//                 length := <Length>$length,
+//                 track := <Track>$track,
+//                 rating := <Rating>$rating,
+//                 folders += (
+//                     select upsert_folder {
+//                         @path := <str>$path
+//                     }
+//                 )
+//             }
+//         )
+//     ) {
+//         id,
+//         name
+//     }
+// "#
+// );
 
 pub const ARTISTS_QUERY: &str = r#"
 select Artist {

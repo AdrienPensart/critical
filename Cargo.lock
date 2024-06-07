@@ -474,6 +474,7 @@ dependencies = [
  "metaflac",
  "mp3-duration",
  "prettytable-rs",
+ "rand",
  "reqwest",
  "serde",
  "serde_json",

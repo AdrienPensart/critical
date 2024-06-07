@@ -18,4 +18,6 @@ pub enum CriticalErrorKind {
     EdgedbError(#[from] EdgedbError),
     #[error("IO error: {0}")]
     IOError(#[from] std::io::Error),
+    #[error("Upsert operation failed for path: {path} with object: {object}")]
+    UpsertError { path: String, object: String },
 }
