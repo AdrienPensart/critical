@@ -1,34 +1,34 @@
 use id3::Tag as Mp3Tag;
 use id3::TagLike;
 use mp3_duration;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use crate::errors::CriticalErrorKind;
 use crate::music::{Music, RATINGS};
 
 pub struct Mp3File {
-    folder: PathBuf,
-    path: PathBuf,
+    folder: String,
+    path: String,
     tag: Mp3Tag,
 }
 
 impl Mp3File {
-    pub fn from_path(folder: &Path, path: &Path) -> Mp3File {
-        Mp3File {
-            folder: folder.to_path_buf(),
-            path: path.to_path_buf(),
-            tag: Mp3Tag::read_from_path(path).unwrap(),
-        }
+    pub fn from_path(folder: &Path, path: &Path) -> Result<Mp3File, CriticalErrorKind> {
+        Ok(Mp3File {
+            folder: folder.display().to_string(),
+            path: path.display().to_string(),
+            tag: Mp3Tag::read_from_path(path)?,
+        })
     }
 }
 
 impl Music for Mp3File {
     fn path(&self) -> &str {
-        self.path.to_str().unwrap()
+        &self.path
     }
 
     fn folder(&self) -> &str {
-        self.folder.to_str().unwrap()
+        &self.folder
     }
 
     fn length(&self) -> i64 {
@@ -90,10 +90,10 @@ impl Music for Mp3File {
                     if let Ok(mut rating) = extended_text.value.to_string().parse::<f64>() {
                         rating *= 5.0;
                         if !RATINGS.contains(&rating) {
-                            return Err(CriticalErrorKind::InvalidRating(
-                                self.path.clone(),
+                            return Err(CriticalErrorKind::InvalidRating {
+                                path: self.path().to_string(),
                                 rating,
-                            ));
+                            });
                         }
                         return Ok(rating);
                     }
@@ -114,9 +114,5 @@ impl Music for Mp3File {
             }
         }
         Vec::new()
-    }
-
-    fn links(&self) -> Vec<String> {
-        vec![String::from(self.path())]
     }
 }

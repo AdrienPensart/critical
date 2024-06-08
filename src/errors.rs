@@ -1,23 +1,27 @@
-use edgedb_tokio::Error as EdgedbError;
-use reqwest::header::ToStrError;
-use reqwest::Error as RequestError;
-use std::path::PathBuf;
-use thiserror::Error;
-
-#[derive(Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum CriticalErrorKind {
     #[error("Request error")]
-    ReqwestError(#[from] RequestError),
+    ReqwestError(#[from] reqwest::Error),
     #[error("Invalid request header")]
-    HeaderError(#[from] ToStrError),
-    #[error("Invalid music rating for {0} : {1}")]
-    InvalidRating(PathBuf, f64),
+    HeaderError(#[from] reqwest::header::ToStrError),
+    #[error("Invalid music rating for {path} : {rating}")]
+    InvalidRating { path: String, rating: f64 },
     #[error("Public IP not detected")]
     NoPublicIp,
     #[error("EdgeDB error")]
-    EdgedbError(#[from] EdgedbError),
+    EdgedbError(#[from] edgedb_tokio::Error),
     #[error("IO error: {0}")]
     IOError(#[from] std::io::Error),
     #[error("Upsert operation failed for path: {path} with object: {object}")]
     UpsertError { path: String, object: String },
+    #[error("Invalid ID3 tag")]
+    Mp3TagError(#[from] id3::Error),
+    #[error("Invalid Flac tag")]
+    FlacTagError(#[from] metaflac::Error),
+    #[error("Invalid Flac comments")]
+    FlacCommentsError,
+    #[error("Invalid progress bar template")]
+    ProgressBarError(#[from] indicatif::style::TemplateError),
+    #[error("Semaphore error")]
+    SemaphoreError(#[from] tokio::sync::AcquireError),
 }

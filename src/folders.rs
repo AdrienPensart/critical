@@ -1,4 +1,3 @@
-use clap::Parser;
 use indicatif::{ProgressBar, ProgressStyle};
 use rand::{seq::SliceRandom, thread_rng};
 use std::collections::HashMap;
@@ -6,12 +5,9 @@ use std::num::NonZeroUsize;
 use std::path::Path;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
-use std::thread;
 use tokio::sync::Mutex;
 use tokio::sync::Semaphore;
 use tokio::task::JoinSet;
-use walkdir::WalkDir;
-use whoami::username;
 
 use crate::errors::CriticalErrorKind;
 use crate::helpers::{is_hidden, public_ip};
@@ -23,7 +19,7 @@ use crate::queries::{
     UPSERT_MUSIC,
 };
 
-#[derive(Parser, Debug)]
+#[derive(clap::Parser, Debug)]
 #[clap(about = "Scan folders and save music")]
 pub struct FoldersScanner {
     /// Enable bulk insert / batch
@@ -42,7 +38,8 @@ pub struct FoldersScanner {
     /// EdgeDB DSN
     pub dsn: String,
 
-    #[clap(long, default_value_t = thread::available_parallelism().unwrap())]
+    // #[clap(long, default_value_t = std::thread::available_parallelism().unwrap())]
+    #[clap(long, default_value_t = NonZeroUsize::new(4).unwrap())]
     /// Concurrency
     pub workers: NonZeroUsize,
 
@@ -64,7 +61,7 @@ impl FoldersScanner {
         );
 
         if self.clean {
-            client.query::<uuid::Uuid, _>(HARD_CLEAN_QUERY, &()).await?;
+            client.execute(HARD_CLEAN_QUERY, &()).await?;
         }
 
         let mut musics: Vec<Box<dyn Music + Send + Sync>> = Vec::new();
@@ -74,7 +71,7 @@ impl FoldersScanner {
                 eprintln!("{folder} : path is not a directory");
                 continue;
             }
-            let walker = WalkDir::new(folder).into_iter();
+            let walker = walkdir::WalkDir::new(folder).into_iter();
             for entry in walker.filter_entry(|e| !is_hidden(e)).flatten() {
                 if !entry.file_type().is_file() {
                     continue;
@@ -91,10 +88,10 @@ impl FoldersScanner {
 
                 match extension.to_str() {
                     Some("flac") => {
-                        musics.push(Box::new(FlacFile::from_path(folder_path, entry.path())));
+                        musics.push(Box::new(FlacFile::from_path(folder_path, entry.path())?));
                     }
                     Some("mp3") => {
-                        musics.push(Box::new(Mp3File::from_path(folder_path, entry.path())))
+                        musics.push(Box::new(Mp3File::from_path(folder_path, entry.path())?))
                     }
                     Some("m3u") | Some("jpg") => (),
                     _ => println!("Unsupported format : {path}"),
@@ -113,14 +110,13 @@ impl FoldersScanner {
         let bar = ProgressBar::new(total as u64);
         bar.set_style(
             ProgressStyle::default_bar()
-                .template("[{elapsed_precise}] {bar:50.cyan/blue} {pos:>7}/{len:7} {msg}")
-                .unwrap()
+                .template("[{elapsed_precise}] {bar:50.cyan/blue} {pos:>7}/{len:7} {msg}")?
                 .progress_chars("##-"),
         );
         let bar = Arc::new(Mutex::new(bar));
 
         let ipv4 = public_ip().await?;
-        let username = username().to_string();
+        let username = whoami::username().to_string();
 
         let folders: Arc<Mutex<HashMap<String, uuid::Uuid>>> = Arc::new(Mutex::new(HashMap::new()));
         let artists: Arc<Mutex<HashMap<String, uuid::Uuid>>> = Arc::new(Mutex::new(HashMap::new()));
@@ -149,7 +145,7 @@ impl FoldersScanner {
             let bar = bar.clone();
 
             set.spawn(async move {
-                let _permit = semaphore.acquire_owned().await.unwrap();
+                let _permit = semaphore.acquire_owned().await?;
 
                 let artist_id = {
                     let mut artists = artists.lock().await;

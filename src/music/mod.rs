@@ -17,12 +17,11 @@ pub trait Music {
     fn track(&self) -> i64;
     fn rating(&self) -> Result<f64, CriticalErrorKind>;
     fn keywords(&self) -> Vec<String>;
-    fn links(&self) -> Vec<String>;
     async fn size(&self) -> Result<u64, CriticalErrorKind> {
-        match async_fs::metadata(self.path()).await {
-            Ok(metadata) => Ok(metadata.len()),
-            Err(e) => return Err(CriticalErrorKind::IOError(e)),
-        }
+        Ok(async_fs::metadata(self.path()).await?.len())
+    }
+    fn links(&self) -> Vec<String> {
+        vec![String::from(self.path())]
     }
 }
 
@@ -31,7 +30,7 @@ impl std::fmt::Debug for dyn Music + Send + Sync {
         let rt = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
-            .unwrap();
+            .map_err(|_| std::fmt::Error)?;
 
         let size = rt.block_on(self.size());
 

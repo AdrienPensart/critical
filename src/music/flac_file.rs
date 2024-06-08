@@ -1,36 +1,39 @@
 use metaflac::block::VorbisComment;
 use metaflac::Tag as FlacTag;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use crate::errors::CriticalErrorKind;
 use crate::music::{Music, RATINGS};
 
 pub struct FlacFile {
-    folder: PathBuf,
-    path: PathBuf,
+    folder: String,
+    path: String,
     tag: FlacTag,
+    comments: VorbisComment,
 }
 
 impl FlacFile {
-    pub fn from_path(folder: &Path, path: &Path) -> FlacFile {
-        FlacFile {
-            folder: folder.to_path_buf(),
-            path: path.to_path_buf(),
-            tag: FlacTag::read_from_path(path).unwrap(),
-        }
-    }
-    fn comments(&self) -> &VorbisComment {
-        self.tag.vorbis_comments().unwrap()
+    pub fn from_path(folder: &Path, path: &Path) -> Result<FlacFile, CriticalErrorKind> {
+        let tag = FlacTag::read_from_path(path)?;
+        let Some(comments) = tag.vorbis_comments() else {
+            return Err(CriticalErrorKind::FlacCommentsError);
+        };
+        Ok(FlacFile {
+            folder: folder.display().to_string(),
+            path: path.display().to_string(),
+            comments: comments.clone(),
+            tag,
+        })
     }
 }
 
 impl Music for FlacFile {
     fn path(&self) -> &str {
-        self.path.to_str().unwrap()
+        &self.path
     }
 
     fn folder(&self) -> &str {
-        self.folder.to_str().unwrap()
+        &self.folder
     }
 
     fn length(&self) -> i64 {
@@ -42,7 +45,7 @@ impl Music for FlacFile {
     }
 
     fn artist(&self) -> &str {
-        if let Some(artists) = self.comments().artist() {
+        if let Some(artists) = self.comments.artist() {
             if !artists.is_empty() {
                 return artists[0].as_str();
             }
@@ -51,7 +54,7 @@ impl Music for FlacFile {
     }
 
     fn title(&self) -> &str {
-        if let Some(titles) = self.comments().title() {
+        if let Some(titles) = self.comments.title() {
             if !titles.is_empty() {
                 return titles[0].as_str();
             }
@@ -60,7 +63,7 @@ impl Music for FlacFile {
     }
 
     fn album(&self) -> &str {
-        if let Some(albums) = self.comments().album() {
+        if let Some(albums) = self.comments.album() {
             if !albums.is_empty() {
                 return albums[0].as_str();
             }
@@ -69,7 +72,7 @@ impl Music for FlacFile {
     }
 
     fn genre(&self) -> &str {
-        if let Some(genres) = self.comments().genre() {
+        if let Some(genres) = self.comments.genre() {
             if !genres.is_empty() {
                 return genres[0].as_str();
             }
@@ -78,7 +81,7 @@ impl Music for FlacFile {
     }
 
     fn track(&self) -> i64 {
-        if let Some(track) = self.comments().track() {
+        if let Some(track) = self.comments.track() {
             if let Ok(track) = track.to_string().parse::<i64>() {
                 return track;
             }
@@ -92,7 +95,10 @@ impl Music for FlacFile {
                 if let Ok(mut rating) = fmps_rating.to_string().parse::<f64>() {
                     rating *= 5.0;
                     if !RATINGS.contains(&rating) {
-                        return Err(CriticalErrorKind::InvalidRating(self.path.clone(), rating));
+                        return Err(CriticalErrorKind::InvalidRating {
+                            path: self.path.clone(),
+                            rating,
+                        });
                     }
                     return Ok(rating);
                 }
@@ -111,9 +117,5 @@ impl Music for FlacFile {
             }
         }
         Vec::new()
-    }
-
-    fn links(&self) -> Vec<String> {
-        vec![String::from(self.path())]
     }
 }
