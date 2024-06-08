@@ -13,7 +13,7 @@ use crate::errors::CriticalErrorKind;
 use crate::helpers::{is_hidden, public_ip};
 use crate::music::flac_file::FlacFile;
 use crate::music::mp3_file::Mp3File;
-use crate::music::Music;
+use crate::music::BoxMusic;
 use crate::queries::{
     HARD_CLEAN_QUERY, UPSERT_ALBUM, UPSERT_ARTIST, UPSERT_FOLDER, UPSERT_GENRE, UPSERT_KEYWORD,
     UPSERT_MUSIC,
@@ -64,7 +64,7 @@ impl FoldersScanner {
             client.execute(HARD_CLEAN_QUERY, &()).await?;
         }
 
-        let mut musics: Vec<Box<dyn Music + Send + Sync>> = Vec::new();
+        let mut musics: Vec<BoxMusic> = Vec::new();
         for folder in self.folders.iter() {
             let folder_path = Path::new(&folder);
             if !folder_path.is_dir() {
@@ -100,7 +100,7 @@ impl FoldersScanner {
         }
 
         {
-            // reduces serialization among transactions errors
+            // reduces errors among serialization transactions
             let mut rng = thread_rng();
             musics.shuffle(&mut rng);
         }

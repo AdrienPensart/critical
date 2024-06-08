@@ -4,6 +4,7 @@ pub mod flac_file;
 pub mod mp3_file;
 
 static RATINGS: &[f64] = &[0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0];
+pub type BoxMusic = Box<dyn Music + Send + Sync>;
 
 #[async_trait::async_trait]
 pub trait Music {
@@ -25,7 +26,7 @@ pub trait Music {
     }
 }
 
-impl std::fmt::Debug for dyn Music + Send + Sync {
+impl std::fmt::Debug for dyn Music + Sync {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let rt = tokio::runtime::Builder::new_current_thread()
             .enable_all()
@@ -50,7 +51,7 @@ impl std::fmt::Debug for dyn Music + Send + Sync {
     }
 }
 
-impl std::fmt::Display for dyn Music + Send + Sync {
+impl std::fmt::Display for dyn Music {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{}", self.path())
     }
