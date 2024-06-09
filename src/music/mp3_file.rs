@@ -1,7 +1,6 @@
 use id3::Tag as Mp3Tag;
 use id3::TagLike;
 use mp3_duration;
-use std::path::Path;
 
 use crate::errors::CriticalErrorKind;
 use crate::music::{Music, RATINGS};
@@ -13,10 +12,10 @@ pub struct Mp3File {
 }
 
 impl Mp3File {
-    pub fn from_path(folder: &Path, path: &Path) -> Result<Mp3File, CriticalErrorKind> {
+    pub fn from_path(folder: &str, path: &str) -> Result<Mp3File, CriticalErrorKind> {
         Ok(Mp3File {
-            folder: folder.display().to_string(),
-            path: path.display().to_string(),
+            folder: folder.to_string(),
+            path: path.to_string(),
             tag: Mp3Tag::read_from_path(path)?,
         })
     }

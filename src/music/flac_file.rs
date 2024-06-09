@@ -1,6 +1,5 @@
 use metaflac::block::VorbisComment;
 use metaflac::Tag as FlacTag;
-use std::path::Path;
 
 use crate::errors::CriticalErrorKind;
 use crate::music::{Music, RATINGS};
@@ -13,14 +12,14 @@ pub struct FlacFile {
 }
 
 impl FlacFile {
-    pub fn from_path(folder: &Path, path: &Path) -> Result<FlacFile, CriticalErrorKind> {
+    pub fn from_path(folder: &str, path: &str) -> Result<FlacFile, CriticalErrorKind> {
         let tag = FlacTag::read_from_path(path)?;
         let Some(comments) = tag.vorbis_comments() else {
             return Err(CriticalErrorKind::FlacCommentsError);
         };
         Ok(FlacFile {
-            folder: folder.display().to_string(),
-            path: path.display().to_string(),
+            folder: folder.to_string(),
+            path: path.to_string(),
             comments: comments.clone(),
             tag,
         })

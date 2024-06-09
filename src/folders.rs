@@ -1,3 +1,5 @@
+// use futures_lite::future::block_on;
+use futures_lite::stream::StreamExt;
 use indicatif::{ProgressBar, ProgressStyle};
 use rand::{seq::SliceRandom, thread_rng};
 use std::collections::HashMap;
@@ -64,38 +66,96 @@ impl FoldersScanner {
             client.execute(HARD_CLEAN_QUERY, &()).await?;
         }
 
+        let retries: usize = self.retries.into();
+        let ipv4 = public_ip().await?;
+        let username = whoami::username().to_string();
+        let folders: Arc<Mutex<HashMap<String, uuid::Uuid>>> = Arc::new(Mutex::new(HashMap::new()));
         let mut musics: Vec<BoxMusic> = Vec::new();
+
         for folder in self.folders.iter() {
             let folder_path = Path::new(&folder);
             if !folder_path.is_dir() {
                 eprintln!("{folder} : path is not a directory");
                 continue;
             }
-            let walker = walkdir::WalkDir::new(folder).into_iter();
-            for entry in walker.filter_entry(|e| !is_hidden(e)).flatten() {
-                if !entry.file_type().is_file() {
-                    continue;
-                }
+            let Some(folder_path) = folder_path.to_str() else {
+                eprintln!("{folder} : issue with folder path");
+                continue;
+            };
 
-                let path = entry.path().display();
-                let extension = match entry.path().extension() {
-                    Some(extension) => extension,
-                    None => {
-                        println!("Unsupported path : {path}");
+            let mut folders = folders.lock().await;
+            if !folders.contains_key(folder_path) {
+                let mut folder_id: Option<uuid::Uuid> = None;
+                for _ in 0..retries {
+                    let folder_result = client
+                        .query_required_single(UPSERT_FOLDER, &(folder_path, &username, &ipv4))
+                        .await;
+                    match folder_result {
+                        Err(e) => {
+                            if e.kind_name() != "TransactionSerializationError" {
+                                return Err(CriticalErrorKind::EdgedbError(e));
+                            }
+                            eprintln!("retrying upsert folder {}", folder_path);
+                        }
+                        Ok(id) => {
+                            folder_id = Some(id);
+                            break;
+                        }
+                    };
+                }
+                let Some(folder_id) = folder_id else {
+                    return Err(CriticalErrorKind::UpsertError {
+                        path: folder_path.to_string(),
+                        object: folder_path.to_string(),
+                    });
+                };
+                folders.insert(folder_path.to_string(), folder_id);
+            }
+
+            // println!("folder_id: {folder_id}");
+
+            let mut walker = async_walkdir::WalkDir::new(folder);
+            loop {
+                match walker.next().await {
+                    Some(Ok(entry)) => {
+                        if entry.file_type().await?.is_dir() {
+                            continue;
+                        }
+                        if is_hidden(&entry) {
+                            continue;
+                        }
+                        let entry_path = entry.path();
+                        let path = entry_path.to_str();
+                        let Some(path) = path else {
+                            eprintln!("Issue with path : {:?}", entry.path());
+                            continue;
+                        };
+
+                        let Some(extension) = entry_path.extension() else {
+                            eprintln!("Issue with path extension : {path}");
+                            continue;
+                        };
+
+                        match extension.to_str() {
+                            Some("flac") => {
+                                musics.push(Box::new(FlacFile::from_path(folder_path, path)?));
+                            }
+                            Some("mp3") => {
+                                musics.push(Box::new(Mp3File::from_path(folder_path, path)?))
+                            }
+                            Some("m3u") | Some("jpg") => continue,
+                            _ => {
+                                eprintln!("Unsupported format : {path}");
+                                continue;
+                            }
+                        };
+                    }
+                    Some(Err(e)) => {
+                        eprintln!("error: {}", e);
                         continue;
                     }
-                };
-
-                match extension.to_str() {
-                    Some("flac") => {
-                        musics.push(Box::new(FlacFile::from_path(folder_path, entry.path())?));
-                    }
-                    Some("mp3") => {
-                        musics.push(Box::new(Mp3File::from_path(folder_path, entry.path())?))
-                    }
-                    Some("m3u") | Some("jpg") => (),
-                    _ => println!("Unsupported format : {path}"),
-                };
+                    None => break,
+                }
             }
         }
 
@@ -115,10 +175,6 @@ impl FoldersScanner {
         );
         let bar = Arc::new(Mutex::new(bar));
 
-        let ipv4 = public_ip().await?;
-        let username = whoami::username().to_string();
-
-        let folders: Arc<Mutex<HashMap<String, uuid::Uuid>>> = Arc::new(Mutex::new(HashMap::new()));
         let artists: Arc<Mutex<HashMap<String, uuid::Uuid>>> = Arc::new(Mutex::new(HashMap::new()));
         let albums: Arc<Mutex<HashMap<uuid::Uuid, HashMap<String, uuid::Uuid>>>> =
             Arc::new(Mutex::new(HashMap::new()));
@@ -128,7 +184,6 @@ impl FoldersScanner {
 
         let semaphore = Arc::new(Semaphore::new(self.workers.get()));
         let mut set: JoinSet<Result<(uuid::Uuid, String), CriticalErrorKind>> = JoinSet::new();
-        let retries = self.retries.into();
         let errors = Arc::new(AtomicU64::new(0));
 
         for music in musics {
@@ -138,8 +193,6 @@ impl FoldersScanner {
             let folders = folders.clone();
             let keywords = keywords.clone();
             let client = client.clone();
-            let username = username.clone();
-            let ipv4 = ipv4.clone();
             let semaphore = semaphore.clone();
             let errors = errors.clone();
             let bar = bar.clone();
@@ -270,48 +323,6 @@ impl FoldersScanner {
                 };
                 // println!("genre_id: {genre_id}");
 
-                let folder_id = {
-                    let mut folders = folders.lock().await;
-                    if !folders.contains_key(music.folder()) {
-                        let mut folder_id: Option<uuid::Uuid> = None;
-                        for _ in 0..retries {
-                            let folder_result = client
-                                .query_required_single(
-                                    UPSERT_FOLDER,
-                                    &(music.folder(), &username, &ipv4),
-                                )
-                                .await;
-                            match folder_result {
-                                Err(e) => {
-                                    if e.kind_name() != "TransactionSerializationError" {
-                                        return Err(CriticalErrorKind::EdgedbError(e));
-                                    }
-                                    bar.lock().await.println(format!(
-                                        "retrying upsert folder {}",
-                                        music.folder()
-                                    ));
-                                    errors.fetch_add(1, Ordering::Relaxed);
-                                }
-                                Ok(id) => {
-                                    folder_id = Some(id);
-                                    break;
-                                }
-                            };
-                        }
-                        let Some(folder_id) = folder_id else {
-                            return Err(CriticalErrorKind::UpsertError {
-                                path: music.path().to_string(),
-                                object: music.folder().to_string(),
-                            });
-                        };
-                        folders.insert(music.folder().to_string(), folder_id);
-                        folder_id
-                    } else {
-                        folders[music.folder()]
-                    }
-                };
-                // println!("folder_id: {folder_id}");
-
                 let mut keyword_ids = Vec::new();
                 {
                     let mut keywords = keywords.lock().await;
@@ -357,6 +368,7 @@ impl FoldersScanner {
 
                 let music_id = {
                     let mut music_id: Option<uuid::Uuid> = None;
+                    let folders = folders.lock().await;
                     for _ in 0..retries {
                         let rating = music.rating()?;
                         let size = music.size().await?;
@@ -372,7 +384,7 @@ impl FoldersScanner {
                                     keyword_ids.clone(),
                                     music.track(),
                                     rating,
-                                    folder_id,
+                                    folders[music.folder()],
                                     music.path(),
                                 ),
                             )

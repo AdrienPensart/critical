@@ -1,4 +1,4 @@
-use walkdir::DirEntry;
+use async_walkdir::DirEntry;
 
 use crate::errors::CriticalErrorKind;
 

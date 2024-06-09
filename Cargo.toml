@@ -12,7 +12,6 @@ clap = { version = "4.4.4", features = ["derive"] }
 metaflac = "0.2.4"
 id3 = "1.0"
 mp3-duration = "0.1.10"
-walkdir = "2"
 env_logger = "0.11.3"
 reqwest = { version = "0.12", features = ["json", "blocking"] }
 serde = "^1.0"
@@ -33,3 +32,5 @@ edgedb-tokio = "0.5.1"
 edgedb-protocol = "0.6.1"
 async-fs = "2.1.2"
 rand = "0.8.5"
+async-walkdir = "1.0.0"
+futures-lite = "2.3.0"
