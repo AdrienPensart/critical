@@ -6,6 +6,12 @@ pub enum CriticalErrorKind {
     HeaderError(#[from] reqwest::header::ToStrError),
     #[error("Invalid music rating for {path} : {rating}")]
     InvalidRating { path: String, rating: f64 },
+    #[error("Invalid min/max rating, minimum rating {min_rating} should be < {max_rating}")]
+    InvalidMinMaxRating { min_rating: f64, max_rating: f64 },
+    #[error("Invalid min/max length, minimum length {min_length} should be < {max_length}")]
+    InvalidMinMaxLength { min_length: i64, max_length: i64 },
+    #[error("Invalid min/max size, minimum size {min_size} should be < {max_size}")]
+    InvalidMinMaxSize { min_size: i64, max_size: i64 },
     #[error("Public IP not detected")]
     NoPublicIp,
     #[error("EdgeDB error")]

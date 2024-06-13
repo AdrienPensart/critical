@@ -48,5 +48,8 @@ enum Group {
 async fn main() -> Result<(), CriticalErrorKind> {
     env_logger::init();
     let opts = Opts::parse();
-    opts.group.dispatch(opts.dsn).await
+    if let Err(e) = opts.group.dispatch(opts.dsn).await {
+        eprintln!("{e}");
+    }
+    Ok(())
 }

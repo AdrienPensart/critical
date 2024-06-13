@@ -1,5 +1,6 @@
 use crate::errors::CriticalErrorKind;
 use crate::music::music_result::MusicResult;
+use crate::music::RATINGS;
 use crate::queries::PLAYLIST_QUERY;
 use rand::{seq::SliceRandom, thread_rng};
 use serde::Serialize;
@@ -40,9 +41,9 @@ pub struct Playlist {
     min_size: i64,
     #[clap(long, default_value_t = i64::MAX)]
     max_size: i64,
-    #[clap(long, default_value_t = 0.0)]
+    #[clap(long, default_value_t = 0.0, value_parser = validate_rating)]
     min_rating: f64,
-    #[clap(long, default_value_t = 5.0)]
+    #[clap(long, default_value_t = 5.0, value_parser = validate_rating)]
     max_rating: f64,
     #[clap(long, default_value_t = MATCH_ALL.to_string())]
     artist: String,
@@ -85,8 +86,42 @@ pub struct Playlist {
     out: Option<String>,
 }
 
+fn validate_rating(rating_str: &str) -> Result<f64, String> {
+    if let Ok(rating) = rating_str.parse::<f64>() {
+        if RATINGS.contains(&rating) {
+            return Ok(rating);
+        }
+    };
+    Err(format!(
+        "{rating_str} is invalid rating, valid values: {}",
+        RATINGS
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<_>>()
+            .join(", ")
+    ))
+}
+
 impl Playlist {
     pub async fn playlist(&self, dsn: String) -> Result<(), CriticalErrorKind> {
+        if self.min_rating > self.max_rating {
+            return Err(CriticalErrorKind::InvalidMinMaxRating {
+                min_rating: self.min_rating,
+                max_rating: self.max_rating,
+            });
+        }
+        if self.min_length > self.max_length {
+            return Err(CriticalErrorKind::InvalidMinMaxLength {
+                min_length: self.min_length,
+                max_length: self.max_length,
+            });
+        }
+        if self.min_size > self.max_size {
+            return Err(CriticalErrorKind::InvalidMinMaxSize {
+                min_size: self.min_size,
+                max_size: self.max_size,
+            });
+        }
         let client = edgedb_tokio::Client::new(
             &edgedb_tokio::Builder::new()
                 .dsn(&dsn)?
