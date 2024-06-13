@@ -24,4 +24,8 @@ pub enum CriticalErrorKind {
     ProgressBarError(#[from] indicatif::style::TemplateError),
     #[error("Semaphore error")]
     SemaphoreError(#[from] tokio::sync::AcquireError),
+    #[error("JSON serialization error")]
+    SerializationError(#[from] serde_json::Error),
+    #[error("Relative path error")]
+    RelativePathError(#[from] std::path::StripPrefixError),
 }

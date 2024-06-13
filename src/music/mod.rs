@@ -2,6 +2,7 @@ use crate::errors::CriticalErrorKind;
 
 pub mod flac_file;
 pub mod mp3_file;
+pub mod music_result;
 
 static RATINGS: &[f64] = &[0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0];
 pub type BoxMusic = Box<dyn Music + Send + Sync>;

@@ -5,6 +5,6 @@ use crate::errors::CriticalErrorKind;
 
 #[async_trait]
 #[enum_dispatch]
-pub trait GroupDispatch{
-    async fn dispatch(self) -> Result<(), CriticalErrorKind>;
+pub trait GroupDispatch {
+    async fn dispatch(self, dsn: String) -> Result<(), CriticalErrorKind>;
 }

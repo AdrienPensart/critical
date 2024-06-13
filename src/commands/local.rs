@@ -1,44 +1,35 @@
-use async_trait::async_trait;
-use clap::Subcommand;
-// use edgedb_tokio::create_client;
-
+use crate::clean::Clean;
 use crate::errors::CriticalErrorKind;
-use crate::folders::FoldersScanner;
 use crate::group_dispatch::GroupDispatch;
+use crate::playlist::Playlist;
+use crate::scan::Scan;
+use crate::search::Search;
+use crate::stats::Stats;
+use async_trait::async_trait;
 
-#[derive(Subcommand, Debug)]
+#[derive(clap::Subcommand, Debug)]
 #[clap(about = "Local music management")]
 pub enum Group {
-    Scan(FoldersScanner),
+    Scan(Scan),
     #[clap(about = "Clean deleted musics")]
-    Clean,
+    Clean(Clean),
     #[clap(about = "Music collection stats")]
-    Stats,
+    Stats(Stats),
     #[clap(about = "Generate a new playlist")]
-    Playlist,
+    Playlist(Playlist),
+    #[clap(about = "Search musics")]
+    Search(Search),
 }
 
 #[async_trait]
 impl GroupDispatch for Group {
-    async fn dispatch(self) -> Result<(), CriticalErrorKind> {
+    async fn dispatch(self, dsn: String) -> Result<(), CriticalErrorKind> {
         match self {
-            Group::Scan(folders_scanner) => {
-                folders_scanner.scan().await?;
-                Ok(())
-            }
-            Group::Clean => Ok(()),
-            Group::Playlist => Ok(()),
-            Group::Stats => {
-                // let stats = user_musics.stats()?;
-                // println!("Musics : {}", stats.musics);
-                // println!("Links : {}", stats.links);
-                // println!("Artists : {}", stats.artists);
-                // println!("Albums : {}", stats.albums);
-                // println!("Genres : {}", stats.genres);
-                // println!("Keywords : {}", stats.keywords);
-                // println!("Duration : {}", stats.duration);
-                Ok(())
-            }
+            Group::Scan(scan) => scan.scan(dsn).await,
+            Group::Clean(clean) => clean.clean(dsn).await,
+            Group::Playlist(playlist) => playlist.playlist(dsn).await,
+            Group::Stats(stats) => stats.print_stats(dsn).await,
+            Group::Search(search) => search.search(dsn).await,
         }
     }
 }
