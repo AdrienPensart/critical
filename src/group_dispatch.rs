@@ -6,5 +6,5 @@ use crate::errors::CriticalErrorKind;
 #[async_trait]
 #[enum_dispatch]
 pub trait GroupDispatch {
-    async fn dispatch(self, dsn: String) -> Result<(), CriticalErrorKind>;
+    async fn dispatch(self, client: edgedb_tokio::Client) -> Result<(), CriticalErrorKind>;
 }

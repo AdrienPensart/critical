@@ -48,7 +48,15 @@ enum Group {
 async fn main() -> Result<(), CriticalErrorKind> {
     env_logger::init();
     let opts = Opts::parse();
-    if let Err(e) = opts.group.dispatch(opts.dsn).await {
+    let client = edgedb_tokio::Client::new(
+        &edgedb_tokio::Builder::new()
+            .dsn(&opts.dsn)?
+            // .client_security(edgedb_tokio::ClientSecurity::InsecureDevMode)
+            .build_env()
+            .await?,
+    );
+
+    if let Err(e) = opts.group.dispatch(client).await {
         eprintln!("{e}");
     }
     Ok(())

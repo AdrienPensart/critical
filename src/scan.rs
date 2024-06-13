@@ -48,15 +48,7 @@ pub struct Scan {
 }
 
 impl Scan {
-    pub async fn scan(&self, dsn: String) -> Result<(), CriticalErrorKind> {
-        let client = edgedb_tokio::Client::new(
-            &edgedb_tokio::Builder::new()
-                .dsn(&dsn)?
-                // .client_security(edgedb_tokio::ClientSecurity::InsecureDevMode)
-                .build_env()
-                .await?,
-        );
-
+    pub async fn scan(&self, client: edgedb_tokio::Client) -> Result<(), CriticalErrorKind> {
         if self.clean {
             client.execute(HARD_CLEAN_QUERY, &()).await?;
         }

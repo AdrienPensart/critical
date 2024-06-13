@@ -23,13 +23,13 @@ pub enum Group {
 
 #[async_trait]
 impl GroupDispatch for Group {
-    async fn dispatch(self, dsn: String) -> Result<(), CriticalErrorKind> {
+    async fn dispatch(self, client: edgedb_tokio::Client) -> Result<(), CriticalErrorKind> {
         match self {
-            Group::Scan(scan) => scan.scan(dsn).await,
-            Group::Clean(clean) => clean.clean(dsn).await,
-            Group::Playlist(playlist) => playlist.playlist(dsn).await,
-            Group::Stats(stats) => stats.print_stats(dsn).await,
-            Group::Search(search) => search.search(dsn).await,
+            Group::Scan(scan) => scan.scan(client).await,
+            Group::Clean(clean) => clean.clean(client).await,
+            Group::Playlist(playlist) => playlist.playlist(client).await,
+            Group::Stats(stats) => stats.print_stats(client).await,
+            Group::Search(search) => search.search(client).await,
         }
     }
 }

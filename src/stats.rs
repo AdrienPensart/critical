@@ -21,15 +21,7 @@ pub struct Folder {
 }
 
 impl Stats {
-    pub async fn print_stats(&self, dsn: String) -> Result<(), CriticalErrorKind> {
-        let client = edgedb_tokio::Client::new(
-            &edgedb_tokio::Builder::new()
-                .dsn(&dsn)?
-                // .client_security(edgedb_tokio::ClientSecurity::InsecureDevMode)
-                .build_env()
-                .await?,
-        );
-
+    pub async fn print_stats(&self, client: edgedb_tokio::Client) -> Result<(), CriticalErrorKind> {
         let folders: Vec<Folder> = client.query(SELECT_FOLDERS, &()).await?;
         for folder in folders {
             println!("Folder : {}", folder.name);
