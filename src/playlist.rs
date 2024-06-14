@@ -4,6 +4,7 @@ use crate::music::music_result::MusicResult;
 use crate::queries::PLAYLIST_QUERY;
 use rand::{seq::SliceRandom, thread_rng};
 use serde::Serialize;
+use std::collections::HashSet;
 use tabled::Table;
 
 const DEFAULT_NAME: &str = "default";
@@ -50,35 +51,58 @@ pub struct Playlist {
     #[clap(flatten)]
     filter: Filter,
 
+    #[clap(name = "filter", long, value_parser = validate_filters)]
+    filters: Vec<Filter>,
+
     // #[clap(long)]
     // interleave: bool,
     out: Option<String>,
 }
 
+fn validate_filters(filter: &str) -> Result<Filter, String> {
+    match serde_keyvalue::from_key_values::<Filter>(filter) {
+        Ok(filter) => {
+            if filter.min_rating > filter.max_rating {
+                return Err(CriticalErrorKind::InvalidMinMaxRating {
+                    min_rating: filter.min_rating,
+                    max_rating: filter.max_rating,
+                }
+                .to_string());
+            }
+            if filter.min_length > filter.max_length {
+                return Err(CriticalErrorKind::InvalidMinMaxLength {
+                    min_length: filter.min_length,
+                    max_length: filter.max_length,
+                }
+                .to_string());
+            }
+            if filter.min_size > filter.max_size {
+                return Err(CriticalErrorKind::InvalidMinMaxSize {
+                    min_size: filter.min_size,
+                    max_size: filter.max_size,
+                }
+                .to_string());
+            }
+            Ok(filter)
+        }
+        Err(e) => Err(e.to_string()),
+    }
+}
+
 impl Playlist {
     pub async fn playlist(&self, client: edgedb_tokio::Client) -> Result<(), CriticalErrorKind> {
-        if self.filter.min_rating > self.filter.max_rating {
-            return Err(CriticalErrorKind::InvalidMinMaxRating {
-                min_rating: self.filter.min_rating,
-                max_rating: self.filter.max_rating,
-            });
-        }
-        if self.filter.min_length > self.filter.max_length {
-            return Err(CriticalErrorKind::InvalidMinMaxLength {
-                min_length: self.filter.min_length,
-                max_length: self.filter.max_length,
-            });
-        }
-        if self.filter.min_size > self.filter.max_size {
-            return Err(CriticalErrorKind::InvalidMinMaxSize {
-                min_size: self.filter.min_size,
-                max_size: self.filter.max_size,
-            });
+        let mut musics: HashSet<MusicResult> = HashSet::new();
+
+        let mut filters = self.filters.clone();
+        filters.push(self.filter.clone());
+        for filter in &filters {
+            let music_filter = serde_json::to_string(filter)?;
+            let music_results: Vec<MusicResult> =
+                client.query(PLAYLIST_QUERY, &(music_filter,)).await?;
+            musics.extend(music_results);
         }
 
-        let music_filter = serde_json::to_string(&self.filter)?;
-        let mut musics: Vec<MusicResult> = client.query(PLAYLIST_QUERY, &(music_filter,)).await?;
-
+        let mut musics: Vec<_> = musics.into_iter().collect();
         if self.shuffle {
             let mut rng = thread_rng();
             musics.shuffle(&mut rng);

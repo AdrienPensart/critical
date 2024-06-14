@@ -3,6 +3,7 @@ use crate::music::Music;
 use crate::playlist::Kind;
 use edgedb_derive::Queryable;
 use serde::Serialize;
+use std::hash::{Hash, Hasher};
 use tabled::Tabled;
 
 #[derive(Queryable, Serialize)]
@@ -95,6 +96,24 @@ pub struct MusicResult {
     pub keywords_names: Vec<String>,
     #[tabled(skip)]
     pub folders: Vec<FolderResult>,
+}
+
+impl PartialEq for MusicResult {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+            && self.artist_name == other.artist_name
+            && self.album_name == other.album_name
+            && self.genre_name == other.genre_name
+    }
+}
+impl Eq for MusicResult {}
+impl Hash for MusicResult {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
+        self.artist_name.hash(state);
+        self.album_name.hash(state);
+        self.genre_name.hash(state);
+    }
 }
 
 impl MusicResult {

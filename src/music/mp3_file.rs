@@ -39,35 +39,19 @@ impl Music for Mp3File {
     }
 
     fn artist(&self) -> &str {
-        if let Some(artist) = self.tag.artist() {
-            artist
-        } else {
-            ""
-        }
+        self.tag.artist().unwrap_or_default()
     }
 
     fn title(&self) -> &str {
-        if let Some(title) = self.tag.title() {
-            title
-        } else {
-            ""
-        }
+        self.tag.title().unwrap_or_default()
     }
 
     fn album(&self) -> &str {
-        if let Some(album) = self.tag.album() {
-            album
-        } else {
-            ""
-        }
+        self.tag.album().unwrap_or_default()
     }
 
     fn genre(&self) -> &str {
-        if let Some(genre) = self.tag.genre() {
-            genre
-        } else {
-            ""
-        }
+        self.tag.genre().unwrap_or_default()
     }
 
     fn track(&self) -> i64 {
