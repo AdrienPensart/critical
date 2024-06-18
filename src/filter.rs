@@ -38,7 +38,7 @@ fn default_pattern() -> String {
 
 const NO_KEYWORD: &str = "^((?!cutoff|bad|demo|intro).)$";
 
-#[derive(clap::Parser, Debug, serde::Deserialize, serde::Serialize, Default, Clone)]
+#[derive(clap::Parser, Debug, serde::Deserialize, serde::Serialize, Clone, PartialEq)]
 pub struct Filter {
     #[serde(default = "default_min_length")]
     #[clap(long, default_value_t = default_min_length())]
@@ -91,6 +91,26 @@ pub struct Filter {
     #[serde(default = "default_limit")]
     #[clap(long, default_value_t = default_limit())]
     pub limit: i64,
+}
+
+impl Default for Filter {
+    fn default() -> Self {
+        Self {
+            min_length: default_min_length(),
+            max_length: default_max_length(),
+            min_size: default_min_size(),
+            max_size: default_max_size(),
+            min_rating: default_min_rating(),
+            max_rating: default_max_rating(),
+            artist: default_match_all(),
+            album: default_match_all(),
+            genre: default_match_all(),
+            title: default_match_all(),
+            keyword: default_match_all(),
+            pattern: default_pattern(),
+            limit: default_limit(),
+        }
+    }
 }
 
 fn validate_rating(rating_str: &str) -> Result<f64, String> {

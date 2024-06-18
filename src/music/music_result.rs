@@ -6,7 +6,7 @@ use serde::Serialize;
 use std::hash::{Hash, Hasher};
 use tabled::Tabled;
 
-#[derive(Queryable, Serialize)]
+#[derive(Queryable, Serialize, Clone)]
 pub struct FolderResult {
     pub name: String,
     pub username: String,
@@ -66,7 +66,7 @@ impl FolderResult {
     }
 }
 
-#[derive(Queryable, Serialize, Tabled)]
+#[derive(Queryable, Serialize, Tabled, Clone)]
 pub struct MusicResult {
     #[tabled(display_with("Self::display_name_and_paths", self))]
     pub name: String,

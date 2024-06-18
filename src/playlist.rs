@@ -1,12 +1,12 @@
 use crate::errors::CriticalErrorKind;
 use crate::filter::Filter;
+use crate::helpers::interleave_evenly;
 use crate::music::music_result::MusicResult;
 use crate::queries::PLAYLIST_QUERY;
 use rand::{seq::SliceRandom, thread_rng};
 use serde::Serialize;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use tabled::Table;
-
 const DEFAULT_NAME: &str = "default";
 
 #[derive(clap::ValueEnum, Clone, Default, Debug, Serialize, PartialEq)]
@@ -45,17 +45,18 @@ pub struct Playlist {
     #[clap(long)]
     relative: bool,
 
-    #[clap(long)]
-    shuffle: bool,
-
     #[clap(flatten)]
     filter: Filter,
 
     #[clap(name = "filter", long, value_parser = validate_filters)]
     filters: Vec<Filter>,
 
-    // #[clap(long)]
-    // interleave: bool,
+    #[clap(long, group = "order")]
+    interleave: bool,
+
+    #[clap(long, group = "order")]
+    shuffle: bool,
+
     out: Option<String>,
 }
 
@@ -94,7 +95,9 @@ impl Playlist {
         let mut musics: HashSet<MusicResult> = HashSet::new();
 
         let mut filters = self.filters.clone();
-        filters.push(self.filter.clone());
+        if filters.is_empty() || self.filter != Filter::default() {
+            filters.push(self.filter.clone());
+        }
         for filter in &filters {
             let music_filter = serde_json::to_string(filter)?;
             let music_results: Vec<MusicResult> =
@@ -103,9 +106,23 @@ impl Playlist {
         }
 
         let mut musics: Vec<_> = musics.into_iter().collect();
+
         if self.shuffle {
             let mut rng = thread_rng();
             musics.shuffle(&mut rng);
+        }
+
+        if self.interleave {
+            let mut artist_to_musics: HashMap<String, Vec<MusicResult>> = HashMap::new();
+            for music in musics {
+                let artist_name = music.artist_name.clone();
+                let amusics = artist_to_musics.entry(artist_name).or_default();
+                amusics.push(music);
+            }
+            let values = artist_to_musics
+                .into_values()
+                .collect::<Vec<Vec<MusicResult>>>();
+            musics = interleave_evenly(values);
         }
 
         let kind = if self.kind.is_empty() {
