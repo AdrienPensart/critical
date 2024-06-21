@@ -1,8 +1,7 @@
 use crate::music::errors::CriticalErrorKind;
-use crate::music::queries::SELECT_FOLDERS;
 use edgedb_derive::Queryable;
 
-#[derive(clap::Parser, Debug)]
+#[derive(clap::Parser)]
 #[clap(about = "Get statistics")]
 pub struct Stats {}
 
@@ -38,3 +37,17 @@ impl Stats {
         Ok(())
     }
 }
+
+const SELECT_FOLDERS: &str = r#"
+select Folder {
+    name, 
+    username, 
+    human_size, 
+    human_duration,
+    ipv4, 
+    n_musics, 
+    n_artists, 
+    n_albums, 
+    n_genres, 
+    n_keywords
+} order by .name"#;

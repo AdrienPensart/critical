@@ -2,6 +2,7 @@ pub mod clean;
 pub mod errors;
 pub mod filter;
 pub mod flac_file;
+pub mod folders;
 pub mod helpers;
 pub mod mp3_file;
 pub mod music_result;

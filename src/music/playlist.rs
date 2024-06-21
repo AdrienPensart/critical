@@ -30,7 +30,7 @@ pub enum Kind {
     All,
 }
 
-#[derive(clap::Parser, Debug, Default)]
+#[derive(clap::Parser, Default)]
 #[clap(about = "Create playlist")]
 pub struct Playlist {
     #[clap(long, default_value_t = DEFAULT_NAME.to_string())]

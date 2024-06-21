@@ -14,7 +14,7 @@ pub enum CriticalErrorKind {
     InvalidMinMaxSize { min_size: i64, max_size: i64 },
     #[error("Public IP not detected")]
     NoPublicIp,
-    #[error("EdgeDB error")]
+    #[error("EdgeDB error: {0}")]
     EdgedbError(#[from] edgedb_tokio::Error),
     #[error("IO error: {0}")]
     IOError(#[from] std::io::Error),

@@ -20,20 +20,6 @@ select (
 ).id
 "#;
 
-pub const SELECT_FOLDERS: &str = r#"
-select Folder {
-    name, 
-    username, 
-    human_size, 
-    human_duration,
-    ipv4, 
-    n_musics, 
-    n_artists, 
-    n_albums, 
-    n_genres, 
-    n_keywords
-} order by .name"#;
-
 pub const UPSERT_ALBUM: &str = r#"
 select (
     insert Album {
@@ -100,15 +86,6 @@ select (
 ).id
 "#;
 
-pub const FOLDER_QUERY: &str = r#"
-select Folder {
-    name,
-    user,
-    ipv4,
-    music_count := count(.musics)
-}
-"#;
-
 pub const MUSIC_FIELDS: &str = r#"
 name,
 artist_name := .artist.name,
@@ -128,18 +105,6 @@ folders: {
     path := @path
 }
 "#;
-
-pub const SOFT_CLEAN_QUERY: &str = r#"
-select {
-    musics_deleted := count((delete Music filter not exists .folders)),
-    albums_deleted := count((delete Album filter not exists .musics)),
-    artists_deleted := count((delete Artist filter not exists .musics)),
-    genres_deleted := count((delete Genre filter not exists .musics)),
-    keywords_deleted := count((delete Keyword filter not exists .musics))
-};
-"#;
-
-pub const HARD_CLEAN_QUERY: &str = "delete Artist;";
 
 pub const PLAYLIST_QUERY: &str = concatcp!(
     r#"
@@ -165,27 +130,6 @@ pub const PLAYLIST_QUERY: &str = concatcp!(
         .track then
         .name
     limit <`Limit`>music_filter['limit']
-"#
-);
-
-pub const SEARCH_QUERY: &str = concatcp!(
-    r#"
-select Music {
-    "#,
-    MUSIC_FIELDS,
-    r#"
-}
-filter
-    .name ilike <str>$0 or
-    .genre.name ilike <str>$0 or
-    .album.name ilike <str>$0 or
-    .artist.name ilike <str>$0 or
-    .keywords.name ilike <str>$0
-order by 
-    .artist.name then
-    .album.name then
-    .track then
-    .name
 "#
 );
 

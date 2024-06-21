@@ -1,6 +1,7 @@
 use crate::commands::group_dispatch::GroupDispatch;
 use crate::music::clean::Clean;
 use crate::music::errors::CriticalErrorKind;
+use crate::music::folders::Folders;
 use crate::music::playlist::Playlist;
 use crate::music::scan::Scan;
 use crate::music::search::Search;
@@ -19,6 +20,8 @@ pub enum Group {
     Playlist(Playlist),
     #[clap(about = "Search musics")]
     Search(Search),
+    #[clap(about = "Manage folders")]
+    Folders(Folders),
 }
 
 #[async_trait]
@@ -30,6 +33,7 @@ impl GroupDispatch for Group {
             Group::Playlist(playlist) => playlist.playlist(client).await,
             Group::Stats(stats) => stats.print_stats(client).await,
             Group::Search(search) => search.search(client).await,
+            Group::Folders(folders) => folders.folders(client).await,
         }
     }
 }

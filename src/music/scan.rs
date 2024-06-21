@@ -1,24 +1,33 @@
 use futures_lite::stream::StreamExt;
 use std::collections::HashMap;
-use std::num::NonZeroUsize;
 use std::path::Path;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+use crate::music::clean::clean;
 use crate::music::errors::CriticalErrorKind;
 use crate::music::flac_file::FlacFile;
 use crate::music::helpers::{is_hidden, public_ip};
 use crate::music::mp3_file::Mp3File;
 use crate::music::queries::{
-    HARD_CLEAN_QUERY, UPSERT_ALBUM, UPSERT_ARTIST, UPSERT_FOLDER, UPSERT_GENRE, UPSERT_KEYWORD,
-    UPSERT_MUSIC,
+    UPSERT_ALBUM, UPSERT_ARTIST, UPSERT_FOLDER, UPSERT_GENRE, UPSERT_KEYWORD, UPSERT_MUSIC,
 };
 use crate::music::Music;
 
 pub type BoxMusic = Box<dyn Music + Send + Sync>;
 
-#[derive(clap::Parser, Debug)]
+const DEFAULT_WORKERS: std::num::NonZeroUsize = match std::num::NonZeroUsize::new(4) {
+    Some(v) => v,
+    None => panic!("Bad default value for workers"),
+};
+
+const DEFAULT_RETRIES: std::num::NonZeroU16 = match std::num::NonZeroU16::new(3) {
+    Some(v) => v,
+    None => panic!("Bad default value for retries"),
+};
+
+#[derive(clap::Parser)]
 #[clap(about = "Scan folders and save music")]
 pub struct Scan {
     /// Enable bulk insert / batch
@@ -34,13 +43,13 @@ pub struct Scan {
     dry: bool,
 
     // #[clap(long, default_value_t = std::thread::available_parallelism().unwrap())]
-    #[clap(long, default_value_t = NonZeroUsize::new(4).unwrap())]
+    #[clap(long, default_value_t = DEFAULT_WORKERS)]
     /// Concurrency
-    workers: NonZeroUsize,
+    workers: std::num::NonZeroUsize,
 
-    #[clap(long, default_value_t = NonZeroUsize::new(3).unwrap())]
+    #[clap(long, default_value_t = DEFAULT_RETRIES)]
     /// Retries in case of failed transaction
-    retries: NonZeroUsize,
+    retries: std::num::NonZeroU16,
 
     folders: Vec<String>,
 }
@@ -48,10 +57,10 @@ pub struct Scan {
 impl Scan {
     pub async fn scan(&self, client: edgedb_tokio::Client) -> Result<(), CriticalErrorKind> {
         if self.clean {
-            client.execute(HARD_CLEAN_QUERY, &()).await?;
+            clean(&client, false).await?;
         }
 
-        let retries: usize = self.retries.into();
+        let retries: u16 = self.retries.into();
         let ipv4 = public_ip().await?;
         let username = whoami::username().to_string();
         let errors = Arc::new(AtomicU64::new(0));
