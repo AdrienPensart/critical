@@ -1,5 +1,5 @@
 use clap::Parser;
-use critical::commands::root::Opts;
+use critical::commands::opts::Opts;
 use critical::music::errors::CriticalErrorKind;
 
 #[tokio::main]

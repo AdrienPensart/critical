@@ -1,14 +1,10 @@
 use futures_lite::stream::StreamExt;
-// use indicatif::{ProgressBar, ProgressStyle};
-// use rand::{seq::SliceRandom, thread_rng};
 use std::collections::HashMap;
 use std::num::NonZeroUsize;
 use std::path::Path;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use tokio::sync::Mutex;
-// use tokio::sync::Semaphore;
-// use tokio::task::JoinSet;
 
 use crate::music::errors::CriticalErrorKind;
 use crate::music::flac_file::FlacFile;
@@ -18,7 +14,9 @@ use crate::music::queries::{
     HARD_CLEAN_QUERY, UPSERT_ALBUM, UPSERT_ARTIST, UPSERT_FOLDER, UPSERT_GENRE, UPSERT_KEYWORD,
     UPSERT_MUSIC,
 };
-use crate::music::BoxMusic;
+use crate::music::Music;
+
+pub type BoxMusic = Box<dyn Music + Send + Sync>;
 
 #[derive(clap::Parser, Debug)]
 #[clap(about = "Scan folders and save music")]
