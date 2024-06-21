@@ -2,7 +2,7 @@ use async_walkdir::DirEntry;
 use itertools::Itertools;
 use std::iter::zip;
 
-use crate::errors::CriticalErrorKind;
+use crate::music::errors::CriticalErrorKind;
 
 pub fn is_hidden(entry: &DirEntry) -> bool {
     entry

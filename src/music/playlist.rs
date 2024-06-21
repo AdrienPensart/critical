@@ -1,8 +1,8 @@
-use crate::errors::CriticalErrorKind;
-use crate::filter::Filter;
-use crate::helpers::interleave_evenly;
+use crate::music::errors::CriticalErrorKind;
+use crate::music::filter::Filter;
+use crate::music::helpers::interleave_evenly;
 use crate::music::music_result::MusicResult;
-use crate::queries::PLAYLIST_QUERY;
+use crate::music::queries::PLAYLIST_QUERY;
 use rand::{seq::SliceRandom, thread_rng};
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};

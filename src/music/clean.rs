@@ -1,8 +1,8 @@
-use crate::errors::CriticalErrorKind;
-use crate::queries::HARD_CLEAN_QUERY;
+use crate::music::errors::CriticalErrorKind;
+use crate::music::queries::HARD_CLEAN_QUERY;
 
-#[derive(clap::Parser, Debug)]
-#[clap(about = "Get statistics")]
+#[derive(clap::Parser)]
+#[clap(about = "Clean musics")]
 pub struct Clean {}
 
 impl Clean {

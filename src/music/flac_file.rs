@@ -1,7 +1,7 @@
 use metaflac::block::VorbisComment;
 use metaflac::Tag as FlacTag;
 
-use crate::errors::CriticalErrorKind;
+use crate::music::errors::CriticalErrorKind;
 use crate::music::{Music, RATINGS};
 
 pub struct FlacFile {

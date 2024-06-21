@@ -1,6 +1,6 @@
-use crate::errors::CriticalErrorKind;
+use crate::music::errors::CriticalErrorKind;
+use crate::music::playlist::Kind;
 use crate::music::Music;
-use crate::playlist::Kind;
 use edgedb_derive::Queryable;
 use serde::Serialize;
 use std::hash::{Hash, Hasher};

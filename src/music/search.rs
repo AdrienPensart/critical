@@ -1,6 +1,6 @@
-use crate::errors::CriticalErrorKind;
+use crate::music::errors::CriticalErrorKind;
 use crate::music::music_result::MusicResult;
-use crate::queries::SEARCH_QUERY;
+use crate::music::queries::SEARCH_QUERY;
 
 #[derive(clap::Parser, Debug)]
 #[clap(about = "Search music")]

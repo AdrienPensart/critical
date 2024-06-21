@@ -1,13 +1,13 @@
-use crate::clean::Clean;
-use crate::errors::CriticalErrorKind;
-use crate::group_dispatch::GroupDispatch;
-use crate::playlist::Playlist;
-use crate::scan::Scan;
-use crate::search::Search;
-use crate::stats::Stats;
+use crate::commands::group_dispatch::GroupDispatch;
+use crate::music::clean::Clean;
+use crate::music::errors::CriticalErrorKind;
+use crate::music::playlist::Playlist;
+use crate::music::scan::Scan;
+use crate::music::search::Search;
+use crate::music::stats::Stats;
 use async_trait::async_trait;
 
-#[derive(clap::Subcommand, Debug)]
+#[derive(clap::Subcommand)]
 #[clap(about = "Local music management")]
 pub enum Group {
     Scan(Scan),

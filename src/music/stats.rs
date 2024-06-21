@@ -1,5 +1,5 @@
-use crate::errors::CriticalErrorKind;
-use crate::queries::SELECT_FOLDERS;
+use crate::music::errors::CriticalErrorKind;
+use crate::music::queries::SELECT_FOLDERS;
 use edgedb_derive::Queryable;
 
 #[derive(clap::Parser, Debug)]

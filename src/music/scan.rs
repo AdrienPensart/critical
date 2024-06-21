@@ -10,15 +10,15 @@ use tokio::sync::Mutex;
 // use tokio::sync::Semaphore;
 // use tokio::task::JoinSet;
 
-use crate::errors::CriticalErrorKind;
-use crate::helpers::{is_hidden, public_ip};
+use crate::music::errors::CriticalErrorKind;
 use crate::music::flac_file::FlacFile;
+use crate::music::helpers::{is_hidden, public_ip};
 use crate::music::mp3_file::Mp3File;
-use crate::music::BoxMusic;
-use crate::queries::{
+use crate::music::queries::{
     HARD_CLEAN_QUERY, UPSERT_ALBUM, UPSERT_ARTIST, UPSERT_FOLDER, UPSERT_GENRE, UPSERT_KEYWORD,
     UPSERT_MUSIC,
 };
+use crate::music::BoxMusic;
 
 #[derive(clap::Parser, Debug)]
 #[clap(about = "Scan folders and save music")]

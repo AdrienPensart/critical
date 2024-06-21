@@ -2,7 +2,7 @@ use id3::Tag as Mp3Tag;
 use id3::TagLike;
 use mp3_duration;
 
-use crate::errors::CriticalErrorKind;
+use crate::music::errors::CriticalErrorKind;
 use crate::music::{Music, RATINGS};
 
 pub struct Mp3File {
