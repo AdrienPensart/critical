@@ -9,7 +9,7 @@ async fn main() -> Result<(), CriticalErrorKind> {
     env_logger::init();
     let opts = Opts::parse();
     if let Err(e) = opts.dispatch().await {
-        eprintln!("{e}");
+        eprintln!("{e:?}");
     }
     Ok(())
 }

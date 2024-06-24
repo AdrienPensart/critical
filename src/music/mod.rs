@@ -1,3 +1,5 @@
+pub mod artists;
+pub mod bests;
 pub mod clean;
 pub mod errors;
 pub mod filter;
@@ -7,7 +9,7 @@ pub mod helpers;
 pub mod mp3_file;
 pub mod music_result;
 pub mod playlist;
-pub mod queries;
+pub mod remove;
 pub mod scan;
 pub mod search;
 pub mod stats;
@@ -66,3 +68,23 @@ impl std::fmt::Display for dyn Music {
         write!(f, "{}", self.path())
     }
 }
+
+pub const MUSIC_FIELDS: &str = r#"
+name,
+artist_name := .artist.name,
+album_name := .album.name,
+genre_name := .genre.name,
+length,
+human_duration,
+size,
+human_size,
+track,
+rating,
+keywords_names := (select .keywords.name),
+folders: {
+    name,
+    username,
+    ipv4,
+    path := @path
+}
+"#;

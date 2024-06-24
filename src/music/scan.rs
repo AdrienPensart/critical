@@ -10,9 +10,6 @@ use crate::music::errors::CriticalErrorKind;
 use crate::music::flac_file::FlacFile;
 use crate::music::helpers::{is_hidden, public_ip};
 use crate::music::mp3_file::Mp3File;
-use crate::music::queries::{
-    UPSERT_ALBUM, UPSERT_ARTIST, UPSERT_FOLDER, UPSERT_GENRE, UPSERT_KEYWORD, UPSERT_MUSIC,
-};
 use crate::music::Music;
 
 pub type BoxMusic = Box<dyn Music + Send + Sync>;
@@ -30,17 +27,9 @@ const DEFAULT_RETRIES: std::num::NonZeroU16 = match std::num::NonZeroU16::new(3)
 #[derive(clap::Parser)]
 #[clap(about = "Scan folders and save music")]
 pub struct Scan {
-    /// Enable bulk insert / batch
-    #[clap(short, long, visible_alias = "batch")]
-    bulk: bool,
-
     /// Clean musics before scanning
     #[clap(short, long)]
     clean: bool,
-
-    /// Dry insert
-    #[clap(long)]
-    dry: bool,
 
     // #[clap(long, default_value_t = std::thread::available_parallelism().unwrap())]
     #[clap(long, default_value_t = DEFAULT_WORKERS)]
@@ -55,9 +44,13 @@ pub struct Scan {
 }
 
 impl Scan {
-    pub async fn scan(&self, client: edgedb_tokio::Client) -> Result<(), CriticalErrorKind> {
+    pub async fn scan(
+        &self,
+        client: edgedb_tokio::Client,
+        dry: bool,
+    ) -> Result<(), CriticalErrorKind> {
         if self.clean {
-            clean(&client, false).await?;
+            clean(&client, false, dry).await?;
         }
 
         let retries: u16 = self.retries.into();
@@ -400,3 +393,89 @@ impl Scan {
         Ok(())
     }
 }
+
+const UPSERT_FOLDER: &str = r#"
+select (
+    insert Folder {
+        name := <str>$0,
+        username := <str>$1,
+        ipv4 := <str>$2
+    }
+    unless conflict on (.name, .username, .ipv4) else (select Folder)
+).id
+"#;
+
+const UPSERT_ARTIST: &str = r#"
+select (
+    insert Artist {
+        name := <str>$0
+    }
+    unless conflict on (.name) else (select Artist)
+).id
+"#;
+
+const UPSERT_ALBUM: &str = r#"
+select (
+    insert Album {
+        name := <str>$0,
+        artist := <Artist>$1
+    }
+    unless conflict on (.name, .artist) else (select Album)
+).id
+"#;
+
+const UPSERT_GENRE: &str = r#"
+select (
+    insert Genre {
+        name := <str>$0
+    }
+    unless conflict on (.name) else (select Genre)
+).id
+"#;
+
+const UPSERT_KEYWORD: &str = r#"
+select (
+    insert Keyword {
+        name := <str>$0
+    }
+    unless conflict on (.name)
+    else (select Keyword)
+).id
+"#;
+
+const UPSERT_MUSIC: &str = r#"
+select (
+    insert Music {
+        name := <str>$0,
+        album := <Album><uuid>$1,
+        genre := <Genre><uuid>$2,
+        size := <Size>$3,
+        length := <Length>$4,
+        keywords := (select distinct array_unpack(<array<Keyword>><array<uuid>>$5)),
+        track := <Track>$6,
+        rating := <Rating>$7,
+        folders := (
+            (<Folder><uuid>$8) {
+                @path := <str>$9
+            }
+        )
+    }
+    unless conflict on (.name, .album)
+    else (
+        update Music
+        set {
+            genre := <Genre><uuid>$2,
+            size := <Size>$3,
+            length := <Length>$4,
+            keywords := (select distinct array_unpack(<array<Keyword>><array<uuid>>$5)),
+            track := <Track>$6,
+            rating := <Rating>$7,
+            folders += (
+                (<Folder><uuid>$8) {
+                    @path := <str>$9
+                }
+            )
+        }
+    )
+).id
+"#;

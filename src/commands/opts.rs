@@ -17,6 +17,10 @@ pub struct Opts {
     )]
     /// EdgeDB DSN
     pub dsn: String,
+
+    #[clap(long, global = true)]
+    /// Dry mode
+    pub dry: bool,
 }
 
 impl Opts {
@@ -29,6 +33,6 @@ impl Opts {
                 .await?,
         );
 
-        self.root.dispatch(client).await
+        self.root.dispatch(client, self.dry).await
     }
 }

@@ -1,3 +1,4 @@
+use crate::music::errors::CriticalErrorKind;
 use crate::music::RATINGS;
 
 const fn default_min_length() -> i64 {
@@ -93,6 +94,25 @@ pub struct Filter {
     pub limit: i64,
 }
 
+#[derive(clap::Parser, Default, Clone)]
+pub struct Filters {
+    #[clap(flatten)]
+    filter: Filter,
+
+    #[clap(name = "filter", long, value_parser = validate_filters)]
+    filters: Vec<Filter>,
+}
+
+impl Filters {
+    pub fn all(&self) -> Vec<Filter> {
+        let mut filters = self.filters.clone();
+        if filters.is_empty() || self.filter != Filter::default() {
+            filters.push(self.filter.clone());
+        }
+        filters
+    }
+}
+
 impl Default for Filter {
     fn default() -> Self {
         Self {
@@ -127,6 +147,36 @@ fn validate_rating(rating_str: &str) -> Result<f64, String> {
             .collect::<Vec<_>>()
             .join(", ")
     ))
+}
+
+pub fn validate_filters(filter: &str) -> Result<Filter, String> {
+    match serde_keyvalue::from_key_values::<Filter>(filter) {
+        Ok(filter) => {
+            if filter.min_rating > filter.max_rating {
+                return Err(CriticalErrorKind::InvalidMinMaxRating {
+                    min_rating: filter.min_rating,
+                    max_rating: filter.max_rating,
+                }
+                .to_string());
+            }
+            if filter.min_length > filter.max_length {
+                return Err(CriticalErrorKind::InvalidMinMaxLength {
+                    min_length: filter.min_length,
+                    max_length: filter.max_length,
+                }
+                .to_string());
+            }
+            if filter.min_size > filter.max_size {
+                return Err(CriticalErrorKind::InvalidMinMaxSize {
+                    min_size: filter.min_size,
+                    max_size: filter.max_size,
+                }
+                .to_string());
+            }
+            Ok(filter)
+        }
+        Err(e) => Err(e.to_string()),
+    }
 }
 
 lazy_static::lazy_static! {

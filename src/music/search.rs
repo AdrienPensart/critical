@@ -1,6 +1,6 @@
 use crate::music::errors::CriticalErrorKind;
 use crate::music::music_result::MusicResult;
-use crate::music::queries::MUSIC_FIELDS;
+use crate::music::MUSIC_FIELDS;
 use const_format::concatcp;
 
 #[derive(clap::Parser)]

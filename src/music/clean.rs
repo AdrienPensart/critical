@@ -3,20 +3,36 @@ use crate::music::errors::CriticalErrorKind;
 #[derive(clap::Parser)]
 #[clap(about = "Clean musics")]
 pub struct Clean {
+    /// Delete only orphan objects
+    #[clap(short, long)]
     soft: bool,
 }
 
 impl Clean {
-    pub async fn clean(&self, client: edgedb_tokio::Client) -> Result<(), CriticalErrorKind> {
-        clean(&client, self.soft).await
+    pub async fn clean(
+        &self,
+        client: edgedb_tokio::Client,
+        dry: bool,
+    ) -> Result<(), CriticalErrorKind> {
+        clean(&client, self.soft, dry).await
     }
 }
 
-pub async fn clean(client: &edgedb_tokio::Client, soft: bool) -> Result<(), CriticalErrorKind> {
-    if soft {
-        Ok(client.execute(SOFT_CLEAN_QUERY, &()).await?)
+pub async fn clean(
+    client: &edgedb_tokio::Client,
+    soft: bool,
+    dry: bool,
+) -> Result<(), CriticalErrorKind> {
+    let query = if soft {
+        SOFT_CLEAN_QUERY
     } else {
-        Ok(client.execute(HARD_CLEAN_QUERY, &()).await?)
+        HARD_CLEAN_QUERY
+    };
+
+    if !dry {
+        Ok(client.execute(query, &()).await?)
+    } else {
+        Ok(())
     }
 }
 
