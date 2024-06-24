@@ -30,10 +30,8 @@ impl Bests {
     pub async fn bests(
         &self,
         client: edgedb_tokio::Client,
-        dry: bool,
-    ) -> Result<(), CriticalErrorKind> {
+    ) -> Result<Vec<Playlist>, CriticalErrorKind> {
         let mut playlists: Vec<Playlist> = Vec::new();
-
         for filter in &self.filters.all() {
             let music_filter = serde_json::to_string(filter)?;
             println!("{music_filter}");
@@ -48,27 +46,19 @@ impl Bests {
                 let now = std::time::Instant::now();
                 let bests_genres: Vec<Playlist> = client.query(query, &(&music_filter,)).await?;
                 playlists.extend(bests_genres);
-                println!("{name}: {:.2?}", now.elapsed());
+                eprintln!("{name}: {:.2?}", now.elapsed());
             }
         }
-
-        for playlist in playlists.iter() {
-            if (playlist.len() as u64) < self.min_playlist_size {
-                println!("{} : size < {}", playlist.name(), self.min_playlist_size);
-                continue;
-            }
-            let output_options = if let Some(out) = self.output_options.out() {
-                OutputOptions::new(
-                    self.output_options.output(),
-                    &Some(format!("{}/{}.m3u", out, playlist.name())),
-                )
-            } else {
-                self.output_options.clone()
-            };
-            println!("\nGenerating {} : {}", playlist.name(), playlist.len());
-            playlist.generate(&output_options, &self.playlist_options, dry)?;
-        }
-        Ok(())
+        Ok(playlists)
+    }
+    pub fn min_playlist_size(&self) -> u64 {
+        self.min_playlist_size
+    }
+    pub fn output_options(&self) -> &OutputOptions {
+        &self.output_options
+    }
+    pub fn playlist_options(&self) -> &PlaylistOptions {
+        &self.playlist_options
     }
 }
 

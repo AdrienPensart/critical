@@ -13,16 +13,28 @@ pub struct Folder {
     n_musics: i64,
 }
 
+impl Folder {
+    pub fn name(&self) -> &String {
+        &self.name
+    }
+    pub fn username(&self) -> &String {
+        &self.username
+    }
+    pub fn ipv4(&self) -> &String {
+        &self.ipv4
+    }
+    pub fn n_musics(&self) -> i64 {
+        self.n_musics
+    }
+}
+
 impl Folders {
-    pub async fn folders(&self, client: edgedb_tokio::Client) -> Result<(), CriticalErrorKind> {
+    pub async fn folders(
+        &self,
+        client: edgedb_tokio::Client,
+    ) -> Result<Vec<Folder>, CriticalErrorKind> {
         let folders: Vec<Folder> = client.query(FOLDER_QUERY, &()).await?;
-        for folder in folders {
-            println!("Folder : {}", folder.name);
-            println!("Username : {}", folder.username);
-            println!("IPv4 : {}", folder.ipv4);
-            println!("Musics : {}", folder.n_musics);
-        }
-        Ok(())
+        Ok(folders)
     }
 }
 

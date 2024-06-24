@@ -190,23 +190,22 @@ impl PlaylistCommand {
     pub async fn playlist(
         &self,
         client: edgedb_tokio::Client,
-        dry: bool,
-    ) -> Result<(), CriticalErrorKind> {
+    ) -> Result<Playlist, CriticalErrorKind> {
         let mut musics: HashSet<MusicResult> = HashSet::new();
-
         for filter in &self.filters.all() {
             let music_filter = serde_json::to_string(filter)?;
             let music_results: Vec<MusicResult> =
                 client.query(PLAYLIST_QUERY, &(music_filter,)).await?;
             musics.extend(music_results);
         }
-
         let musics = musics.into_iter().collect::<Vec<MusicResult>>();
-
-        let playlist = Playlist::new(&self.name, &musics);
-        playlist.generate(&self.output_options, &self.playlist_options, dry)?;
-
-        Ok(())
+        Ok(Playlist::new(&self.name, &musics))
+    }
+    pub fn output_options(&self) -> &OutputOptions {
+        &self.output_options
+    }
+    pub fn playlist_options(&self) -> &PlaylistOptions {
+        &self.playlist_options
     }
 }
 
