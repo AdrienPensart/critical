@@ -27,7 +27,9 @@ const fn default_limit() -> i64 {
 }
 
 const MATCH_ALL: &str = "(.*?)";
+const EMPTY_STRING_REGEX: &str = "^$";
 const DEFAULT_PATTERN: &str = "";
+const NO_KEYWORD: &str = "^((?!cutoff|bad|demo|intro).)$";
 
 fn default_match_all() -> String {
     MATCH_ALL.to_string()
@@ -36,8 +38,6 @@ fn default_match_all() -> String {
 fn default_pattern() -> String {
     DEFAULT_PATTERN.to_string()
 }
-
-const NO_KEYWORD: &str = "^((?!cutoff|bad|demo|intro).)$";
 
 #[derive(clap::Parser, Debug, serde::Deserialize, serde::Serialize, Clone, PartialEq)]
 pub struct Filter {
@@ -179,55 +179,77 @@ pub fn validate_filters(filter: &str) -> Result<Filter, String> {
     }
 }
 
-lazy_static::lazy_static! {
-    pub static ref DEFAULT_FILTERS: std::collections::HashMap<String, Filter> = {
+pub static DEFAULT_FILTERS: std::sync::LazyLock<std::collections::HashMap<String, Filter>> =
+    std::sync::LazyLock::new(|| {
         let mut filters = std::collections::HashMap::new();
 
-        filters.insert("no-artist".to_string(), Filter {
-            artist: "^$".to_string(),
-            ..Filter::default()
-        });
+        filters.insert(
+            "no-artist".to_string(),
+            Filter {
+                artist: EMPTY_STRING_REGEX.to_string(),
+                ..Filter::default()
+            },
+        );
 
-        filters.insert("no-album".to_string(), Filter {
-            album: "^$".to_string(),
-            ..Filter::default()
-        });
+        filters.insert(
+            "no-album".to_string(),
+            Filter {
+                album: EMPTY_STRING_REGEX.to_string(),
+                ..Filter::default()
+            },
+        );
 
-        filters.insert("no-title".to_string(), Filter {
-            title: "^$".to_string(),
-            ..Filter::default()
-        });
+        filters.insert(
+            "no-title".to_string(),
+            Filter {
+                title: EMPTY_STRING_REGEX.to_string(),
+                ..Filter::default()
+            },
+        );
 
-        filters.insert("no-genre".to_string(), Filter {
-            genre: "^$".to_string(),
-            ..Filter::default()
-        });
+        filters.insert(
+            "no-genre".to_string(),
+            Filter {
+                genre: EMPTY_STRING_REGEX.to_string(),
+                ..Filter::default()
+            },
+        );
 
-        filters.insert("no-rating".to_string(), Filter {
-            min_rating: 0.0,
-            max_rating: 0.0,
-            ..Filter::default()
-        });
+        filters.insert(
+            "no-rating".to_string(),
+            Filter {
+                min_rating: 0.0,
+                max_rating: 0.0,
+                ..Filter::default()
+            },
+        );
 
-        filters.insert("best-4.0".to_string(), Filter {
-            min_rating: 4.0,
-            keyword: NO_KEYWORD.to_string(),
-            ..Filter::default()
-        });
+        filters.insert(
+            "best-4.0".to_string(),
+            Filter {
+                min_rating: 4.0,
+                keyword: NO_KEYWORD.to_string(),
+                ..Filter::default()
+            },
+        );
 
-        filters.insert("best-4.5".to_string(), Filter {
-            min_rating: 4.5,
-            keyword: NO_KEYWORD.to_string(),
-            ..Filter::default()
+        filters.insert(
+            "best-4.5".to_string(),
+            Filter {
+                min_rating: 4.5,
+                keyword: NO_KEYWORD.to_string(),
+                ..Filter::default()
+            },
+        );
 
-        });
-
-        filters.insert("best-5.0".to_string(), Filter {
-            min_rating: 5.0,
-            keyword: NO_KEYWORD.to_string(),
-            ..Filter::default()
-        });
+        filters.insert(
+            "best-5.0".to_string(),
+            Filter {
+                min_rating: 5.0,
+                keyword: NO_KEYWORD.to_string(),
+                ..Filter::default()
+            },
+        );
 
         filters
-    };
-}
+    });
