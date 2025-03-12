@@ -11,7 +11,7 @@ pub struct Clean {
 impl Clean {
     pub async fn clean(
         &self,
-        client: edgedb_tokio::Client,
+        client: gel_tokio::Client,
         dry: bool,
     ) -> Result<(), CriticalErrorKind> {
         clean(&client, self.soft, dry).await
@@ -19,7 +19,7 @@ impl Clean {
 }
 
 pub async fn clean(
-    client: &edgedb_tokio::Client,
+    client: &gel_tokio::Client,
     soft: bool,
     dry: bool,
 ) -> Result<(), CriticalErrorKind> {

@@ -9,7 +9,7 @@ pub struct Remove {
 impl Remove {
     pub async fn remove(
         &self,
-        client: edgedb_tokio::Client,
+        client: gel_tokio::Client,
         dry: bool,
     ) -> Result<(), CriticalErrorKind> {
         for path in self.paths.iter() {

@@ -25,8 +25,8 @@ pub struct Opts {
 
 impl Opts {
     pub async fn dispatch(self) -> Result<(), CriticalErrorKind> {
-        let client = edgedb_tokio::Client::new(
-            &edgedb_tokio::Builder::new()
+        let client = gel_tokio::Client::new(
+            &gel_tokio::Builder::new()
                 .dsn(&self.dsn)?
                 // .client_security(edgedb_tokio::ClientSecurity::InsecureDevMode)
                 .build_env()

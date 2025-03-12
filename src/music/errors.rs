@@ -15,7 +15,7 @@ pub enum CriticalErrorKind {
     #[error("Public IP not detected")]
     NoPublicIp,
     #[error("EdgeDB error: {0}")]
-    EdgedbError(#[from] edgedb_tokio::Error),
+    EdgedbError(#[from] gel_tokio::Error),
     #[error("IO error: {0}")]
     IOError(#[from] std::io::Error),
     #[error("Upsert operation failed for path: {path} with object: {object}")]

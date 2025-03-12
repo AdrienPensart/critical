@@ -5,9 +5,5 @@ use enum_dispatch::enum_dispatch;
 #[async_trait]
 #[enum_dispatch]
 pub trait GroupDispatch {
-    async fn dispatch(
-        self,
-        client: edgedb_tokio::Client,
-        dry: bool,
-    ) -> Result<(), CriticalErrorKind>;
+    async fn dispatch(self, client: gel_tokio::Client, dry: bool) -> Result<(), CriticalErrorKind>;
 }

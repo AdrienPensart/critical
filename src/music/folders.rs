@@ -1,5 +1,5 @@
 use crate::music::errors::CriticalErrorKind;
-use edgedb_derive::Queryable;
+use gel_derive::Queryable;
 
 #[derive(clap::Parser)]
 #[clap(about = "List folders")]
@@ -31,7 +31,7 @@ impl Folder {
 impl Folders {
     pub async fn folders(
         &self,
-        client: edgedb_tokio::Client,
+        client: gel_tokio::Client,
     ) -> Result<Vec<Folder>, CriticalErrorKind> {
         let folders: Vec<Folder> = client.query(FOLDER_QUERY, &()).await?;
         Ok(folders)

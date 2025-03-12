@@ -32,11 +32,7 @@ pub enum Group {
 
 #[async_trait]
 impl GroupDispatch for Group {
-    async fn dispatch(
-        self,
-        client: edgedb_tokio::Client,
-        dry: bool,
-    ) -> Result<(), CriticalErrorKind> {
+    async fn dispatch(self, client: gel_tokio::Client, dry: bool) -> Result<(), CriticalErrorKind> {
         match self {
             Group::Scan(scan_cmd) => scan_cmd.scan(client, dry).await,
             Group::Clean(clean_cmd) => clean_cmd.clean(client, dry).await,

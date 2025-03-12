@@ -29,7 +29,7 @@ pub struct Bests {
 impl Bests {
     pub async fn bests(
         &self,
-        client: edgedb_tokio::Client,
+        client: gel_tokio::Client,
     ) -> Result<Vec<Playlist>, CriticalErrorKind> {
         let mut playlists: Vec<Playlist> = Vec::new();
         for filter in &self.filters.all() {

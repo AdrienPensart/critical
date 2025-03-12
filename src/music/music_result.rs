@@ -1,7 +1,7 @@
 use crate::music::errors::CriticalErrorKind;
 use crate::music::playlist::Kind;
 use crate::music::Music;
-use edgedb_derive::Queryable;
+use gel_derive::Queryable;
 use serde::Serialize;
 use std::hash::{Hash, Hasher};
 use tabled::Tabled;

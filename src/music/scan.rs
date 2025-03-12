@@ -46,7 +46,7 @@ pub struct Scan {
 impl Scan {
     pub async fn scan(
         &self,
-        client: edgedb_tokio::Client,
+        client: gel_tokio::Client,
         dry: bool,
     ) -> Result<(), CriticalErrorKind> {
         if self.clean {

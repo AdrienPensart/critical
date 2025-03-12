@@ -56,11 +56,7 @@ impl Music for Mp3File {
 
     fn track(&self) -> i64 {
         if let Some(track) = self.tag.track() {
-            if let Ok(number) = track.to_string().parse::<i64>() {
-                number
-            } else {
-                0
-            }
+            track.to_string().parse::<i64>().unwrap_or_default()
         } else {
             0
         }

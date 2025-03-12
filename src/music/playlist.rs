@@ -4,8 +4,8 @@ use crate::music::helpers::interleave_evenly;
 use crate::music::music_result::MusicResult;
 use crate::music::MUSIC_FIELDS;
 use const_format::concatcp;
-use edgedb_derive::Queryable;
-use rand::{seq::SliceRandom, thread_rng};
+use gel_derive::Queryable;
+use rand::{rng, seq::SliceRandom};
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use tabled::Table;
@@ -123,7 +123,7 @@ impl Playlist {
     ) -> Result<(), CriticalErrorKind> {
         let mut musics = self.musics.clone();
         if playlist_options.shuffle {
-            let mut rng = thread_rng();
+            let mut rng = rng();
             musics.shuffle(&mut rng);
         }
 
@@ -187,10 +187,7 @@ impl Playlist {
 }
 
 impl PlaylistCommand {
-    pub async fn playlist(
-        &self,
-        client: edgedb_tokio::Client,
-    ) -> Result<Playlist, CriticalErrorKind> {
+    pub async fn playlist(&self, client: gel_tokio::Client) -> Result<Playlist, CriticalErrorKind> {
         let mut musics: HashSet<MusicResult> = HashSet::new();
         for filter in &self.filters.all() {
             let music_filter = serde_json::to_string(filter)?;
