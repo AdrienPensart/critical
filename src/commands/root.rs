@@ -1,5 +1,6 @@
 use crate::commands::group_dispatch::GroupDispatch;
 use crate::commands::local::Group;
+use crate::commands::opts::Config;
 use crate::music::errors::CriticalErrorKind;
 
 use clap::Parser;

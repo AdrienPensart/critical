@@ -1,14 +1,21 @@
-use async_walkdir::DirEntry;
 use itertools::Itertools;
 use std::iter::zip;
 
 use crate::music::errors::CriticalErrorKind;
 
-pub fn is_hidden(entry: &DirEntry) -> bool {
+pub fn async_is_hidden(entry: &async_walkdir::DirEntry) -> bool {
     entry
         .file_name()
         .to_str()
         .map(|s| s.starts_with('.'))
+        .unwrap_or(false)
+}
+
+pub fn is_hidden(entry: &walkdir::DirEntry) -> bool {
+    entry
+        .file_name()
+        .to_str()
+        .map(|s| s.starts_with("."))
         .unwrap_or(false)
 }
 

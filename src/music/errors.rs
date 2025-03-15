@@ -34,4 +34,10 @@ pub enum CriticalErrorKind {
     SerializationError(#[from] serde_json::Error),
     #[error("Relative path error")]
     RelativePathError(#[from] std::path::StripPrefixError),
+    #[error("IndraDB Validation error")]
+    ValidationError(#[from] indradb::ValidationError),
+    #[error("IndraDB error")]
+    GraphError(#[from] indradb::Error),
+    #[error("IndraDB datastore error")]
+    DatastoreError(#[from] rmp_serde::decode::Error),
 }

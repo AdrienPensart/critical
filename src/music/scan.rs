@@ -1,16 +1,31 @@
+use async_walkdir::Filtering;
 use futures_lite::stream::StreamExt;
 use std::collections::HashMap;
-use std::path::Path;
+// use indradb::ijson;
+// use indradb::Query;
+// use indradb::VertexWithPropertyValueQuery;
+// use indradb::{BulkInsertItem, Vertex};
+// use serde::Serialize;
+use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+use crate::commands::opts::Config;
 use crate::music::clean::clean;
 use crate::music::errors::CriticalErrorKind;
 use crate::music::flac_file::FlacFile;
-use crate::music::helpers::{is_hidden, public_ip};
+use crate::music::folders::FolderVertex;
+use crate::music::helpers::public_ip;
+use crate::music::keywords::KeywordVertex;
 use crate::music::mp3_file::Mp3File;
-use crate::music::Music;
+use crate::music::music_input::MusicInput;
+use crate::music::{Music, MusicVertex};
+
+use super::albums::AlbumVertex;
+use super::artists::ArtistVertex;
+use super::genres::GenreVertex;
+use super::helpers::{async_is_hidden, is_hidden};
 
 pub type BoxMusic = Box<dyn Music + Send + Sync>;
 
@@ -44,18 +59,29 @@ pub struct Scan {
 }
 
 impl Scan {
-    pub async fn scan(
-        &self,
-        client: gel_tokio::Client,
-        dry: bool,
-    ) -> Result<(), CriticalErrorKind> {
+    pub async fn scan(&self, config: Config) -> Result<(), CriticalErrorKind> {
         if self.clean {
-            clean(&client, false, dry).await?;
+            clean(&config.client, false, config.dry).await?;
         }
 
-        let retries: u16 = self.retries.into();
+        let db = if config.no_indradb {
+            indradb::MemoryDatastore::new_db()
+        } else if config.datastore.exists() {
+            indradb::MemoryDatastore::read_msgpack_db(config.datastore)?
+        } else {
+            indradb::MemoryDatastore::create_msgpack_db(config.datastore)
+        };
+
+        FolderVertex::index(&db)?;
+        ArtistVertex::index(&db)?;
+        AlbumVertex::index(&db)?;
+        GenreVertex::index(&db)?;
+        KeywordVertex::index(&db)?;
+        MusicVertex::index(&db)?;
+
         let ipv4 = public_ip().await?;
         let username = whoami::username().to_string();
+        let retries: u16 = self.retries.into();
         let errors = Arc::new(AtomicU64::new(0));
         let folders: Arc<Mutex<HashMap<String, uuid::Uuid>>> = Arc::new(Mutex::new(HashMap::new()));
         let artists: Arc<Mutex<HashMap<String, uuid::Uuid>>> = Arc::new(Mutex::new(HashMap::new()));
@@ -65,28 +91,42 @@ impl Scan {
         let keywords: Arc<Mutex<HashMap<String, uuid::Uuid>>> =
             Arc::new(Mutex::new(HashMap::new()));
 
-        let mut count = 0;
+        let mut count: u64 = 0;
+        let mut paths = HashMap::<String, Vec<PathBuf>>::new();
         for folder in self.folders.iter() {
-            count += walkdir::WalkDir::new(Path::new(&folder))
+            walkdir::WalkDir::new(Path::new(folder))
+                .follow_links(false)
                 .into_iter()
-                .count();
+                .filter_map(|entry| entry.ok())
+                .filter(|e| {
+                    !is_hidden(e)
+                        && e.file_type().is_file()
+                        && (e.file_name().to_string_lossy().ends_with(".flac")
+                            || e.file_name().to_string_lossy().ends_with(".mp3"))
+                })
+                .for_each(|entry| {
+                    paths
+                        .entry(folder.clone())
+                        .or_default()
+                        .push(entry.path().to_path_buf());
+                    count += 1;
+                });
         }
 
-        let bar = indicatif::ProgressBar::new(count as u64);
-        bar.set_style(
+        let load_music_files_bar = indicatif::ProgressBar::new(count);
+        load_music_files_bar.set_style(
             indicatif::ProgressStyle::default_bar()
-                .template("[{elapsed_precise}] {bar:50.cyan/blue} {pos:>7}/{len:7} {msg}")?
+                .template(
+                    "[{elapsed_precise}] Loading files: {bar:50.cyan/blue} {pos:>7}/{len:7} {msg}",
+                )?
                 .progress_chars("##-"),
         );
 
+        let mut music_inputs = Vec::new();
         for folder in self.folders.iter() {
             let folder_path = Path::new(&folder);
-            if !folder_path.is_dir() {
-                eprintln!("{folder} : path is not a directory");
-                continue;
-            }
             let Some(folder_path) = folder_path.to_str() else {
-                eprintln!("{folder} : issue with folder path");
+                load_music_files_bar.println(format!("{folder} : issue with folder path"));
                 continue;
             };
 
@@ -94,7 +134,8 @@ impl Scan {
             let _folder_id = if !folders.contains_key(folder_path) {
                 let mut folder_id: Option<uuid::Uuid> = None;
                 for _ in 0..retries {
-                    let folder_result = client
+                    let folder_result = config
+                        .client
                         .query_required_single(UPSERT_FOLDER, &(folder_path, &username, &ipv4))
                         .await;
                     match folder_result {
@@ -102,7 +143,8 @@ impl Scan {
                             if e.kind_name() != "TransactionSerializationError" {
                                 return Err(CriticalErrorKind::EdgedbError(e));
                             }
-                            eprintln!("retrying upsert folder {}", folder_path);
+                            load_music_files_bar
+                                .println(format!("retrying upsert folder {folder_path}"));
                             errors.fetch_add(1, Ordering::Relaxed);
                         }
                         Ok(id) => {
@@ -123,25 +165,29 @@ impl Scan {
                 folders[folder_path]
             };
 
-            let mut walker = async_walkdir::WalkDir::new(folder);
+            let mut walker = async_walkdir::WalkDir::new(folder).filter(|e| async move {
+                if e.file_type().await.unwrap().is_file() && !async_is_hidden(&e) {
+                    Filtering::Continue
+                } else {
+                    Filtering::Ignore
+                }
+            });
             loop {
+                scopeguard::defer! {load_music_files_bar.inc(1)};
+
                 match walker.next().await {
                     Some(Ok(entry)) => {
-                        if entry.file_type().await?.is_dir() {
-                            continue;
-                        }
-                        if is_hidden(&entry) {
-                            continue;
-                        }
                         let entry_path = entry.path();
                         let path = entry_path.to_str();
                         let Some(path) = path else {
-                            bar.println(format!("Issue with path : {:?}", entry.path()));
+                            load_music_files_bar
+                                .println(format!("Issue with path : {:?}", entry.path()));
                             continue;
                         };
 
                         let Some(extension) = entry_path.extension() else {
-                            bar.println(format!("Issue with path extension : {path}"));
+                            load_music_files_bar
+                                .println(format!("Issue with path extension : {path}"));
                             continue;
                         };
 
@@ -150,17 +196,42 @@ impl Scan {
                             Some("mp3") => Box::new(Mp3File::from_path(folder_path, path)?),
                             Some("m3u") | Some("jpg") => continue,
                             _ => {
-                                bar.println(format!("Unsupported format : {path}"));
+                                load_music_files_bar
+                                    .println(format!("Unsupported format : {path}"));
                                 continue;
                             }
                         };
+
+                        if !config.no_indradb {
+                            let music_input = MusicInput {
+                                title: music.title().to_string(),
+                                artist: music.artist().to_string(),
+                                album: music.album().to_string(),
+                                genre: music.genre().to_string(),
+                                length: music.length(),
+                                size: music.size().await?,
+                                track: music.track(),
+                                rating: music.rating()?,
+                                keywords: music.keywords().clone(),
+                                folder: folder_path.to_string(),
+                                path: path.to_string(),
+                                ipv4: ipv4.clone(),
+                                username: username.clone(),
+                            };
+                            music_inputs.push(music_input);
+                        }
+
+                        if config.no_gel {
+                            continue;
+                        }
 
                         let artist_id = {
                             let mut artists = artists.lock().await;
                             if !artists.contains_key(music.artist()) {
                                 let mut artist_id: Option<uuid::Uuid> = None;
                                 for _ in 0..retries {
-                                    let artist_result = client
+                                    let artist_result = config
+                                        .client
                                         .query_required_single(UPSERT_ARTIST, &(music.artist(),))
                                         .await;
                                     match artist_result {
@@ -168,7 +239,7 @@ impl Scan {
                                             if e.kind_name() != "TransactionSerializationError" {
                                                 return Err(CriticalErrorKind::EdgedbError(e));
                                             }
-                                            bar.println(format!(
+                                            load_music_files_bar.println(format!(
                                                 "retrying upsert artist {}",
                                                 music.artist()
                                             ));
@@ -203,7 +274,8 @@ impl Scan {
                             if !albums[&artist_id].contains_key(music.album()) {
                                 let mut album_id: Option<uuid::Uuid> = None;
                                 for _ in 0..retries {
-                                    let album_result = client
+                                    let album_result = config
+                                        .client
                                         .query_required_single(
                                             UPSERT_ALBUM,
                                             &(music.album(), artist_id),
@@ -214,7 +286,7 @@ impl Scan {
                                             if e.kind_name() != "TransactionSerializationError" {
                                                 return Err(CriticalErrorKind::EdgedbError(e));
                                             }
-                                            bar.println(format!(
+                                            load_music_files_bar.println(format!(
                                                 "retrying upsert album {}",
                                                 music.album()
                                             ));
@@ -240,6 +312,8 @@ impl Scan {
                                 albums[&artist_id][music.album()]
                             }
                         };
+
+                        // println!("album_vertex_id: {album_vertex_id}");
                         // println!("album_id: {album_id}");
 
                         let genre_id = {
@@ -247,7 +321,8 @@ impl Scan {
                             if !genres.contains_key(music.genre()) {
                                 let mut genre_id: Option<uuid::Uuid> = None;
                                 for _ in 0..retries {
-                                    let genre_result = client
+                                    let genre_result = config
+                                        .client
                                         .query_required_single(UPSERT_GENRE, &(music.genre(),))
                                         .await;
                                     match genre_result {
@@ -255,7 +330,7 @@ impl Scan {
                                             if e.kind_name() != "TransactionSerializationError" {
                                                 return Err(CriticalErrorKind::EdgedbError(e));
                                             }
-                                            bar.println(format!(
+                                            load_music_files_bar.println(format!(
                                                 "retrying upsert genre {}",
                                                 music.genre()
                                             ));
@@ -288,7 +363,8 @@ impl Scan {
                                 let keyword_id = if !keywords.contains_key(&keyword) {
                                     let mut keyword_id: Option<uuid::Uuid> = None;
                                     for _ in 0..retries {
-                                        let keyword_folder = client
+                                        let keyword_folder = config
+                                            .client
                                             .query_required_single(UPSERT_KEYWORD, &(&keyword,))
                                             .await;
                                         match keyword_folder {
@@ -297,7 +373,7 @@ impl Scan {
                                                 {
                                                     return Err(CriticalErrorKind::EdgedbError(e));
                                                 }
-                                                bar.println(format!(
+                                                load_music_files_bar.println(format!(
                                                     "retrying upsert keyword {}",
                                                     keyword
                                                 ));
@@ -329,9 +405,10 @@ impl Scan {
                             let mut music_id: Option<uuid::Uuid> = None;
                             // let folders = folders.lock().await;
                             for _ in 0..retries {
-                                let rating = music.rating()?;
+                                let rating: f64 = music.rating()?.into();
                                 let size = music.size().await?;
-                                let music_result = client
+                                let music_result = config
+                                    .client
                                     .query_required_single(
                                         UPSERT_MUSIC,
                                         &(
@@ -353,7 +430,7 @@ impl Scan {
                                         if e.kind_name() != "TransactionSerializationError" {
                                             return Err(CriticalErrorKind::EdgedbError(e));
                                         }
-                                        bar.println(format!(
+                                        load_music_files_bar.println(format!(
                                             "retrying upsert music {}",
                                             music.title()
                                         ));
@@ -375,15 +452,18 @@ impl Scan {
                         };
                     }
                     Some(Err(e)) => {
-                        bar.println(format!("error: {}", e));
+                        load_music_files_bar.println(format!("error: {}", e));
                         continue;
                     }
                     None => break,
                 }
-                bar.inc(1)
             }
         }
-        bar.finish();
+        load_music_files_bar.finish();
+
+        if !config.dry && !config.no_indradb {
+            db.sync()?;
+        }
 
         let errors = errors.load(Ordering::Relaxed);
         if errors > 0 {
@@ -395,87 +475,49 @@ impl Scan {
 }
 
 const UPSERT_FOLDER: &str = r#"
-select (
-    insert Folder {
-        name := <str>$0,
-        username := <str>$1,
-        ipv4 := <str>$2
-    }
-    unless conflict on (.name, .username, .ipv4) else (select Folder)
+select upsert_folder(
+    folder := <str>$0,
+    username := <str>$1,
+    ipv4 := <str>$2
 ).id
 "#;
 
 const UPSERT_ARTIST: &str = r#"
-select (
-    insert Artist {
-        name := <str>$0
-    }
-    unless conflict on (.name) else (select Artist)
+select upsert_artist(
+    artist := <str>$0
 ).id
 "#;
 
 const UPSERT_ALBUM: &str = r#"
-select (
-    insert Album {
-        name := <str>$0,
-        artist := <Artist>$1
-    }
-    unless conflict on (.name, .artist) else (select Album)
+select upsert_album(
+    artist := <Artist>$1,
+    album := <str>$0
 ).id
 "#;
 
 const UPSERT_GENRE: &str = r#"
-select (
-    insert Genre {
-        name := <str>$0
-    }
-    unless conflict on (.name) else (select Genre)
+select upsert_genre(
+    genre := <str>$0
 ).id
 "#;
 
 const UPSERT_KEYWORD: &str = r#"
-select (
-    insert Keyword {
-        name := <str>$0
-    }
-    unless conflict on (.name)
-    else (select Keyword)
+select upsert_keyword(
+    keyword := <str>$0
 ).id
 "#;
 
 const UPSERT_MUSIC: &str = r#"
-select (
-    insert Music {
-        name := <str>$0,
-        album := <Album><uuid>$1,
-        genre := <Genre><uuid>$2,
-        size := <Size>$3,
-        length := <Length>$4,
-        keywords := (select distinct array_unpack(<array<Keyword>><array<uuid>>$5)),
-        track := <Track>$6,
-        rating := <Rating>$7,
-        folders := (
-            (<Folder><uuid>$8) {
-                @path := <str>$9
-            }
-        )
-    }
-    unless conflict on (.name, .album)
-    else (
-        update Music
-        set {
-            genre := <Genre><uuid>$2,
-            size := <Size>$3,
-            length := <Length>$4,
-            keywords := (select distinct array_unpack(<array<Keyword>><array<uuid>>$5)),
-            track := <Track>$6,
-            rating := <Rating>$7,
-            folders += (
-                (<Folder><uuid>$8) {
-                    @path := <str>$9
-                }
-            )
-        }
-    )
+select upsert_music(
+    title := <str>$0,
+    size := <Size>$3,
+    length := <Length>$4,
+    genre := <Genre>$2,
+    album := <Album>$1,
+    keywords := <array<uuid>>$5,
+    track := <optional Track>$6,
+    rating := <Rating>$7,
+    folder := <Folder>$8,
+    path := <str>$9
 ).id
 "#;

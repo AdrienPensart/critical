@@ -1,5 +1,5 @@
 use crate::music::errors::CriticalErrorKind;
-use crate::music::RATINGS;
+use crate::music::ratings::RATINGS;
 
 const fn default_min_length() -> i64 {
     0

@@ -10,6 +10,8 @@ use crate::music::search::Search;
 use crate::music::stats::Stats;
 use async_trait::async_trait;
 
+use super::opts::Config;
+
 #[derive(clap::Subcommand)]
 #[clap(about = "Local music management")]
 pub enum Group {
@@ -32,20 +34,20 @@ pub enum Group {
 
 #[async_trait]
 impl GroupDispatch for Group {
-    async fn dispatch(self, client: gel_tokio::Client, dry: bool) -> Result<(), CriticalErrorKind> {
+    async fn dispatch(self, config: Config) -> Result<(), CriticalErrorKind> {
         match self {
-            Group::Scan(scan_cmd) => scan_cmd.scan(client, dry).await,
-            Group::Clean(clean_cmd) => clean_cmd.clean(client, dry).await,
+            Group::Scan(scan_cmd) => scan_cmd.scan(config).await,
+            Group::Clean(clean_cmd) => clean_cmd.clean(config.client, config.dry).await,
             Group::Playlist(playlist_cmd) => {
-                let playlist = playlist_cmd.playlist(client).await?;
+                let playlist = playlist_cmd.playlist(config.client).await?;
                 playlist.generate(
                     playlist_cmd.output_options(),
                     playlist_cmd.playlist_options(),
-                    dry,
+                    config.dry,
                 )
             }
             Group::Stats(stats_cmd) => {
-                let folders = stats_cmd.stats(client).await?;
+                let folders = stats_cmd.stats(config.client).await?;
                 for folder in folders {
                     println!("Folder : {}", folder.name);
                     println!("Username : {}", folder.username);
@@ -60,9 +62,16 @@ impl GroupDispatch for Group {
                 }
                 Ok(())
             }
-            Group::Search(search_cmd) => search_cmd.search(client).await,
+            Group::Search(search_cmd) => {
+                let playlist = search_cmd.search(config.client).await?;
+                playlist.generate(
+                    search_cmd.output_options(),
+                    search_cmd.playlist_options(),
+                    config.dry,
+                )
+            }
             Group::Folders(folders_cmd) => {
-                let folders = folders_cmd.folders(client).await?;
+                let folders = folders_cmd.folders(config.client).await?;
                 for folder in folders {
                     println!("Folder : {}", folder.name());
                     println!("Username : {}", folder.username());
@@ -71,9 +80,9 @@ impl GroupDispatch for Group {
                 }
                 Ok(())
             }
-            Group::Remove(remove_cmd) => remove_cmd.remove(client, dry).await,
+            Group::Remove(remove_cmd) => remove_cmd.remove(config.client, config.dry).await,
             Group::Bests(bests_cmd) => {
-                let playlists = bests_cmd.bests(client).await?;
+                let playlists = bests_cmd.bests(config.client).await?;
                 for playlist in playlists.iter() {
                     if (playlist.len() as u64) < bests_cmd.min_playlist_size() {
                         eprintln!(
@@ -92,7 +101,7 @@ impl GroupDispatch for Group {
                         bests_cmd.output_options().clone()
                     };
                     eprintln!("\nGenerating {} : {}", playlist.name(), playlist.len());
-                    playlist.generate(&output_options, bests_cmd.playlist_options(), dry)?;
+                    playlist.generate(&output_options, bests_cmd.playlist_options(), config.dry)?;
                 }
                 Ok(())
             }

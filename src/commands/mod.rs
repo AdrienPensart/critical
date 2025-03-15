@@ -4,3 +4,4 @@ pub mod opts;
 pub mod root;
 
 const DEFAULT_DSN: &str = "edgedb://musicbot:musicbot@127.0.0.1:5656/main?tls_security=insecure";
+const DEFAULT_DATASTORE_FILE: &str = "musicbot.indradb";

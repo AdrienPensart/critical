@@ -209,26 +209,24 @@ impl PlaylistCommand {
 pub const PLAYLIST_QUERY: &str = concatcp!(
     r#"
     with music_filter := to_json(<str>$0),
-    select Music {
+    select gen_playlist(
+        min_length := <Length>music_filter['min_length'],
+        max_length := <Length>music_filter['max_length'],
+        min_size := <Size>music_filter['min_size'],
+        max_size := <Size>music_filter['max_size'],
+        min_rating := <Rating>music_filter['min_rating'],
+        max_rating := <Rating>music_filter['max_rating'],
+        artist := <str>music_filter['artist'],
+        album := <str>music_filter['album'],
+        genre := <str>music_filter['genre'],
+        title := <str>music_filter['title'],
+        keyword := <str>music_filter['keyword'],
+        pattern := <str>music_filter['pattern'],
+        limit := <`Limit`>music_filter['limit']
+    ) {
         "#,
     MUSIC_FIELDS,
     r#"
     }
-    filter
-        .length >= <Length>music_filter['min_length'] and .length <= <Length>music_filter['max_length']
-        and .size >= <Size>music_filter['min_size'] and .size <= <Size>music_filter['max_size']
-        and .rating >= <Rating>music_filter['min_rating'] and .rating <= <Rating>music_filter['max_rating']
-        and re_test(<str>music_filter['artist'], .artist.name)
-        and re_test(<str>music_filter['album'], .album.name)
-        and re_test(<str>music_filter['genre'], .genre.name)
-        and re_test(<str>music_filter['title'], .name)
-        and re_test(<str>music_filter['keyword'], array_join(array_agg((select .keywords.name)), " "))
-        and (<str>music_filter['pattern'] = "" or ext::pg_trgm::word_similar(<str>music_filter['pattern'], .title))
-    order by
-        .artist.name then
-        .album.name then
-        .track then
-        .name
-    limit <`Limit`>music_filter['limit']
 "#
 );

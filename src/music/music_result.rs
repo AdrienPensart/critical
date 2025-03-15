@@ -6,6 +6,8 @@ use serde::Serialize;
 use std::hash::{Hash, Hasher};
 use tabled::Tabled;
 
+use super::ratings::Rating;
+
 #[derive(Queryable, Serialize, Clone)]
 pub struct FolderResult {
     pub name: String,
@@ -191,8 +193,8 @@ impl Music for MusicResult {
         self.track
     }
 
-    fn rating(&self) -> Result<f64, CriticalErrorKind> {
-        Ok(self.rating)
+    fn rating(&self) -> Result<Rating, CriticalErrorKind> {
+        Rating::try_from(self.rating)
     }
 
     fn keywords(&self) -> Vec<String> {

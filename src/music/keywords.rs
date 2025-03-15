@@ -5,36 +5,22 @@ use indradb::{
 
 use super::errors::CriticalErrorKind;
 
-pub const ARTISTS_QUERY: &str = r#"
-select Artist {
-    name,
-    rating,
-    length,
-    duration,
-    size,
-    all_keywords := array_agg(.keywords.name),
-    all_genres := array_agg(.musics.genre.name),
-    n_albums := count(.albums),
-    n_musics := count(.musics)
-}
-order by .name
-"#;
-
-pub struct ArtistVertex {
+pub struct KeywordVertex {
     pub name: String,
 }
 
-const INDEX: &str = "artist-name";
+const KEYWORD_NAME: &str = "keyword-name";
 
-impl ArtistVertex {
+impl KeywordVertex {
     pub fn index(db: &Database<MemoryDatastore>) -> Result<(), CriticalErrorKind> {
-        let unique_constraint = Identifier::new(INDEX)?;
+        let unique_constraint = Identifier::new(KEYWORD_NAME)?;
         Ok(db.index_property(unique_constraint)?)
     }
 
     pub fn upsert(&self, db: &Database<MemoryDatastore>) -> Result<uuid::Uuid, CriticalErrorKind> {
-        let id = Identifier::new("artist")?;
-        let name = Identifier::new(INDEX)?;
+        let id = Identifier::new("keyword")?;
+        let name = Identifier::new(KEYWORD_NAME)?;
+        // db.index_property(name)?;
 
         let vertex = Vertex::new(id);
 

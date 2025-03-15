@@ -22,7 +22,7 @@ impl Remove {
 }
 
 const REMOVE_PATH_QUERY: &str = r#"
-update Music
-filter contains(.paths, <str>$0)
-set {folders := (select .folders filter @path != <str>$0)};
+select remove_musics_path(
+    path := <str>$0
+)
 "#;

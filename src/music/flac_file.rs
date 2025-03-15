@@ -1,8 +1,9 @@
 use metaflac::block::VorbisComment;
 use metaflac::Tag as FlacTag;
 
-use crate::music::errors::CriticalErrorKind;
-use crate::music::{Music, RATINGS};
+use super::errors::CriticalErrorKind;
+use super::ratings::Rating;
+use super::Music;
 
 pub struct FlacFile {
     folder: String,
@@ -88,22 +89,17 @@ impl Music for FlacFile {
         0
     }
 
-    fn rating(&self) -> Result<f64, CriticalErrorKind> {
+    fn rating(&self) -> Result<Rating, CriticalErrorKind> {
         if let Some(fmps_ratings) = self.tag.get_vorbis("fmps_rating") {
             for fmps_rating in fmps_ratings {
                 if let Ok(mut rating) = fmps_rating.to_string().parse::<f64>() {
                     rating *= 5.0;
-                    if !RATINGS.contains(&rating) {
-                        return Err(CriticalErrorKind::InvalidRating {
-                            path: self.path.clone(),
-                            rating,
-                        });
-                    }
+                    let rating = Rating::try_from(rating)?;
                     return Ok(rating);
                 }
             }
         }
-        Ok(0.0)
+        Ok(Rating::default())
     }
 
     fn keywords(&self) -> Vec<String> {

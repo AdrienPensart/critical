@@ -2,8 +2,9 @@ use id3::Tag as Mp3Tag;
 use id3::TagLike;
 use mp3_duration;
 
-use crate::music::errors::CriticalErrorKind;
-use crate::music::{Music, RATINGS};
+use super::errors::CriticalErrorKind;
+use super::ratings::Rating;
+use super::Music;
 
 pub struct Mp3File {
     folder: String,
@@ -62,24 +63,19 @@ impl Music for Mp3File {
         }
     }
 
-    fn rating(&self) -> Result<f64, CriticalErrorKind> {
+    fn rating(&self) -> Result<Rating, CriticalErrorKind> {
         for frame in self.tag.frames() {
             if let Some(extended_text) = frame.content().extended_text() {
                 if extended_text.description == "FMPS_Rating" {
                     if let Ok(mut rating) = extended_text.value.to_string().parse::<f64>() {
                         rating *= 5.0;
-                        if !RATINGS.contains(&rating) {
-                            return Err(CriticalErrorKind::InvalidRating {
-                                path: self.path().to_string(),
-                                rating,
-                            });
-                        }
+                        let rating = Rating::try_from(rating)?;
                         return Ok(rating);
                     }
                 }
             }
         }
-        Ok(0.0)
+        Ok(Rating::default())
     }
 
     fn keywords(&self) -> Vec<String> {
