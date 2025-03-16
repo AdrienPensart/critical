@@ -1,10 +1,10 @@
-use metaflac::block::VorbisComment;
 use metaflac::Tag as FlacTag;
+use metaflac::block::VorbisComment;
 use num_traits::ToPrimitive;
 
+use super::Music;
 use super::errors::CriticalErrorKind;
 use super::ratings::Rating;
-use super::Music;
 
 pub struct FlacFile {
     folder: String,

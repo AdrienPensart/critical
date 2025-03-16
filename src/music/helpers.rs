@@ -1,15 +1,16 @@
 use itertools::Itertools;
 use num_traits::ToPrimitive;
-use std::iter::zip;
+use std::{collections::HashSet, hash::Hash, iter::zip};
 
 use crate::music::errors::CriticalErrorKind;
 
-#[must_use]
-pub fn async_is_hidden(entry: &async_walkdir::DirEntry) -> bool {
-    entry
-        .file_name()
-        .to_str()
-        .is_some_and(|s| s.starts_with('.'))
+pub fn has_unique_elements<T>(iter: T) -> bool
+where
+    T: IntoIterator,
+    T::Item: Eq + Hash,
+{
+    let mut uniq = HashSet::new();
+    iter.into_iter().all(move |x| uniq.insert(x))
 }
 
 #[must_use]

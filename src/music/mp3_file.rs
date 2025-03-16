@@ -3,9 +3,9 @@ use id3::TagLike;
 use mp3_duration;
 use num_traits::ToPrimitive;
 
+use super::Music;
 use super::errors::CriticalErrorKind;
 use super::ratings::Rating;
-use super::Music;
 
 pub struct Mp3File {
     folder: String,

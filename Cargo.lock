@@ -158,17 +158,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "async-walkdir"
-version = "2.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37672978ae0febce7516ae0a85b53e6185159a9a28787391eb63fc44ec36037d"
-dependencies = [
- "async-fs",
- "futures-lite",
- "thiserror 2.0.12",
-]
-
-[[package]]
 name = "atomic"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -470,7 +459,6 @@ version = "0.1.0"
 dependencies = [
  "async-fs",
  "async-trait",
- "async-walkdir",
  "clap",
  "const_format",
  "enum_dispatch",

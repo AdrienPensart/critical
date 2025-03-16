@@ -22,8 +22,8 @@ pub mod stats;
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 use indradb::{
-    ijson, BulkInsertItem, Database, Edge, Identifier, MemoryDatastore, Query, QueryOutputValue,
-    Vertex, VertexWithPropertyValueQuery,
+    BulkInsertItem, Database, Edge, Identifier, MemoryDatastore, Query, QueryOutputValue, Vertex,
+    VertexWithPropertyValueQuery, ijson,
 };
 
 use errors::CriticalErrorKind;
