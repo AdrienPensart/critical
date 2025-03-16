@@ -12,10 +12,17 @@ pub enum CriticalErrorKind {
     InvalidMinMaxLength { min_length: i64, max_length: i64 },
     #[error("Invalid min/max size, minimum size {min_size} should be < {max_size}")]
     InvalidMinMaxSize { min_size: i64, max_size: i64 },
+    #[error("Interleave error")]
+    InterleaveError,
     #[error("Public IP not detected")]
     NoPublicIp,
     #[error("EdgeDB error: {0}")]
-    EdgedbError(#[from] gel_tokio::Error),
+    GelError(#[from] gel_tokio::Error),
+    #[error("Gel DB error with {object}: {error}")]
+    GelErrorWithObject {
+        error: gel_tokio::Error,
+        object: String,
+    },
     #[error("IO error: {0}")]
     IOError(#[from] std::io::Error),
     #[error("Upsert operation failed for path: {path} with object: {object}")]
@@ -40,4 +47,6 @@ pub enum CriticalErrorKind {
     GraphError(#[from] indradb::Error),
     #[error("IndraDB datastore error")]
     DatastoreError(#[from] rmp_serde::decode::Error),
+    #[error("Music file size too large")]
+    FileSizeError(#[from] std::num::TryFromIntError),
 }

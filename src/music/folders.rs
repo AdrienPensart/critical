@@ -77,15 +77,19 @@ impl FolderVertex {
 }
 
 impl Folder {
+    #[must_use]
     pub fn name(&self) -> &String {
         &self.name
     }
+    #[must_use]
     pub fn username(&self) -> &String {
         &self.username
     }
+    #[must_use]
     pub fn ipv4(&self) -> &String {
         &self.ipv4
     }
+    #[must_use]
     pub fn n_musics(&self) -> i64 {
         self.n_musics
     }
@@ -96,12 +100,12 @@ impl Folders {
         &self,
         client: gel_tokio::Client,
     ) -> Result<Vec<Folder>, CriticalErrorKind> {
-        let folders: Vec<Folder> = client.query(FOLDER_QUERY, &()).await?;
+        let folders: Vec<Folder> = Box::pin(client.query(FOLDER_QUERY, &())).await?;
         Ok(folders)
     }
 }
 
-const FOLDER_QUERY: &str = r#"
+const FOLDER_QUERY: &str = r"
 select Folder {
     name,
     username,
@@ -109,4 +113,4 @@ select Folder {
     n_musics,
 }
 order by .name
-"#;
+";

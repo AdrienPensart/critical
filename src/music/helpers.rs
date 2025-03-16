@@ -1,22 +1,23 @@
 use itertools::Itertools;
+use num_traits::ToPrimitive;
 use std::iter::zip;
 
 use crate::music::errors::CriticalErrorKind;
 
+#[must_use]
 pub fn async_is_hidden(entry: &async_walkdir::DirEntry) -> bool {
     entry
         .file_name()
         .to_str()
-        .map(|s| s.starts_with('.'))
-        .unwrap_or(false)
+        .is_some_and(|s| s.starts_with('.'))
 }
 
+#[must_use]
 pub fn is_hidden(entry: &walkdir::DirEntry) -> bool {
     entry
         .file_name()
         .to_str()
-        .map(|s| s.starts_with("."))
-        .unwrap_or(false)
+        .is_some_and(|s| s.starts_with('.'))
 }
 
 pub async fn public_ip() -> Result<String, CriticalErrorKind> {
@@ -33,11 +34,11 @@ pub async fn public_ip() -> Result<String, CriticalErrorKind> {
     }
 }
 
-pub fn interleave_evenly<T>(mut iterables: Vec<Vec<T>>) -> Vec<T>
+pub fn interleave_evenly<T>(mut iterables: Vec<Vec<T>>) -> Result<Vec<T>, CriticalErrorKind>
 where
     T: std::clone::Clone,
 {
-    let lengths = iterables.iter().map(|v| v.len()).collect::<Vec<usize>>();
+    let lengths = iterables.iter().map(Vec::len).collect::<Vec<usize>>();
     let dims = lengths.len();
     let lengths_permute = (0..dims)
         .sorted_unstable_by(|a, b| iterables[*a].len().cmp(&iterables[*b].len()))
@@ -53,7 +54,16 @@ where
     let delta_primary = lengths_desc.remove(0);
     iters_desc.remove(0);
 
-    let mut errors = vec![(delta_primary as f64 / dims as f64).floor() as i64; lengths_desc.len()];
+    let mut errors = vec![
+        (delta_primary
+            .to_f64()
+            .ok_or(CriticalErrorKind::InterleaveError)?
+            / dims.to_f64().ok_or(CriticalErrorKind::InterleaveError)?)
+        .floor()
+        .to_i64()
+        .ok_or(CriticalErrorKind::InterleaveError)?;
+        lengths_desc.len()
+    ];
 
     let mut to_yield: usize = lengths.iter().sum();
     let mut elements: Vec<T> = Vec::new();
@@ -66,7 +76,10 @@ where
 
         to_yield -= 1;
         errors = zip(&errors, &lengths_desc)
-            .map(|(e, delta)| e - *delta as i64)
+            .map(|(e, delta)| {
+                let delta = (*delta).to_i64().map_or(0, |d| d);
+                e - delta
+            })
             .collect();
 
         for i in 0..errors.len() {
@@ -76,20 +89,22 @@ where
                     elements.push(next_elem);
                 }
                 to_yield -= 1;
-                errors[i] += delta_primary as i64;
+                errors[i] += delta_primary
+                    .to_i64()
+                    .ok_or(CriticalErrorKind::InterleaveError)?;
             }
         }
     }
-    elements
+    Ok(elements)
 }
 
 #[test]
 fn interleave_evenly_tests() {
     let iterables = vec![vec![1, 3, 5, 7], vec![0, 2, 4, 6]];
     let result = interleave_evenly(iterables);
-    assert_eq!(vec![1, 0, 3, 2, 5, 4, 7, 6], result);
+    assert_eq!(vec![1, 0, 3, 2, 5, 4, 7, 6], result.unwrap());
 
     let iterables = vec![vec![0, 1, 2, 3], vec![11, 12]];
     let result = interleave_evenly(iterables);
-    assert_eq!(vec![0, 1, 11, 2, 3, 12], result);
+    assert_eq!(vec![0, 1, 11, 2, 3, 12], result.unwrap());
 }

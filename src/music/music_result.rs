@@ -36,10 +36,12 @@ impl FolderResult {
         ))
     }
 
+    #[must_use]
     pub fn local_ssh_link(&self) -> String {
         format!("{}@localhost:{}", self.username, self.path)
     }
 
+    #[must_use]
     pub fn remote_ssh_link(&self) -> String {
         format!("{}@{}:{}", self.username, self.ipv4, self.path)
     }
@@ -47,22 +49,22 @@ impl FolderResult {
     pub fn links(&self, relative: bool, kinds: &[Kind]) -> Result<Vec<String>, CriticalErrorKind> {
         let mut paths = Vec::new();
         if kinds.contains(&Kind::All) || kinds.contains(&Kind::LocalSSH) {
-            paths.push(self.local_ssh_link())
+            paths.push(self.local_ssh_link());
         }
         if kinds.contains(&Kind::All) || kinds.contains(&Kind::RemoteSSH) {
-            paths.push(self.remote_ssh_link())
+            paths.push(self.remote_ssh_link());
         }
         if kinds.contains(&Kind::All) || kinds.contains(&Kind::LocalHTTP) {
-            paths.push(self.http_link(relative)?)
+            paths.push(self.http_link(relative)?);
         }
         if kinds.contains(&Kind::All) || kinds.contains(&Kind::RemoteHttp) {
-            paths.push(self.http_link(relative)?)
+            paths.push(self.http_link(relative)?);
         }
         if kinds.contains(&Kind::All) || kinds.contains(&Kind::Local) {
-            paths.push(self.effective_path(relative)?)
+            paths.push(self.effective_path(relative)?);
         }
         if kinds.contains(&Kind::All) || kinds.contains(&Kind::Remote) {
-            paths.push(self.effective_path(relative)?)
+            paths.push(self.effective_path(relative)?);
         }
         Ok(paths)
     }

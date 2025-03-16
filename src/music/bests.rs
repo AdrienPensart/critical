@@ -44,28 +44,32 @@ impl Bests {
                 ("ratings_for_artist", BESTS_RATINGS_FOR_ARTIST),
             ] {
                 let now = std::time::Instant::now();
-                let bests_genres: Vec<Playlist> = client.query(query, &(&music_filter,)).await?;
+                let bests_genres: Vec<Playlist> =
+                    Box::pin(client.query(query, &(&music_filter,))).await?;
                 playlists.extend(bests_genres);
                 eprintln!("{name}: {:.2?}", now.elapsed());
             }
         }
         Ok(playlists)
     }
+    #[must_use]
     pub fn min_playlist_size(&self) -> u64 {
         self.min_playlist_size
     }
+    #[must_use]
     pub fn output_options(&self) -> &OutputOptions {
         &self.output_options
     }
+    #[must_use]
     pub fn playlist_options(&self) -> &PlaylistOptions {
         &self.playlist_options
     }
 }
 
 const BESTS_RATINGS_FOR_ARTIST: &str = concatcp!(
-    r#"
+    r"
     with
-    musics := ("#,
+    musics := (",
     PLAYLIST_QUERY,
     r#")
     for artist_rating_grouping in (group musics by .artist, .rating)
@@ -75,17 +79,17 @@ const BESTS_RATINGS_FOR_ARTIST: &str = concatcp!(
             musics := artist_rating_grouping.elements {
             "#,
     MUSIC_FIELDS,
-    r#" 
+    r" 
             }
         }
     )
-    "#
+    "
 );
 
 const BESTS_KEYWORDS_FOR_ARTIST: &str = concatcp!(
-    r#"
+    r"
     with
-    musics := ("#,
+    musics := (",
     PLAYLIST_QUERY,
     r#")
     for artist in (select distinct musics.artist)
@@ -111,18 +115,18 @@ const BESTS_KEYWORDS_FOR_ARTIST: &str = concatcp!(
                     musics := keyword.musics {
                     "#,
     MUSIC_FIELDS,
-    r#"
+    r"
                     }
                 }
             )
     );
-"#
+"
 );
 
 const BESTS_RATINGS: &str = concatcp!(
-    r#"
+    r"
     with
-    musics := ("#,
+    musics := (",
     PLAYLIST_QUERY,
     r#")
     for rating_grouping in (group musics by .rating)
@@ -132,17 +136,17 @@ const BESTS_RATINGS: &str = concatcp!(
             musics := .elements {
             "#,
     MUSIC_FIELDS,
-    r#"
+    r"
             }
         }
     );
-"#
+"
 );
 
 const BESTS_GENRES: &str = concatcp!(
-    r#"
+    r"
     with
-    musics := ("#,
+    musics := (",
     PLAYLIST_QUERY,
     r#")
     for genre_grouping in (group musics using genre := .genre.name by genre)
@@ -152,16 +156,16 @@ const BESTS_GENRES: &str = concatcp!(
             musics := .elements {
             "#,
     MUSIC_FIELDS,
-    r#"
+    r"
         }}
     );
-"#
+"
 );
 
 const BESTS_KEYWORDS: &str = concatcp!(
-    r#"
+    r"
     with
-    musics := ("#,
+    musics := (",
     PLAYLIST_QUERY,
     r#"),
     for unique_keyword in (select distinct (for music in musics union (music.keywords)))
@@ -173,11 +177,11 @@ const BESTS_KEYWORDS: &str = concatcp!(
                     select distinct musics {
                         "#,
     MUSIC_FIELDS,
-    r#"
+    r"
                     }
                     
                 )
             }
         )
-"#
+"
 );

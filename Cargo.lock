@@ -487,6 +487,7 @@ dependencies = [
  "itertools",
  "metaflac",
  "mp3-duration",
+ "num-traits",
  "rand 0.9.0",
  "reqwest",
  "rmp-serde",

@@ -23,7 +23,7 @@ pub enum Rating {
 impl std::fmt::Display for Rating {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let rating: f64 = (*self).into();
-        write!(f, "{}", rating)
+        write!(f, "{rating}")
     }
 }
 
@@ -62,7 +62,7 @@ impl TryFrom<f64> for Rating {
             4.5 => Ok(Rating::FourAndHalf),
             5.0 => Ok(Rating::Five),
             _ => Err(CriticalErrorKind::InvalidRating {
-                path: "".to_string(),
+                path: String::new(),
                 rating: value,
             }),
         }

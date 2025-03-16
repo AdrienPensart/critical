@@ -1,5 +1,6 @@
 use metaflac::block::VorbisComment;
 use metaflac::Tag as FlacTag;
+use num_traits::ToPrimitive;
 
 use super::errors::CriticalErrorKind;
 use super::ratings::Rating;
@@ -38,7 +39,13 @@ impl Music for FlacFile {
 
     fn length(&self) -> i64 {
         if let Some(stream_info) = self.tag.get_streaminfo() {
-            stream_info.total_samples as i64 / stream_info.sample_rate as i64
+            match (
+                stream_info.total_samples.to_i64(),
+                stream_info.sample_rate.to_i64(),
+            ) {
+                (Some(total_samples), Some(sample_rate)) => total_samples / sample_rate,
+                _ => 0,
+            }
         } else {
             0
         }

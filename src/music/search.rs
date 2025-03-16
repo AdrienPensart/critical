@@ -22,23 +22,26 @@ pub struct Search {
 
 impl Search {
     pub async fn search(&self, client: gel_tokio::Client) -> Result<Playlist, CriticalErrorKind> {
-        let musics: Vec<MusicResult> = client.query(SEARCH_QUERY, &(&self.pattern,)).await?;
+        let musics: Vec<MusicResult> =
+            Box::pin(client.query(SEARCH_QUERY, &(&self.pattern,))).await?;
         Ok(Playlist::new(&self.pattern, &musics))
     }
+    #[must_use]
     pub fn output_options(&self) -> &OutputOptions {
         &self.output_options
     }
+    #[must_use]
     pub fn playlist_options(&self) -> &PlaylistOptions {
         &self.playlist_options
     }
 }
 
 const SEARCH_QUERY: &str = concatcp!(
-    r#"
+    "
 select search(pattern := <str>$0) {
-    "#,
+    ",
     MUSIC_FIELDS,
-    r#"
+    "
 }
-"#
+"
 );

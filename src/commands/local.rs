@@ -82,8 +82,8 @@ impl GroupDispatch for Group {
             }
             Group::Remove(remove_cmd) => remove_cmd.remove(config.client, config.dry).await,
             Group::Bests(bests_cmd) => {
-                let playlists = bests_cmd.bests(config.client).await?;
-                for playlist in playlists.iter() {
+                let playlists = Box::pin(bests_cmd.bests(config.client)).await?;
+                for playlist in &playlists {
                     if (playlist.len() as u64) < bests_cmd.min_playlist_size() {
                         eprintln!(
                             "{} : size < {}",

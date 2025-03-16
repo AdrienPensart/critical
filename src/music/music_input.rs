@@ -51,7 +51,7 @@ impl MusicInput {
 
         let mut keyword_vertex_ids = Vec::new();
         // {
-        for keyword in self.keywords.iter() {
+        for keyword in &self.keywords {
             let keyword_vertex = KeywordVertex {
                 name: keyword.clone(),
             };

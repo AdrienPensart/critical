@@ -81,7 +81,7 @@ impl std::fmt::Display for dyn Music {
     }
 }
 
-pub const MUSIC_FIELDS: &str = r#"
+pub const MUSIC_FIELDS: &str = r"
 name,
 artist_name := .artist.name,
 album_name := .album.name,
@@ -99,7 +99,7 @@ folders: {
     ipv4,
     path := @path
 }
-"#;
+";
 
 #[derive(Serialize)]
 pub struct MusicVertex {

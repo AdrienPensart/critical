@@ -64,15 +64,18 @@ pub struct OutputOptions {
 }
 
 impl OutputOptions {
+    #[must_use]
     pub fn new(output: &Output, out: &Option<String>) -> Self {
         Self {
             output: output.clone(),
             out: out.clone(),
         }
     }
+    #[must_use]
     pub fn out(&self) -> &Option<String> {
         &self.out
     }
+    #[must_use]
     pub fn output(&self) -> &Output {
         &self.output
     }
@@ -100,18 +103,22 @@ pub struct Playlist {
 }
 
 impl Playlist {
+    #[must_use]
     pub fn new(name: &str, musics: &[MusicResult]) -> Self {
         Self {
             name: name.to_string(),
             musics: musics.to_vec(),
         }
     }
+    #[must_use]
     pub fn name(&self) -> &str {
         &self.name
     }
+    #[must_use]
     pub fn len(&self) -> usize {
         self.musics.len()
     }
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.musics.is_empty()
     }
@@ -137,7 +144,7 @@ impl Playlist {
             let values = artist_to_musics
                 .into_values()
                 .collect::<Vec<Vec<MusicResult>>>();
-            musics = interleave_evenly(values);
+            musics = interleave_evenly(values)?;
         }
 
         let kind = if playlist_options.kind.is_empty() {
@@ -156,7 +163,7 @@ impl Playlist {
 
                 playlist.push_str(&format!("#EXTREM:name={}\n", self.name));
                 if let Some(out) = &output_options.out {
-                    playlist.push_str(&format!("#EXTREM:path={}\n", out));
+                    playlist.push_str(&format!("#EXTREM:path={out}\n"));
                 }
 
                 let mut links = Vec::new();
@@ -192,22 +199,24 @@ impl PlaylistCommand {
         for filter in &self.filters.all() {
             let music_filter = serde_json::to_string(filter)?;
             let music_results: Vec<MusicResult> =
-                client.query(PLAYLIST_QUERY, &(music_filter,)).await?;
+                Box::pin(client.query(PLAYLIST_QUERY, &(music_filter,))).await?;
             musics.extend(music_results);
         }
         let musics = musics.into_iter().collect::<Vec<MusicResult>>();
         Ok(Playlist::new(&self.name, &musics))
     }
+    #[must_use]
     pub fn output_options(&self) -> &OutputOptions {
         &self.output_options
     }
+    #[must_use]
     pub fn playlist_options(&self) -> &PlaylistOptions {
         &self.playlist_options
     }
 }
 
 pub const PLAYLIST_QUERY: &str = concatcp!(
-    r#"
+    "
     with music_filter := to_json(<str>$0),
     select gen_playlist(
         min_length := <Length>music_filter['min_length'],
@@ -224,9 +233,9 @@ pub const PLAYLIST_QUERY: &str = concatcp!(
         pattern := <str>music_filter['pattern'],
         limit := <`Limit`>music_filter['limit']
     ) {
-        "#,
+        ",
     MUSIC_FIELDS,
-    r#"
+    r"
     }
-"#
+"
 );

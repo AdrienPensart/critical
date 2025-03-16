@@ -104,6 +104,7 @@ pub struct Filters {
 }
 
 impl Filters {
+    #[must_use]
     pub fn all(&self) -> Vec<Filter> {
         let mut filters = self.filters.clone();
         if filters.is_empty() || self.filter != Filter::default() {

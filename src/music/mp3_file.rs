@@ -1,6 +1,7 @@
 use id3::Tag as Mp3Tag;
 use id3::TagLike;
 use mp3_duration;
+use num_traits::ToPrimitive;
 
 use super::errors::CriticalErrorKind;
 use super::ratings::Rating;
@@ -33,7 +34,7 @@ impl Music for Mp3File {
 
     fn length(&self) -> i64 {
         if let Ok(duration) = mp3_duration::from_path(&self.path) {
-            duration.as_secs() as i64
+            duration.as_secs().to_i64().unwrap_or_default()
         } else {
             0
         }

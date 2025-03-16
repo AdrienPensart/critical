@@ -5,7 +5,7 @@ use indradb::{
 
 use super::errors::CriticalErrorKind;
 
-pub const ARTISTS_QUERY: &str = r#"
+pub const ARTISTS_QUERY: &str = r"
 select Artist {
     name,
     rating,
@@ -18,7 +18,7 @@ select Artist {
     n_musics := count(.musics)
 }
 order by .name
-"#;
+";
 
 pub struct ArtistVertex {
     pub name: String,

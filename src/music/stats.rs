@@ -21,12 +21,12 @@ pub struct Folder {
 
 impl Stats {
     pub async fn stats(&self, client: gel_tokio::Client) -> Result<Vec<Folder>, CriticalErrorKind> {
-        let folders: Vec<Folder> = client.query(SELECT_FOLDERS, &()).await?;
+        let folders: Vec<Folder> = Box::pin(client.query(SELECT_FOLDERS, &())).await?;
         Ok(folders)
     }
 }
 
-const SELECT_FOLDERS: &str = r#"
+const SELECT_FOLDERS: &str = r"
 select Folder {
     name, 
     username, 
@@ -38,4 +38,4 @@ select Folder {
     n_albums, 
     n_genres, 
     n_keywords
-} order by .name"#;
+} order by .name";

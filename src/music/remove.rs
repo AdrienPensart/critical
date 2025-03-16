@@ -12,17 +12,16 @@ impl Remove {
         client: gel_tokio::Client,
         dry: bool,
     ) -> Result<(), CriticalErrorKind> {
-        for path in self.paths.iter() {
+        for path in &self.paths {
             if !dry {
-                client.execute(REMOVE_PATH_QUERY, &(path,)).await?;
+                Box::pin(client.execute(REMOVE_PATH_QUERY, &(path,))).await?;
             }
         }
         Ok(())
     }
 }
 
-const REMOVE_PATH_QUERY: &str = r#"
+const REMOVE_PATH_QUERY: &str = "
 select remove_musics_path(
     path := <str>$0
-)
-"#;
+)";

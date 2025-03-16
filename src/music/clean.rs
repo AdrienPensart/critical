@@ -29,14 +29,14 @@ pub async fn clean(
         HARD_CLEAN_QUERY
     };
 
-    if !dry {
-        Ok(client.execute(query, &()).await?)
-    } else {
+    if dry {
         Ok(())
+    } else {
+        Ok(Box::pin(client.execute(query, &())).await?)
     }
 }
 
-const SOFT_CLEAN_QUERY: &str = r#"
+const SOFT_CLEAN_QUERY: &str = r"
 select {
     musics_deleted := count((delete Music filter not exists .folders)),
     albums_deleted := count((delete Album filter not exists .musics)),
@@ -44,6 +44,6 @@ select {
     genres_deleted := count((delete Genre filter not exists .musics)),
     keywords_deleted := count((delete Keyword filter not exists .musics))
 };
-"#;
+";
 
 const HARD_CLEAN_QUERY: &str = "delete Artist;";
