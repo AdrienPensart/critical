@@ -34,13 +34,24 @@ pub struct Scan {
     /// Retries in case of failed transaction
     retries: std::num::NonZeroU16,
 
+    #[clap(long)]
+    /// Max numbers of files to scan, 0 means no limit
+    max_files: u64,
+
     folders: Vec<String>,
 }
 
 impl Scan {
     pub async fn scan(&self, mut config: Config) -> Result<(), CriticalErrorKind> {
         if self.clean {
-            Box::pin(clean(&config.gel, false, config.dry)).await?;
+            if !config.no_gel {
+                Box::pin(clean(&config.gel, false, config.dry)).await?;
+            }
+            if !config.no_indradb && !config.dry {
+                std::fs::remove_file(config.datastore.clone())?;
+                config.indradb =
+                    indradb::MemoryDatastore::create_msgpack_db(config.datastore.clone());
+            }
         }
 
         config.retries = self.retries.into();
@@ -68,6 +79,9 @@ impl Scan {
                             || e.file_name().to_string_lossy().ends_with(".mp3"))
                 })
                 .for_each(|entry| {
+                    if self.max_files > 0 && count >= self.max_files {
+                        return;
+                    }
                     paths
                         .entry(folder.clone())
                         .or_default()
