@@ -1,27 +1,34 @@
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 use indradb::{
-    ijson, BulkInsertItem, Database, Edge, Identifier, MemoryDatastore, Query, QueryOutputValue,
-    Vertex, VertexWithPropertyValueQuery,
+    BulkInsertItem, Database, Edge, Identifier, MemoryDatastore, Query, QueryOutputValue, Vertex,
+    VertexWithPropertyValueQuery, ijson,
 };
 use serde::Serialize;
 
-use super::errors::CriticalErrorKind;
+use super::{cache::UpsertCache, config::Config, errors::CriticalErrorKind};
 
 #[derive(Serialize, Hash)]
-pub struct AlbumVertex {
+pub struct Album {
     pub name: String,
-    pub artist_id: uuid::Uuid,
+    pub artist_gel: uuid::Uuid,
+    pub artist_indradb: uuid::Uuid,
 }
 
 const INDEX: &str = "album-unique-constraint";
 
-impl AlbumVertex {
-    pub fn index(db: &Database<MemoryDatastore>) -> Result<(), CriticalErrorKind> {
+#[async_trait::async_trait]
+impl super::vertex::Vertex for Album {
+    fn index_indradb(db: &Database<MemoryDatastore>) -> Result<(), CriticalErrorKind> {
         let unique_constraint = Identifier::new(INDEX)?;
         Ok(db.index_property(unique_constraint)?)
     }
-    pub fn upsert(&self, db: &Database<MemoryDatastore>) -> Result<uuid::Uuid, CriticalErrorKind> {
+
+    fn upsert_indradb(&self, config: &Config) -> Result<uuid::Uuid, CriticalErrorKind> {
+        if config.no_indradb {
+            return Ok(uuid::Uuid::new_v4());
+        }
+
         let id = Identifier::new("album")?;
         let name = Identifier::new("album-name")?;
         let artist = Identifier::new("album-artist")?;
@@ -33,10 +40,10 @@ impl AlbumVertex {
         self.hash(&mut hasher);
         let hash_value = hasher.finish();
 
-        let album_artist = Edge::new(vertex.id, artist, self.artist_id);
+        let album_artist = Edge::new(vertex.id, artist, self.artist_indradb);
         // let artist_album = Edge::new(self.artist_id, albums, vertex.id);
 
-        let results = db.get(Query::VertexWithPropertyValue(
+        let results = config.indradb.get(Query::VertexWithPropertyValue(
             VertexWithPropertyValueQuery::new(unique_constraint, ijson!(hash_value)),
         ))?;
 
@@ -45,7 +52,7 @@ impl AlbumVertex {
                 vertices[0].id
             } else {
                 let vertex_id = vertex.id;
-                db.bulk_insert(vec![
+                config.indradb.bulk_insert(vec![
                     BulkInsertItem::Vertex(vertex),
                     BulkInsertItem::VertexProperty(vertex_id, name, ijson!(self.name)),
                     BulkInsertItem::Edge(album_artist),
@@ -58,4 +65,59 @@ impl AlbumVertex {
         };
         Ok(vertex_id)
     }
+
+    async fn upsert_gel(
+        &self,
+        config: &Config,
+        cache: &mut UpsertCache,
+    ) -> Result<uuid::Uuid, CriticalErrorKind> {
+        if config.no_gel {
+            return Ok(uuid::Uuid::new_v4());
+        }
+
+        if cache.albums[&self.artist_gel].contains_key(&self.name) {
+            return Ok(cache.albums[&self.artist_gel][&self.name]);
+        }
+        let mut album_id: Option<uuid::Uuid> = None;
+        for _ in 0..config.retries {
+            let album_result = Box::pin(
+                config
+                    .gel
+                    .query_required_single(UPSERT_ALBUM, &(&self.name, &self.artist_gel)),
+            )
+            .await;
+            match album_result {
+                Err(e) => {
+                    if e.kind_name() != "TransactionSerializationError" {
+                        return Err(CriticalErrorKind::GelErrorWithObject {
+                            error: e,
+                            object: self.name.clone(),
+                        });
+                    }
+                    // load_music_files_bar.println(format!("retrying upsert album {}", music.album()));
+                    cache.errors += 1;
+                }
+                Ok(id) => {
+                    album_id = Some(id);
+                    break;
+                }
+            };
+        }
+        let Some(album_id) = album_id else {
+            return Err(CriticalErrorKind::UpsertError {
+                path: self.name.clone(),
+                object: self.name.clone(),
+            });
+        };
+        if let Some(albums) = cache.albums.get_mut(&self.artist_gel) {
+            albums.insert(self.name.to_string(), album_id);
+        }
+        Ok(album_id)
+    }
 }
+
+const UPSERT_ALBUM: &str = "
+select upsert_album(
+    artist := <Artist>$1,
+    album := <str>$0
+).id";

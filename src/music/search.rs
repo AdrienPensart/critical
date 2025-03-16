@@ -1,9 +1,8 @@
-use crate::music::errors::CriticalErrorKind;
-use crate::music::music_result::MusicResult;
-use crate::music::MUSIC_FIELDS;
-use const_format::concatcp;
-
+use super::errors::CriticalErrorKind;
+use super::music::MUSIC_FIELDS;
+use super::music_result::MusicResult;
 use super::playlist::{OutputOptions, Playlist, PlaylistOptions};
+use const_format::concatcp;
 
 #[derive(clap::Parser)]
 #[clap(about = "Search music")]

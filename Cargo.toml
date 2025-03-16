@@ -49,3 +49,5 @@ missing_fields_in_debug = { level = "allow", priority = 1 }
 missing_errors_doc ={ level = "allow", priority = 1 }
 doc_markdown = { level = "allow", priority = 1 }
 too_many_lines = { level = "allow", priority = 1 }
+module_inception = { level = "allow", priority = 1 }
+similar_names = { level = "allow", priority = 1 }

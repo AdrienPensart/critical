@@ -1,11 +1,11 @@
-use crate::music::Music;
-use crate::music::errors::CriticalErrorKind;
-use crate::music::playlist::Kind;
 use gel_derive::Queryable;
 use serde::Serialize;
 use std::hash::{Hash, Hasher};
 use tabled::Tabled;
 
+use super::errors::CriticalErrorKind;
+use super::music_file::MusicFile;
+use super::playlist::Kind;
 use super::ratings::Rating;
 
 #[derive(Queryable, Serialize, Clone)]
@@ -162,7 +162,7 @@ impl MusicResult {
     }
 }
 
-impl Music for MusicResult {
+impl MusicFile for MusicResult {
     fn path(&self) -> &str {
         &self.folders[0].path
     }

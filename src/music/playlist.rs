@@ -1,14 +1,16 @@
-use crate::music::errors::CriticalErrorKind;
-use crate::music::filter::Filters;
-use crate::music::helpers::interleave_evenly;
-use crate::music::music_result::MusicResult;
-use crate::music::MUSIC_FIELDS;
 use const_format::concatcp;
 use gel_derive::Queryable;
 use rand::{rng, seq::SliceRandom};
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use tabled::Table;
+
+use super::errors::CriticalErrorKind;
+use super::filter::Filters;
+use super::helpers::interleave_evenly;
+use super::music::MUSIC_FIELDS;
+use super::music_result::MusicResult;
+
 const DEFAULT_NAME: &str = "default";
 
 #[derive(clap::ValueEnum, Clone, Default, Debug, Serialize, PartialEq)]

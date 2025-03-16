@@ -1,4 +1,4 @@
-use crate::music::errors::CriticalErrorKind;
+use super::errors::CriticalErrorKind;
 use gel_derive::Queryable;
 
 #[derive(clap::Parser)]

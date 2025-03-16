@@ -2,8 +2,8 @@ use metaflac::Tag as FlacTag;
 use metaflac::block::VorbisComment;
 use num_traits::ToPrimitive;
 
-use super::Music;
 use super::errors::CriticalErrorKind;
+use super::music_file::MusicFile;
 use super::ratings::Rating;
 
 pub struct FlacFile {
@@ -28,7 +28,7 @@ impl FlacFile {
     }
 }
 
-impl Music for FlacFile {
+impl MusicFile for FlacFile {
     fn path(&self) -> &str {
         &self.path
     }

@@ -2,7 +2,7 @@ use itertools::Itertools;
 use num_traits::ToPrimitive;
 use std::{collections::HashSet, hash::Hash, iter::zip};
 
-use crate::music::errors::CriticalErrorKind;
+use super::errors::CriticalErrorKind;
 
 pub fn has_unique_elements<T>(iter: T) -> bool
 where

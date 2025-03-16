@@ -1,4 +1,4 @@
-use crate::music::errors::CriticalErrorKind;
+use super::errors::CriticalErrorKind;
 
 #[derive(clap::Parser)]
 #[clap(about = "Clean musics")]

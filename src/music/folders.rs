@@ -1,19 +1,21 @@
 use std::hash::{DefaultHasher, Hash, Hasher};
 
-use crate::music::errors::CriticalErrorKind;
 use gel_derive::Queryable;
 use indradb::{
-    ijson, BulkInsertItem, Database, Identifier, MemoryDatastore, Query, QueryOutputValue, Vertex,
-    VertexWithPropertyValueQuery,
+    BulkInsertItem, Database, Identifier, MemoryDatastore, Query, QueryOutputValue, Vertex,
+    VertexWithPropertyValueQuery, ijson,
 };
 use serde::Serialize;
+
+use super::errors::CriticalErrorKind;
+use super::{cache::UpsertCache, config::Config};
 
 #[derive(clap::Parser)]
 #[clap(about = "List folders")]
 pub struct Folders {}
 
 #[derive(Queryable)]
-pub struct Folder {
+pub struct FolderOutput {
     name: String,
     username: String,
     ipv4: String,
@@ -21,7 +23,7 @@ pub struct Folder {
 }
 
 #[derive(Serialize, Hash)]
-pub struct FolderVertex {
+pub struct Folder {
     pub name: String,
     pub username: String,
     pub ipv4: String,
@@ -29,13 +31,18 @@ pub struct FolderVertex {
 
 const INDEX: &str = "folder-unique-constraint";
 
-impl FolderVertex {
-    pub fn index(db: &Database<MemoryDatastore>) -> Result<(), CriticalErrorKind> {
+#[async_trait::async_trait]
+impl super::vertex::Vertex for Folder {
+    fn index_indradb(db: &Database<MemoryDatastore>) -> Result<(), CriticalErrorKind> {
         let unique_constraint = Identifier::new(INDEX)?;
         Ok(db.index_property(unique_constraint)?)
     }
 
-    pub fn upsert(&self, db: &Database<MemoryDatastore>) -> Result<uuid::Uuid, CriticalErrorKind> {
+    fn upsert_indradb(&self, config: &Config) -> Result<uuid::Uuid, CriticalErrorKind> {
+        if config.no_indradb {
+            return Ok(uuid::Uuid::new_v4());
+        }
+
         let id = Identifier::new("folder")?;
         let name = Identifier::new("folder-name")?;
         let username = Identifier::new("folder-username")?;
@@ -47,7 +54,7 @@ impl FolderVertex {
         self.hash(&mut hasher);
         let hash_value = hasher.finish();
 
-        let results = db.get(Query::VertexWithPropertyValue(
+        let results = config.indradb.get(Query::VertexWithPropertyValue(
             VertexWithPropertyValueQuery::new(unique_constraint, ijson!(hash_value)),
         ))?;
 
@@ -56,7 +63,7 @@ impl FolderVertex {
                 vertices[0].id
             } else {
                 let vertex_id = vertex.id;
-                db.bulk_insert(vec![
+                config.indradb.bulk_insert(vec![
                     BulkInsertItem::Vertex(vertex),
                     BulkInsertItem::VertexProperty(vertex_id, name, ijson!(self.name)),
                     BulkInsertItem::VertexProperty(vertex_id, username, ijson!(self.username)),
@@ -74,9 +81,55 @@ impl FolderVertex {
         };
         Ok(vertex_id)
     }
+    async fn upsert_gel(
+        &self,
+        config: &Config,
+        cache: &mut UpsertCache,
+    ) -> Result<uuid::Uuid, CriticalErrorKind> {
+        if config.no_gel {
+            return Ok(uuid::Uuid::new_v4());
+        }
+
+        if cache.folders.contains_key(&self.name) {
+            return Ok(cache.folders[&self.name]);
+        }
+        let mut folder_id: Option<uuid::Uuid> = None;
+        for _ in 0..config.retries {
+            let folder_result =
+                Box::pin(config.gel.query_required_single(
+                    UPSERT_FOLDER,
+                    &(&self.name, &self.username, &self.ipv4),
+                ))
+                .await;
+            match folder_result {
+                Err(e) => {
+                    if e.kind_name() != "TransactionSerializationError" {
+                        return Err(CriticalErrorKind::GelErrorWithObject {
+                            error: e,
+                            object: self.name.clone(),
+                        });
+                    }
+                    // load_music_files_bar.println(format!("retrying upsert folder {}", self.name));
+                    cache.errors += 1;
+                }
+                Ok(id) => {
+                    folder_id = Some(id);
+                    break;
+                }
+            };
+        }
+        let Some(folder_id) = folder_id else {
+            return Err(CriticalErrorKind::UpsertError {
+                path: self.name.clone(),
+                object: self.name.clone(),
+            });
+        };
+        cache.folders.insert(self.name.clone(), folder_id);
+        Ok(folder_id)
+    }
 }
 
-impl Folder {
+impl FolderOutput {
     #[must_use]
     pub fn name(&self) -> &String {
         &self.name
@@ -99,8 +152,8 @@ impl Folders {
     pub async fn folders(
         &self,
         client: gel_tokio::Client,
-    ) -> Result<Vec<Folder>, CriticalErrorKind> {
-        let folders: Vec<Folder> = Box::pin(client.query(FOLDER_QUERY, &())).await?;
+    ) -> Result<Vec<FolderOutput>, CriticalErrorKind> {
+        let folders: Vec<FolderOutput> = Box::pin(client.query(FOLDER_QUERY, &())).await?;
         Ok(folders)
     }
 }
@@ -114,3 +167,10 @@ select Folder {
 }
 order by .name
 ";
+
+const UPSERT_FOLDER: &str = "
+select upsert_folder(
+    folder := <str>$0,
+    username := <str>$1,
+    ipv4 := <str>$2
+).id";

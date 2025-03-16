@@ -1,26 +1,22 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
-use std::sync::atomic::{AtomicU64, Ordering};
-use tokio::sync::Mutex;
 
-use crate::commands::opts::Config;
-use crate::music::clean::clean;
-use crate::music::errors::CriticalErrorKind;
-use crate::music::flac_file::FlacFile;
-use crate::music::folders::FolderVertex;
-use crate::music::helpers::{has_unique_elements, public_ip};
-use crate::music::keywords::KeywordVertex;
-use crate::music::mp3_file::Mp3File;
-use crate::music::music_input::MusicInput;
-use crate::music::{Music, MusicVertex};
-
-use super::albums::AlbumVertex;
-use super::artists::ArtistVertex;
-use super::genres::GenreVertex;
+use super::albums::Album;
+use super::artists::Artist;
+use super::cache::UpsertCache;
+use super::clean::clean;
+use super::config::Config;
+use super::errors::CriticalErrorKind;
+use super::flac_file::FlacFile;
+use super::folders::Folder;
+use super::genres::Genre;
 use super::helpers::is_hidden;
-
-pub type BoxMusic = Box<dyn Music + Send + Sync>;
+use super::helpers::{has_unique_elements, public_ip};
+use super::keywords::Keyword;
+use super::mp3_file::Mp3File;
+use super::music::Music;
+use super::music_file::BoxMusicFile;
+use super::vertex::Vertex;
 
 const DEFAULT_RETRIES: std::num::NonZeroU16 = match std::num::NonZeroU16::new(3) {
     Some(v) => v,
@@ -42,38 +38,22 @@ pub struct Scan {
 }
 
 impl Scan {
-    pub async fn scan(&self, config: Config) -> Result<(), CriticalErrorKind> {
+    pub async fn scan(&self, mut config: Config) -> Result<(), CriticalErrorKind> {
         if self.clean {
-            Box::pin(clean(&config.client, false, config.dry)).await?;
+            Box::pin(clean(&config.gel, false, config.dry)).await?;
         }
 
-        let db = if config.no_indradb {
-            indradb::MemoryDatastore::new_db()
-        } else if config.datastore.exists() {
-            indradb::MemoryDatastore::read_msgpack_db(config.datastore)?
-        } else {
-            indradb::MemoryDatastore::create_msgpack_db(config.datastore)
-        };
-
-        FolderVertex::index(&db)?;
-        ArtistVertex::index(&db)?;
-        AlbumVertex::index(&db)?;
-        GenreVertex::index(&db)?;
-        KeywordVertex::index(&db)?;
-        MusicVertex::index(&db)?;
+        config.retries = self.retries.into();
+        Folder::index_indradb(&config.indradb)?;
+        Artist::index_indradb(&config.indradb)?;
+        Album::index_indradb(&config.indradb)?;
+        Genre::index_indradb(&config.indradb)?;
+        Keyword::index_indradb(&config.indradb)?;
+        Music::index_indradb(&config.indradb)?;
 
         let ipv4 = public_ip().await?;
         let username = whoami::username().to_string();
-        let retries: u16 = self.retries.into();
-        let errors = Arc::new(AtomicU64::new(0));
-        let folders: Arc<Mutex<HashMap<String, uuid::Uuid>>> = Arc::new(Mutex::new(HashMap::new()));
-        let artists: Arc<Mutex<HashMap<String, uuid::Uuid>>> = Arc::new(Mutex::new(HashMap::new()));
-        let albums: Arc<Mutex<HashMap<uuid::Uuid, HashMap<String, uuid::Uuid>>>> =
-            Arc::new(Mutex::new(HashMap::new()));
-        let genres: Arc<Mutex<HashMap<String, uuid::Uuid>>> = Arc::new(Mutex::new(HashMap::new()));
-        let keywords: Arc<Mutex<HashMap<String, uuid::Uuid>>> =
-            Arc::new(Mutex::new(HashMap::new()));
-
+        let mut cache = UpsertCache::default();
         let mut count: u64 = 0;
         let mut paths = HashMap::<String, Vec<PathBuf>>::new();
         for folder in &self.folders {
@@ -105,7 +85,6 @@ impl Scan {
                 .progress_chars("##-"),
         );
 
-        let mut music_inputs = Vec::new();
         for (folder, paths) in &paths {
             let folder_path = Path::new(&folder);
             let Some(folder_path) = folder_path.to_str() else {
@@ -113,45 +92,14 @@ impl Scan {
                 continue;
             };
 
-            let mut folders = folders.lock().await;
-            let _folder_id = if folders.contains_key(folder_path) {
-                folders[folder_path]
-            } else {
-                let mut folder_id: Option<uuid::Uuid> = None;
-                for _ in 0..retries {
-                    let folder_result = Box::pin(
-                        config
-                            .client
-                            .query_required_single(UPSERT_FOLDER, &(folder_path, &username, &ipv4)),
-                    )
-                    .await;
-                    match folder_result {
-                        Err(e) => {
-                            if e.kind_name() != "TransactionSerializationError" {
-                                return Err(CriticalErrorKind::GelErrorWithObject {
-                                    error: e,
-                                    object: folder_path.to_string(),
-                                });
-                            }
-                            load_music_files_bar
-                                .println(format!("retrying upsert folder {folder_path}"));
-                            errors.fetch_add(1, Ordering::Relaxed);
-                        }
-                        Ok(id) => {
-                            folder_id = Some(id);
-                            break;
-                        }
-                    };
-                }
-                let Some(folder_id) = folder_id else {
-                    return Err(CriticalErrorKind::UpsertError {
-                        path: folder_path.to_string(),
-                        object: folder_path.to_string(),
-                    });
-                };
-                folders.insert(folder_path.to_string(), folder_id);
-                folder_id
+            let folder = Folder {
+                name: folder.clone(),
+                ipv4: ipv4.clone(),
+                username: username.clone(),
             };
+
+            let folder_indradb = folder.upsert_indradb(&config)?;
+            let folder_gel = folder.upsert_gel(&config, &mut cache).await?;
 
             for path in paths {
                 scopeguard::defer! {load_music_files_bar.inc(1)};
@@ -165,7 +113,7 @@ impl Scan {
                 };
 
                 let path_str = path.to_string_lossy().to_string();
-                let music: BoxMusic = match extension.to_str() {
+                let music: BoxMusicFile = match extension.to_str() {
                     Some("flac") => Box::new(FlacFile::from_path(folder_path, &path_str)?),
                     Some("mp3") => Box::new(Mp3File::from_path(folder_path, &path_str)?),
                     Some("m3u" | "jpg") => continue,
@@ -184,322 +132,70 @@ impl Scan {
                     continue;
                 }
 
-                if !config.no_indradb {
-                    let music_input = MusicInput {
-                        title: music.title().to_string(),
-                        artist: music.artist().to_string(),
-                        album: music.album().to_string(),
-                        genre: music.genre().to_string(),
-                        length: music.length(),
-                        size: music.size().await?,
-                        track: music.track(),
-                        rating: music.rating()?,
-                        keywords: music.keywords().clone(),
-                        folder: folder_path.to_string(),
-                        path: music.path().to_string(),
-                        ipv4: ipv4.clone(),
-                        username: username.clone(),
-                    };
-                    music_inputs.push(music_input);
-                }
-
-                if config.no_gel {
-                    continue;
-                }
-
-                let artist_id = {
-                    let mut artists = artists.lock().await;
-                    if artists.contains_key(music.artist()) {
-                        artists[music.artist()]
-                    } else {
-                        let mut artist_id: Option<uuid::Uuid> = None;
-                        for _ in 0..retries {
-                            let artist_result = Box::pin(
-                                config
-                                    .client
-                                    .query_required_single(UPSERT_ARTIST, &(music.artist(),)),
-                            )
-                            .await;
-                            match artist_result {
-                                Err(e) => {
-                                    if e.kind_name() != "TransactionSerializationError" {
-                                        return Err(CriticalErrorKind::GelErrorWithObject {
-                                            error: e,
-                                            object: music.path().to_string(),
-                                        });
-                                    }
-                                    load_music_files_bar.println(format!(
-                                        "retrying upsert artist {}",
-                                        music.artist()
-                                    ));
-                                    errors.fetch_add(1, Ordering::Relaxed);
-                                }
-                                Ok(id) => {
-                                    artist_id = Some(id);
-                                    break;
-                                }
-                            };
-                        }
-                        let Some(artist_id) = artist_id else {
-                            return Err(CriticalErrorKind::UpsertError {
-                                path: music.path().to_string(),
-                                object: music.artist().to_string(),
-                            });
-                        };
-                        artists.insert(music.artist().to_string(), artist_id);
-                        {
-                            let mut albums = albums.lock().await;
-                            albums.insert(artist_id, HashMap::new());
-                        }
-                        artist_id
-                    }
-                    // println!("artist_id: {artist_id}");
+                let artist = Artist {
+                    name: music.artist().to_string(),
                 };
+                let artist_indradb = artist.upsert_indradb(&config)?;
+                let artist_gel = artist.upsert_gel(&config, &mut cache).await?;
 
-                let album_id = {
-                    let mut albums = albums.lock().await;
-                    if albums[&artist_id].contains_key(music.album()) {
-                        albums[&artist_id][music.album()]
-                    } else {
-                        let mut album_id: Option<uuid::Uuid> = None;
-                        for _ in 0..retries {
-                            let album_result =
-                                Box::pin(config.client.query_required_single(
-                                    UPSERT_ALBUM,
-                                    &(music.album(), artist_id),
-                                ))
-                                .await;
-                            match album_result {
-                                Err(e) => {
-                                    if e.kind_name() != "TransactionSerializationError" {
-                                        return Err(CriticalErrorKind::GelErrorWithObject {
-                                            error: e,
-                                            object: music.path().to_string(),
-                                        });
-                                    }
-                                    load_music_files_bar.println(format!(
-                                        "retrying upsert album {}",
-                                        music.album()
-                                    ));
-                                    errors.fetch_add(1, Ordering::Relaxed);
-                                }
-                                Ok(id) => {
-                                    album_id = Some(id);
-                                    break;
-                                }
-                            };
-                        }
-                        let Some(album_id) = album_id else {
-                            return Err(CriticalErrorKind::UpsertError {
-                                path: music.path().to_string(),
-                                object: music.album().to_string(),
-                            });
-                        };
-                        if let Some(albums) = albums.get_mut(&artist_id) {
-                            albums.insert(music.album().to_string(), album_id);
-                        }
-                        album_id
-                    }
+                let album = Album {
+                    name: music.album().to_string(),
+                    artist_indradb,
+                    artist_gel,
                 };
+                let album_indradb = album.upsert_indradb(&config)?;
+                let album_gel = album.upsert_gel(&config, &mut cache).await?;
 
-                // println!("album_vertex_id: {album_vertex_id}");
-                // println!("album_id: {album_id}");
-
-                let genre_id = {
-                    let mut genres = genres.lock().await;
-                    if genres.contains_key(music.genre()) {
-                        genres[music.genre()]
-                    } else {
-                        let mut genre_id: Option<uuid::Uuid> = None;
-                        for _ in 0..retries {
-                            let genre_result = Box::pin(
-                                config
-                                    .client
-                                    .query_required_single(UPSERT_GENRE, &(music.genre(),)),
-                            )
-                            .await;
-                            match genre_result {
-                                Err(e) => {
-                                    if e.kind_name() != "TransactionSerializationError" {
-                                        return Err(CriticalErrorKind::GelErrorWithObject {
-                                            error: e,
-                                            object: music.path().to_string(),
-                                        });
-                                    }
-                                    load_music_files_bar.println(format!(
-                                        "retrying upsert genre {}",
-                                        music.genre()
-                                    ));
-                                    errors.fetch_add(1, Ordering::Relaxed);
-                                }
-                                Ok(id) => {
-                                    genre_id = Some(id);
-                                    break;
-                                }
-                            };
-                        }
-                        let Some(genre_id) = genre_id else {
-                            return Err(CriticalErrorKind::UpsertError {
-                                path: music.path().to_string(),
-                                object: music.genre().to_string(),
-                            });
-                        };
-                        genres.insert(music.genre().to_string(), genre_id);
-                        genre_id
-                    }
+                let genre = Genre {
+                    name: music.genre().to_string(),
                 };
-                // println!("genre_id: {genre_id}");
+                let genre_indradb = genre.upsert_indradb(&config)?;
+                let genre_gel = genre.upsert_gel(&config, &mut cache).await?;
 
-                let mut keywords = keywords.lock().await;
-                let mut keyword_ids = Vec::new();
+                let mut keywords_indradb = Vec::new();
+                let mut keywords_gel = Vec::new();
                 {
                     for keyword in music.keywords() {
-                        let keyword_id = if keywords.contains_key(&keyword) {
-                            keywords[&keyword]
-                        } else {
-                            let mut keyword_id: Option<uuid::Uuid> = None;
-                            for _ in 0..retries {
-                                let keyword_folder = Box::pin(
-                                    config
-                                        .client
-                                        .query_required_single(UPSERT_KEYWORD, &(&keyword,)),
-                                )
-                                .await;
-                                match keyword_folder {
-                                    Err(e) => {
-                                        if e.kind_name() != "TransactionSerializationError" {
-                                            return Err(CriticalErrorKind::GelErrorWithObject {
-                                                error: e,
-                                                object: music.path().to_string(),
-                                            });
-                                        }
-                                        load_music_files_bar
-                                            .println(format!("retrying upsert keyword {keyword}"));
-                                        errors.fetch_add(1, Ordering::Relaxed);
-                                    }
-                                    Ok(id) => {
-                                        keyword_id = Some(id);
-                                        break;
-                                    }
-                                };
-                            }
-                            let Some(keyword_id) = keyword_id else {
-                                return Err(CriticalErrorKind::UpsertError {
-                                    path: music.path().to_string(),
-                                    object: keyword.clone(),
-                                });
-                            };
-                            keywords.insert(keyword.to_string(), keyword_id);
-                            keyword_id
-                        };
-                        keyword_ids.push(keyword_id);
+                        let keyword = Keyword { name: keyword };
+                        let keyword_indradb = keyword.upsert_indradb(&config)?;
+                        keywords_indradb.push(keyword_indradb);
+                        let keyword_gel = keyword.upsert_gel(&config, &mut cache).await?;
+                        keywords_gel.push(keyword_gel);
                     }
                 }
-                // println!("keyword_ids: {keyword_ids:?}");
 
-                let _music_id = {
-                    let mut music_id: Option<uuid::Uuid> = None;
-                    // let folders = folders.lock().await;
-                    for _ in 0..retries {
-                        let rating: f64 = music.rating()?.into();
-                        let size = music.size().await?;
-                        let music_result = Box::pin(config.client.query_required_single(
-                            UPSERT_MUSIC,
-                            &(
-                                music.title(),
-                                album_id,
-                                genre_id,
-                                i64::try_from(size)?,
-                                music.length(),
-                                keyword_ids.clone(),
-                                music.track(),
-                                rating,
-                                folders[music.folder()],
-                                music.path(),
-                            ),
-                        ))
-                        .await;
-                        match music_result {
-                            Err(e) => {
-                                if e.kind_name() != "TransactionSerializationError" {
-                                    return Err(CriticalErrorKind::GelErrorWithObject {
-                                        error: e,
-                                        object: music.path().to_string(),
-                                    });
-                                }
-                                load_music_files_bar
-                                    .println(format!("retrying upsert music {}", music.title()));
-                                errors.fetch_add(1, Ordering::Relaxed);
-                            }
-                            Ok(id) => {
-                                music_id = Some(id);
-                                break;
-                            }
-                        };
-                    }
-                    let Some(music_id) = music_id else {
-                        return Err(CriticalErrorKind::UpsertError {
-                            path: music.path().to_string(),
-                            object: music.title().to_string(),
-                        });
-                    };
-                    music_id
+                let music = Music {
+                    track: music.track(),
+                    title: music.title().to_string(),
+                    rating: music.rating()?,
+                    size: i64::try_from(music.size().await?)?,
+                    length: music.length(),
+                    path: music.path().to_string(),
+
+                    keywords_indradb,
+                    keywords_gel,
+
+                    genre_indradb,
+                    genre_gel,
+
+                    folder_indradb,
+                    folder_gel,
+
+                    artist_indradb,
+                    artist_gel,
+
+                    album_indradb,
+                    album_gel,
                 };
+                let _music_indradb = music.upsert_indradb(&config);
+                let _music_gel = music.upsert_gel(&config, &mut cache).await?;
             }
         }
         load_music_files_bar.finish();
 
         if !config.dry && !config.no_indradb {
-            db.sync()?;
+            config.indradb.sync()?;
         }
-
-        let errors = errors.load(Ordering::Relaxed);
-        if errors > 0 {
-            eprintln!("Upsert errors: {errors}");
-        }
-
         Ok(())
     }
 }
-
-const UPSERT_FOLDER: &str = "
-select upsert_folder(
-    folder := <str>$0,
-    username := <str>$1,
-    ipv4 := <str>$2
-).id";
-
-const UPSERT_ARTIST: &str = "
-select upsert_artist(
-    artist := <str>$0
-).id";
-
-const UPSERT_ALBUM: &str = "
-select upsert_album(
-    artist := <Artist>$1,
-    album := <str>$0
-).id";
-
-const UPSERT_GENRE: &str = "
-select upsert_genre(
-    genre := <str>$0
-).id";
-
-const UPSERT_KEYWORD: &str = "
-select upsert_keyword(
-    keyword := <str>$0
-).id";
-
-const UPSERT_MUSIC: &str = "
-select upsert_music(
-    title := <str>$0,
-    size := <Size>$3,
-    length := <Length>$4,
-    genre := <Genre>$2,
-    album := <Album>$1,
-    keywords := <array<uuid>>$5,
-    track := <optional Track>$6,
-    rating := <Rating>$7,
-    folder := <Folder>$8,
-    path := <str>$9
-).id";

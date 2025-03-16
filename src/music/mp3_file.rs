@@ -3,8 +3,8 @@ use id3::TagLike;
 use mp3_duration;
 use num_traits::ToPrimitive;
 
-use super::Music;
 use super::errors::CriticalErrorKind;
+use super::music_file::MusicFile;
 use super::ratings::Rating;
 
 pub struct Mp3File {
@@ -23,7 +23,7 @@ impl Mp3File {
     }
 }
 
-impl Music for Mp3File {
+impl MusicFile for Mp3File {
     fn path(&self) -> &str {
         &self.path
     }

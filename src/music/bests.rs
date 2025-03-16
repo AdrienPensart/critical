@@ -1,10 +1,8 @@
-use crate::music::filter::Filters;
-use crate::music::playlist::PLAYLIST_QUERY;
-use crate::music::playlist::{OutputOptions, Playlist, PlaylistOptions};
-use crate::music::MUSIC_FIELDS;
+use super::errors::CriticalErrorKind;
+use super::filter::Filters;
+use super::music::MUSIC_FIELDS;
+use super::playlist::{OutputOptions, PLAYLIST_QUERY, Playlist, PlaylistOptions};
 use const_format::concatcp;
-
-use crate::music::errors::CriticalErrorKind;
 
 #[derive(clap::Parser)]
 #[clap(about = "Generate bests playlists")]
