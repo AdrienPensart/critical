@@ -3,6 +3,7 @@ use gel_derive::Queryable;
 use rand::{rng, seq::SliceRandom};
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
+use std::fmt::Write;
 use tabled::Table;
 
 use super::errors::CriticalErrorKind;
@@ -163,9 +164,9 @@ impl Playlist {
             Output::M3u => {
                 let mut playlist = "#EXTM3U\n".to_string();
 
-                playlist.push_str(&format!("#EXTREM:name={}\n", self.name));
+                writeln!(playlist, "#EXTREM:name={}", self.name)?;
                 if let Some(out) = &output_options.out {
-                    playlist.push_str(&format!("#EXTREM:path={out}\n"));
+                    writeln!(playlist, "#EXTREM:path={out}")?;
                 }
 
                 let mut links = Vec::new();

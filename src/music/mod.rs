@@ -20,5 +20,6 @@ pub mod ratings;
 pub mod remove;
 pub mod scan;
 pub mod search;
+pub mod shazam;
 pub mod stats;
 pub mod vertex;

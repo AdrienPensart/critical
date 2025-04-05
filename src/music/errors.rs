@@ -1,9 +1,15 @@
+use base64::DecodeError;
+
 #[derive(thiserror::Error, Debug)]
 pub enum CriticalErrorKind {
+    #[error("Formatting error")]
+    FormatError(#[from] std::fmt::Error),
     #[error("Request error")]
     ReqwestError(#[from] reqwest::Error),
     #[error("Invalid request header")]
     HeaderError(#[from] reqwest::header::ToStrError),
+    #[error("Invalid request header")]
+    InvalidHeader(#[from] reqwest::header::InvalidHeaderValue),
     #[error("Invalid music rating for {path} : {rating}")]
     InvalidRating { path: String, rating: f64 },
     #[error("Invalid min/max rating, minimum rating {min_rating} should be < {max_rating}")]
@@ -41,12 +47,32 @@ pub enum CriticalErrorKind {
     SerializationError(#[from] serde_json::Error),
     #[error("Relative path error")]
     RelativePathError(#[from] std::path::StripPrefixError),
-    #[error("IndraDB Validation error")]
-    ValidationError(#[from] indradb::ValidationError),
-    #[error("IndraDB error")]
-    GraphError(#[from] indradb::Error),
     #[error("IndraDB datastore error")]
     DatastoreError(#[from] rmp_serde::decode::Error),
     #[error("Music file size too large")]
     FileSizeError(#[from] std::num::TryFromIntError),
+    #[error("Music song not matched")]
+    NoMatch { path: String },
+    #[error("Time error")]
+    TimeError(#[from] std::time::SystemTimeError),
+    #[error("Base64 encode/decore error")]
+    Base64Error(#[from] DecodeError),
+    #[error("Rodio decoder error")]
+    DecoderError(#[from] rodio::decoder::DecoderError),
+    #[error("Invalid sample rate")]
+    InvalidSampleRate(u32),
+    #[error("Invalid frequency band")]
+    InvalidFrequencyBand(u32),
+    #[error("Invalid pass number")]
+    InvalidPassNumber(u32),
+    #[error("Invalid data length")]
+    InvalidDataLength(usize),
+    #[error("Invalid magic number")]
+    InvalidMagicNumber(u32),
+    #[error("Invalid header size")]
+    InvalidHeaderSize(u32),
+    #[error("Invalid CRC32")]
+    InvalidCRC32(u32),
+    #[error("Invalid URI")]
+    InvalidURI(String),
 }

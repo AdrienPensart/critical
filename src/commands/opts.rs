@@ -52,13 +52,7 @@ pub struct Opts {
 
 impl Opts {
     pub async fn dispatch(self) -> Result<(), CriticalErrorKind> {
-        let config = Config::new(
-            self.dsn,
-            self.datastore,
-            self.dry,
-            self.no_gel,
-            self.no_indradb,
-        )?;
+        let config = Config::new(self.dsn, self.dry, self.no_gel)?;
         self.root.dispatch(config).await
     }
 }

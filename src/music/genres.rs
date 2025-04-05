@@ -1,54 +1,11 @@
-use indradb::{
-    BulkInsertItem, Database, Identifier, MemoryDatastore, Query, QueryOutputValue, Vertex,
-    VertexWithPropertyValueQuery, ijson,
-};
-use serde::Serialize;
-
 use super::{cache::UpsertCache, config::Config, errors::CriticalErrorKind};
 
-#[derive(Serialize)]
 pub struct Genre {
     pub name: String,
 }
 
-const GENRE_NAME: &str = "genre-name";
-
 #[async_trait::async_trait]
 impl super::vertex::Vertex for Genre {
-    fn index_indradb(db: &Database<MemoryDatastore>) -> Result<(), CriticalErrorKind> {
-        let unique_constraint = Identifier::new(GENRE_NAME)?;
-        Ok(db.index_property(unique_constraint)?)
-    }
-
-    fn upsert_indradb(&self, config: &Config) -> Result<uuid::Uuid, CriticalErrorKind> {
-        if config.no_indradb {
-            return Ok(uuid::Uuid::new_v4());
-        }
-
-        let id = Identifier::new("genre")?;
-        let name = Identifier::new(GENRE_NAME)?;
-        let vertex = Vertex::new(id);
-        let results = config.indradb.get(Query::VertexWithPropertyValue(
-            VertexWithPropertyValueQuery::new(name, ijson!(self.name)),
-        ))?;
-
-        let vertex_id = if let QueryOutputValue::Vertices(vertices) = &results[0] {
-            if vertices.len() == 1 {
-                vertices[0].id
-            } else {
-                let vertex_id = vertex.id;
-                config.indradb.bulk_insert(vec![
-                    BulkInsertItem::Vertex(vertex),
-                    BulkInsertItem::VertexProperty(vertex_id, name, ijson!(self.name)),
-                ])?;
-                vertex_id
-            }
-        } else {
-            unreachable!();
-        };
-        Ok(vertex_id)
-    }
-
     async fn upsert_gel(
         &self,
         config: &Config,
@@ -85,7 +42,7 @@ impl super::vertex::Vertex for Genre {
                     genre_id = Some(id);
                     break;
                 }
-            };
+            }
         }
         let Some(genre_id) = genre_id else {
             return Err(CriticalErrorKind::UpsertError {

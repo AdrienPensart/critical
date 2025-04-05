@@ -139,7 +139,7 @@ fn validate_rating(rating_str: &str) -> Result<f64, String> {
         if RATINGS.contains(&rating) {
             return Ok(rating);
         }
-    };
+    }
     Err(format!(
         "{rating_str} is invalid rating, valid values: {}",
         RATINGS

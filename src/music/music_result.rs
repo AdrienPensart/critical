@@ -72,10 +72,10 @@ impl FolderResult {
 
 #[derive(Queryable, Serialize, Tabled, Clone)]
 pub struct MusicResult {
-    #[tabled(display_with("Self::display_name_and_paths", self))]
+    #[tabled(display("Self::display_name_and_paths", self))]
     pub name: String,
 
-    #[tabled(display_with("Self::display_artist_album_genre", self))]
+    #[tabled(display("Self::display_artist_album_genre", self))]
     pub artist_name: String,
     #[tabled(skip)]
     pub album_name: String,
@@ -89,7 +89,7 @@ pub struct MusicResult {
 
     #[tabled(skip)]
     pub size: i64,
-    #[tabled(display_with("Self::display_size_duration_track_rating_keywords", self))]
+    #[tabled(display("Self::display_size_duration_track_rating_keywords", self))]
     pub human_size: String,
     #[tabled(skip)]
     pub track: i64,
@@ -121,31 +121,31 @@ impl Hash for MusicResult {
 }
 
 impl MusicResult {
-    fn display_name_and_paths(&self) -> String {
-        let paths = self
+    fn display_name_and_paths(_opt: &str, s: &Self) -> String {
+        let paths = s
             .folders
             .iter()
             .map(|f| f.path.clone())
             .collect::<Vec<_>>()
             .join("\n");
-        format!("{}\n{paths}", self.name)
+        format!("{}\n{paths}", s.name)
     }
 
-    fn display_artist_album_genre(&self) -> String {
+    fn display_artist_album_genre(_opt: &str, s: &Self) -> String {
         format!(
             "Artist: {}\nAlbum: {}\nGenre: {}",
-            self.artist_name, self.album_name, self.genre_name
+            s.artist_name, s.album_name, s.genre_name
         )
     }
 
-    fn display_size_duration_track_rating_keywords(&self) -> String {
+    fn display_size_duration_track_rating_keywords(_opt: &str, s: &Self) -> String {
         format!(
             "Size:{}\nLength: {}\nTrack: {}\nRating: {}\nKeywords: {}",
-            self.human_size,
-            self.human_duration,
-            self.track,
-            self.rating,
-            self.keywords_names.join("\n"),
+            s.human_size,
+            s.human_duration,
+            s.track,
+            s.rating,
+            s.keywords_names.join("\n"),
         )
     }
 

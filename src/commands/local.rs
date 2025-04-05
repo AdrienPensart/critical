@@ -1,4 +1,5 @@
 use crate::commands::group_dispatch::GroupDispatch;
+use crate::fingerprinting::algorithm::SignatureGenerator;
 use crate::music::bests::Bests;
 use crate::music::clean::Clean;
 use crate::music::config::Config;
@@ -8,6 +9,7 @@ use crate::music::playlist::{OutputOptions, PlaylistCommand};
 use crate::music::remove::Remove;
 use crate::music::scan::Scan;
 use crate::music::search::Search;
+use crate::music::shazam::{Shazam, try_recognize_song};
 use crate::music::stats::Stats;
 use async_trait::async_trait;
 
@@ -29,6 +31,8 @@ pub enum Group {
     Remove(Remove),
     #[clap(about = "Generate bests playlists")]
     Bests(Bests),
+    #[clap(about = "Detect song")]
+    Shazam(Shazam),
 }
 
 #[async_trait]
@@ -46,7 +50,7 @@ impl GroupDispatch for Group {
                 )
             }
             Group::Stats(stats_cmd) => {
-                let folders = stats_cmd.stats(config.gel).await?;
+                let folders = stats_cmd.stats(config).await?;
                 for folder in folders {
                     println!("Folder : {}", folder.name);
                     println!("Username : {}", folder.username);
@@ -102,6 +106,21 @@ impl GroupDispatch for Group {
                     eprintln!("\nGenerating {} : {}", playlist.name(), playlist.len());
                     playlist.generate(&output_options, bests_cmd.playlist_options(), config.dry)?;
                 }
+                Ok(())
+            }
+            Group::Shazam(shazam_cmd) => {
+                let song = try_recognize_song(
+                    shazam_cmd.file.clone(),
+                    &SignatureGenerator::make_signature_from_file(&shazam_cmd.file)?,
+                )
+                .await?;
+                println!("Artist : {}", song.artist_name);
+                println!(
+                    "Album : {}",
+                    song.album_name.unwrap_or("Unknown".to_string())
+                );
+                println!("Song : {}", song.song_name);
+                println!("Path : {}", song.path);
                 Ok(())
             }
         }

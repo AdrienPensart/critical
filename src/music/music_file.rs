@@ -1,3 +1,5 @@
+use std::fs;
+
 use super::{errors::CriticalErrorKind, ratings::Rating};
 
 pub type BoxMusicFile = Box<dyn MusicFile + Send + Sync>;
@@ -14,6 +16,9 @@ pub trait MusicFile {
     fn track(&self) -> i64;
     fn rating(&self) -> Result<Rating, CriticalErrorKind>;
     fn keywords(&self) -> Vec<String>;
+    fn sync_size(&self) -> Result<u64, CriticalErrorKind> {
+        Ok(fs::metadata(self.path())?.len())
+    }
     async fn size(&self) -> Result<u64, CriticalErrorKind> {
         Ok(async_fs::metadata(self.path()).await?.len())
     }

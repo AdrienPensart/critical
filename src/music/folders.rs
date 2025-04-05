@@ -1,14 +1,6 @@
-use std::hash::{DefaultHasher, Hash, Hasher};
-
-use gel_derive::Queryable;
-use indradb::{
-    BulkInsertItem, Database, Identifier, MemoryDatastore, Query, QueryOutputValue, Vertex,
-    VertexWithPropertyValueQuery, ijson,
-};
-use serde::Serialize;
-
 use super::errors::CriticalErrorKind;
 use super::{cache::UpsertCache, config::Config};
+use gel_derive::Queryable;
 
 #[derive(clap::Parser)]
 #[clap(about = "List folders")]
@@ -22,65 +14,14 @@ pub struct FolderOutput {
     n_musics: i64,
 }
 
-#[derive(Serialize, Hash)]
 pub struct Folder {
     pub name: String,
     pub username: String,
     pub ipv4: String,
 }
 
-const INDEX: &str = "folder-unique-constraint";
-
 #[async_trait::async_trait]
 impl super::vertex::Vertex for Folder {
-    fn index_indradb(db: &Database<MemoryDatastore>) -> Result<(), CriticalErrorKind> {
-        let unique_constraint = Identifier::new(INDEX)?;
-        Ok(db.index_property(unique_constraint)?)
-    }
-
-    fn upsert_indradb(&self, config: &Config) -> Result<uuid::Uuid, CriticalErrorKind> {
-        if config.no_indradb {
-            return Ok(uuid::Uuid::new_v4());
-        }
-
-        let id = Identifier::new("folder")?;
-        let name = Identifier::new("folder-name")?;
-        let username = Identifier::new("folder-username")?;
-        let ipv4 = Identifier::new("folder-ipv4")?;
-        let unique_constraint = Identifier::new(INDEX)?;
-
-        let vertex = Vertex::new(id);
-        let mut hasher = DefaultHasher::new();
-        self.hash(&mut hasher);
-        let hash_value = hasher.finish();
-
-        let results = config.indradb.get(Query::VertexWithPropertyValue(
-            VertexWithPropertyValueQuery::new(unique_constraint, ijson!(hash_value)),
-        ))?;
-
-        let vertex_id = if let QueryOutputValue::Vertices(vertices) = &results[0] {
-            if vertices.len() == 1 {
-                vertices[0].id
-            } else {
-                let vertex_id = vertex.id;
-                config.indradb.bulk_insert(vec![
-                    BulkInsertItem::Vertex(vertex),
-                    BulkInsertItem::VertexProperty(vertex_id, name, ijson!(self.name)),
-                    BulkInsertItem::VertexProperty(vertex_id, username, ijson!(self.username)),
-                    BulkInsertItem::VertexProperty(vertex_id, ipv4, ijson!(self.ipv4)),
-                    BulkInsertItem::VertexProperty(
-                        vertex_id,
-                        unique_constraint,
-                        ijson!(hash_value),
-                    ),
-                ])?;
-                vertex_id
-            }
-        } else {
-            unreachable!();
-        };
-        Ok(vertex_id)
-    }
     async fn upsert_gel(
         &self,
         config: &Config,
@@ -116,7 +57,7 @@ impl super::vertex::Vertex for Folder {
                     folder_id = Some(id);
                     break;
                 }
-            };
+            }
         }
         let Some(folder_id) = folder_id else {
             return Err(CriticalErrorKind::UpsertError {

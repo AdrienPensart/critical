@@ -1,4 +1,4 @@
-use super::errors::CriticalErrorKind;
+use super::{config::Config, errors::CriticalErrorKind};
 use gel_derive::Queryable;
 
 #[derive(clap::Parser)]
@@ -6,7 +6,7 @@ use gel_derive::Queryable;
 pub struct Stats {}
 
 #[derive(Queryable)]
-pub struct Folder {
+pub struct FolderOutput {
     pub name: String,
     pub username: String,
     pub human_size: String,
@@ -20,9 +20,13 @@ pub struct Folder {
 }
 
 impl Stats {
-    pub async fn stats(&self, client: gel_tokio::Client) -> Result<Vec<Folder>, CriticalErrorKind> {
-        let folders: Vec<Folder> = Box::pin(client.query(SELECT_FOLDERS, &())).await?;
-        Ok(folders)
+    pub async fn stats(&self, config: Config) -> Result<Vec<FolderOutput>, CriticalErrorKind> {
+        if !config.no_gel {
+            let folders: Vec<FolderOutput> =
+                Box::pin(config.gel.query(SELECT_FOLDERS, &())).await?;
+            return Ok(folders);
+        }
+        Ok(vec![])
     }
 }
 
